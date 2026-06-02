@@ -1,10 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 
 export async function createTeacher(formData: FormData) {
   const supabase = await createClient();
+  const adminClient = createAdminClient();
 
   const fullName = formData.get("full_name") as string;
   const email = formData.get("email") as string;
@@ -13,8 +15,8 @@ export async function createTeacher(formData: FormData) {
   const department = formData.get("department") as string;
   const specialization = formData.get("specialization") as string;
 
-  // Create auth user
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+  // Create auth user using service role key
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -25,8 +27,15 @@ export async function createTeacher(formData: FormData) {
     return { error: authError.message };
   }
 
-  // Update the auto-created users row
-  await supabase.from("users").update({ full_name: fullName, role: "teacher" }).eq("id", authData.user.id);
+  // Upsert the users row (may not exist yet if no trigger)
+  const { error: userError } = await adminClient.from("users").upsert({
+    id: authData.user.id,
+    email,
+    full_name: fullName,
+    role: "teacher",
+  }, { onConflict: "id" });
+
+  if (userError) return { error: userError.message };
 
   // Create teacher profile
   const { error: teacherError } = await supabase.from("teachers").insert({
@@ -63,6 +72,5 @@ export async function updateTeacher(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-
-  redirect("/admin/teachers");
+  return { success: true };
 }

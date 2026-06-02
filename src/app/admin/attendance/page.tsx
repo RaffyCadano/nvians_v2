@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ export default async function AdminAttendancePage({
   searchParams: Promise<{ class_subject?: string; date?: string }>;
 }) {
   const { class_subject, date } = await searchParams;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   let query = supabase
     .from("attendance_sessions")

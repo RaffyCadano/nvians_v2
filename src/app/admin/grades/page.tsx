@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ export default async function AdminGradesPage({
   searchParams: Promise<{ class_subject?: string }>;
 }) {
   const { class_subject } = await searchParams;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [{ data: classSubjects }, { data: scores }] = await Promise.all([
     supabase

@@ -1,10 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 
 export async function createStudent(formData: FormData) {
   const supabase = await createClient();
+  const adminClient = createAdminClient();
 
   const fullName = formData.get("full_name") as string;
   const email = formData.get("email") as string;
@@ -16,7 +18,7 @@ export async function createStudent(formData: FormData) {
   const parentName = formData.get("parent_name") as string;
   const parentContact = formData.get("parent_contact") as string;
 
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -25,7 +27,15 @@ export async function createStudent(formData: FormData) {
 
   if (authError) return { error: authError.message };
 
-  await supabase.from("users").update({ full_name: fullName, role: "student" }).eq("id", authData.user.id);
+  // Upsert the users row (may not exist yet if no trigger)
+  const { error: userError } = await adminClient.from("users").upsert({
+    id: authData.user.id,
+    email,
+    full_name: fullName,
+    role: "student",
+  }, { onConflict: "id" });
+
+  if (userError) return { error: userError.message };
 
   const { error: studentError } = await supabase.from("students").insert({
     user_id: authData.user.id,

@@ -53,8 +53,9 @@ CREATE TABLE IF NOT EXISTS public.terms (
 CREATE TABLE IF NOT EXISTS public.teachers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  employee_number TEXT UNIQUE NOT NULL,
-  department TEXT NOT NULL,
+  employee_number TEXT UNIQUE,
+  department TEXT,
+  specialization TEXT,
   contact_number TEXT,
   address TEXT,
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'disabled')),
@@ -65,7 +66,8 @@ CREATE TABLE IF NOT EXISTS public.teachers (
 CREATE TABLE IF NOT EXISTS public.students (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  student_number TEXT UNIQUE NOT NULL,
+  student_number TEXT UNIQUE,
+  gender TEXT,
   parent_name TEXT,
   parent_contact TEXT,
   address TEXT,
@@ -229,13 +231,13 @@ CREATE TABLE IF NOT EXISTS public.announcements (
 CREATE TABLE IF NOT EXISTS public.news (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
+  slug TEXT UNIQUE,
   content TEXT NOT NULL,
   excerpt TEXT,
   cover_image TEXT,
-  author_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  author_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+  is_published BOOLEAN DEFAULT FALSE,
   published_at TIMESTAMPTZ,
-  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -282,6 +284,30 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
   ip_address TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ============================================================
+-- TRIGGER: auto-create public.users row on auth signup
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================
 -- ROW LEVEL SECURITY

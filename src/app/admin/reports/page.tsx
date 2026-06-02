@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, GraduationCap, BookOpen, School, TrendingUp, CalendarCheck } from "lucide-react";
 
 export default async function AdminReportsPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [
     { count: totalStudents },
@@ -30,9 +30,9 @@ export default async function AdminReportsPage() {
       .eq("status", "enrolled"),
     supabase
       .from("enrollments")
-      .select("created_at, student:students(user:users(full_name)), class:classes(grade_level, section)")
+      .select("enrolled_at, student:students(user:users(full_name)), class:classes(grade_level, section)")
       .eq("status", "enrolled")
-      .order("created_at", { ascending: false })
+      .order("enrolled_at", { ascending: false })
       .limit(10),
   ]);
 

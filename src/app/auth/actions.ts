@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -18,26 +19,29 @@ export async function login(formData: FormData) {
     return { error: error.message };
   }
 
-  // Get user role and redirect accordingly
+  // Get user role via admin client (bypasses RLS)
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  const adminClient = createAdminClient();
+  const { data: profile } = await adminClient
     .from("users")
     .select("role")
     .eq("id", user?.id)
     .single();
 
+  const role = profile?.role ?? (user?.user_metadata?.role as string | undefined);
+
   revalidatePath("/", "layout");
 
-  switch (profile?.role) {
+  switch (role) {
     case "admin":
     case "staff":
-      redirect("/admin/dashboard");
+      return { redirectTo: "/admin/dashboard" };
     case "teacher":
-      redirect("/teacher/dashboard");
+      return { redirectTo: "/teacher/dashboard" };
     case "student":
-      redirect("/student/dashboard");
+      return { redirectTo: "/student/dashboard" };
     default:
-      redirect("/admin/dashboard");
+      return { redirectTo: "/student/dashboard" };
   }
 }
 

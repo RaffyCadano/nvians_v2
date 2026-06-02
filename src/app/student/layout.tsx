@@ -2,23 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import type { User } from "@/types";
-import {
-  LayoutDashboard,
-  BarChart3,
-  ClipboardList,
-  UserCheck,
-  Megaphone,
-  BookOpen,
-} from "lucide-react";
-
-const studentNav = [
-  { href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/student/grades", label: "Grades", icon: BarChart3 },
-  { href: "/student/attendance", label: "Attendance", icon: UserCheck },
-  { href: "/student/assignments", label: "Assignments", icon: ClipboardList },
-  { href: "/student/schedule", label: "Schedule", icon: BookOpen },
-  { href: "/student/announcements", label: "Announcements", icon: Megaphone },
-];
 
 export default async function StudentLayout({
   children,
@@ -51,7 +34,7 @@ export default async function StudentLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <DashboardSidebar user={user} navItems={studentNav} />
+      <DashboardSidebar user={user} portal="student" />
       <main className="flex-1 overflow-y-auto">
         <div className="p-6">{children}</div>
       </main>

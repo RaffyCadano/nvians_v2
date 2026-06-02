@@ -27,5 +27,5 @@ export async function updateSubject(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-  redirect("/admin/subjects");
+  return { success: true };
 }

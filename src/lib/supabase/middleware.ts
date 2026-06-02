@@ -70,12 +70,14 @@ export async function updateSession(request: NextRequest) {
 
     const role = profile?.role as string | undefined;
 
+    // If we can't determine the role (DB error, missing row), allow through
+    if (!role) return supabaseResponse;
+
     // Helper to build redirect response (preserving cookies)
     const redirectTo = (path: string) => {
       const url = request.nextUrl.clone();
       url.pathname = path;
       const res = NextResponse.redirect(url);
-      // Forward cookies so session isn't broken
       supabaseResponse.cookies.getAll().forEach((c) => res.cookies.set(c));
       return res;
     };
@@ -91,10 +93,6 @@ export async function updateSession(request: NextRequest) {
     // Student → only /student
     else if (role === "student") {
       if (!pathname.startsWith("/student")) return redirectTo("/student/dashboard");
-    }
-    // Unknown role → back to login
-    else {
-      return redirectTo("/auth/login");
     }
   }
 

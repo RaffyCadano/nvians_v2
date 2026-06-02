@@ -50,11 +50,12 @@ export default function EnrollmentClient({
     setError("");
     const formData = new FormData(e.currentTarget);
     const result = await enrollStudent(formData);
+    setLoading(false);
     if (result?.error) {
       setError(result.error);
-      setLoading(false);
     } else {
       setOpen(false);
+      router.refresh();
     }
   }
 
@@ -79,10 +80,8 @@ export default function EnrollmentClient({
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Enroll Student
-            </Button>
+          <DialogTrigger render={<Button />}>
+            <Plus className="mr-2 h-4 w-4" /> Enroll Student
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
@@ -226,16 +225,24 @@ export default function EnrollmentClient({
                     <td className="px-4 py-3">
                       {e.status === "enrolled" && (
                         <div className="flex gap-1">
-                          <form action={async () => { "use server"; await updateEnrollmentStatus(e.id, "dropped"); }}>
-                            <Button type="submit" variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                              Drop
-                            </Button>
-                          </form>
-                          <form action={async () => { "use server"; await updateEnrollmentStatus(e.id, "transferred"); }}>
-                            <Button type="submit" variant="ghost" size="sm" className="text-yellow-600 hover:text-yellow-700">
-                              Transfer
-                            </Button>
-                          </form>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={async () => { await updateEnrollmentStatus(e.id, "dropped"); router.refresh(); }}
+                          >
+                            Drop
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-yellow-600 hover:text-yellow-700"
+                            onClick={async () => { await updateEnrollmentStatus(e.id, "transferred"); router.refresh(); }}
+                          >
+                            Transfer
+                          </Button>
                         </div>
                       )}
                     </td>

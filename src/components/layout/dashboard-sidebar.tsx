@@ -29,31 +29,52 @@ import {
   School,
   LogOut,
   ChevronRight,
+  Megaphone,
 } from "lucide-react";
 import type { User } from "@/types";
 
-const adminNav = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/school-years", label: "School Years", icon: Calendar },
-  { href: "/admin/classes", label: "Classes", icon: School },
-  { href: "/admin/subjects", label: "Subjects", icon: BookOpen },
-  { href: "/admin/teachers", label: "Teachers", icon: UserCheck },
-  { href: "/admin/students", label: "Students", icon: GraduationCap },
-  { href: "/admin/enrollment", label: "Enrollment", icon: ClipboardList },
-  { href: "/admin/attendance", label: "Attendance", icon: Users },
-  { href: "/admin/grades", label: "Grades", icon: BarChart3 },
-  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-  { href: "/admin/cms", label: "Website CMS", icon: Newspaper },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
-];
+const NAV_ITEMS = {
+  admin: [
+    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/school-years", label: "School Years", icon: Calendar },
+    { href: "/admin/classes", label: "Classes", icon: School },
+    { href: "/admin/subjects", label: "Subjects", icon: BookOpen },
+    { href: "/admin/teachers", label: "Teachers", icon: UserCheck },
+    { href: "/admin/students", label: "Students", icon: GraduationCap },
+    { href: "/admin/enrollment", label: "Enrollment", icon: ClipboardList },
+    { href: "/admin/attendance", label: "Attendance", icon: Users },
+    { href: "/admin/grades", label: "Grades", icon: BarChart3 },
+    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+    { href: "/admin/cms", label: "Website CMS", icon: Newspaper },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
+  ],
+  teacher: [
+    { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/teacher/advisory", label: "Advisory Class", icon: School },
+    { href: "/teacher/subjects", label: "My Subjects", icon: BookOpen },
+    { href: "/teacher/attendance", label: "Attendance", icon: UserCheck },
+    { href: "/teacher/grades", label: "Grades", icon: BarChart3 },
+    { href: "/teacher/assignments", label: "Assignments", icon: ClipboardList },
+    { href: "/teacher/announcements", label: "Announcements", icon: Megaphone },
+  ],
+  student: [
+    { href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/student/grades", label: "Grades", icon: BarChart3 },
+    { href: "/student/attendance", label: "Attendance", icon: UserCheck },
+    { href: "/student/assignments", label: "Assignments", icon: ClipboardList },
+    { href: "/student/schedule", label: "Schedule", icon: BookOpen },
+    { href: "/student/announcements", label: "Announcements", icon: Megaphone },
+  ],
+};
 
 interface SidebarProps {
   user: User;
-  navItems: typeof adminNav;
+  portal: "admin" | "teacher" | "student";
 }
 
-export function DashboardSidebar({ user, navItems }: SidebarProps) {
+export function DashboardSidebar({ user, portal }: SidebarProps) {
   const pathname = usePathname();
+  const navItems = NAV_ITEMS[portal];
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-white">
@@ -125,5 +146,3 @@ export function DashboardSidebar({ user, navItems }: SidebarProps) {
     </aside>
   );
 }
-
-export { adminNav };

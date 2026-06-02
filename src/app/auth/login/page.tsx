@@ -25,6 +25,11 @@ export default function LoginPage() {
     if (result?.error) {
       setError(result.error);
       setLoading(false);
+      return;
+    }
+
+    if (result?.redirectTo) {
+      router.push(result.redirectTo);
     }
   }
 

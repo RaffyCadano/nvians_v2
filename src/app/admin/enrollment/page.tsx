@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import EnrollmentClient from "./client";
 
 export default async function EnrollmentPage({
@@ -7,7 +7,7 @@ export default async function EnrollmentPage({
   searchParams: Promise<{ class?: string; q?: string }>;
 }) {
   const { class: classId, q } = await searchParams;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [
     { data: enrollments },
@@ -20,7 +20,7 @@ export default async function EnrollmentPage({
       .select(
         "*, student:students(id, student_number, user:users(full_name, email)), class:classes(id, grade_level, section, school_year:school_years(name))"
       )
-      .order("created_at", { ascending: false }),
+      .order("enrolled_at", { ascending: false }),
     supabase
       .from("classes")
       .select("id, grade_level, section, school_year:school_years(name)")
