@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import { AttendanceRecordEditor } from "./attendance-record-editor";
+import { ensureAttendanceRecordsForSession } from "../actions";
 
 function relationOne<T>(value: T | T[] | null | undefined): T | undefined {
   if (value == null) return undefined;
@@ -23,11 +24,12 @@ export default async function TeacherAttendanceSessionPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: session } = await supabase
+  let { data: session } = await supabase
     .from("attendance_sessions")
     .select(
       `*, 
       class_subject:class_subjects(
+        class_id,
         subject:subjects(name),
         class:classes(grade_level, section)
       ),
@@ -41,6 +43,28 @@ export default async function TeacherAttendanceSessionPage({
     .maybeSingle();
 
   if (!session) notFound();
+
+  if ((session.attendance_records ?? []).length === 0) {
+    await ensureAttendanceRecordsForSession(id);
+    const { data: refreshed } = await supabase
+      .from("attendance_sessions")
+      .select(
+        `*, 
+        class_subject:class_subjects(
+          class_id,
+          subject:subjects(name),
+          class:classes(grade_level, section)
+        ),
+        attendance_records(
+          id, status, remarks,
+          student:students(id, student_number, user:users(full_name))
+        )`
+      )
+      .eq("id", id)
+      .eq("created_by", user?.id ?? "")
+      .maybeSingle();
+    if (refreshed) session = refreshed;
+  }
 
   const classSubject = relationOne(session.class_subject);
   const subject = relationOne(classSubject?.subject);
@@ -104,7 +128,8 @@ export default async function TeacherAttendanceSessionPage({
             </div>
           ) : (
             <p className="px-4 py-8 text-center text-gray-500 text-sm">
-              No students enrolled in this class. Add enrollments to track attendance.
+              No students enrolled in this class. Enroll students in{" "}
+              {cls?.grade_level} — {cls?.section}, then refresh this page.
             </p>
           )}
         </CardContent>

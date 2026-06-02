@@ -35,13 +35,13 @@ export async function login(formData: FormData) {
   switch (role) {
     case "admin":
     case "staff":
-      return { redirectTo: "/admin/dashboard" };
+      redirect("/admin/dashboard");
     case "teacher":
-      return { redirectTo: "/teacher/dashboard" };
+      redirect("/teacher/dashboard");
     case "student":
-      return { redirectTo: "/student/dashboard" };
+      redirect("/student/dashboard");
     default:
-      return { redirectTo: "/student/dashboard" };
+      redirect("/student/dashboard");
   }
 }
 
