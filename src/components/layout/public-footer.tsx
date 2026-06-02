@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function PublicFooter() {
   return (
@@ -9,18 +10,16 @@ export default function PublicFooter() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
-                <span className="text-sm font-bold text-white">N</span>
-              </div>
+              <Image src="/school-logo.png" alt="NVIANS Logo" width={36} height={36} className="h-9 w-auto" />
               <span className="font-bold text-white text-lg">NVIANS</span>
             </div>
             <p className="text-sm leading-relaxed">
               Nurturing minds, shaping futures. A premier educational institution committed to excellence in education.
             </p>
-            <div className="mt-4 flex gap-3">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="rounded-md p-1.5 hover:bg-gray-800 transition-colors">
-                  <Icon className="h-4 w-4" />
+            <div className="mt-4 flex gap-2">
+              {["FB", "IG", "YT", "TW"].map((label) => (
+                <a key={label} href="#" className="rounded-md px-2 py-1 text-xs font-medium hover:bg-gray-800 transition-colors border border-gray-700">
+                  {label}
                 </a>
               ))}
             </div>

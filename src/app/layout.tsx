@@ -17,6 +17,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NVIANS School Management System",
   description: "A comprehensive school management system for students, teachers, and administrators.",
+  icons: {
+    icon: "/school-logo.png",
+    shortcut: "/school-logo.png",
+    apple: "/school-logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen antialiased font-sans">
         <TooltipProvider>
           {children}
           <Toaster />

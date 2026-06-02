@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -27,9 +28,7 @@ export default function PublicNavbar() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
-            <span className="text-sm font-bold text-white">N</span>
-          </div>
+          <Image src="/school-logo.png" alt="NVIANS Logo" width={36} height={36} className="h-9 w-auto" />
           <span className="font-bold text-gray-900 hidden sm:block">NVIANS</span>
         </Link>
 

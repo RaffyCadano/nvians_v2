@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/auth/actions";
@@ -58,9 +59,7 @@ export function DashboardSidebar({ user, navItems }: SidebarProps) {
     <aside className="flex h-screen w-64 flex-col border-r bg-white">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
-          <span className="text-sm font-bold text-white">N</span>
-        </div>
+        <Image src="/school-logo.png" alt="NVIANS Logo" width={32} height={32} className="h-8 w-auto" />
         <span className="font-semibold text-gray-900">NVIANS SMS</span>
       </div>
 
