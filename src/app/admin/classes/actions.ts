@@ -30,5 +30,5 @@ export async function updateClass(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-  redirect("/admin/classes");
+  return { success: true };
 }

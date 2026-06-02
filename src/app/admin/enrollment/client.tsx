@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { enrollStudent, updateEnrollmentStatus } from "./actions";
+import { enrollStudent, transferEnrollment as transferEnrollmentAction, updateEnrollmentStatus } from "./actions";
 import { Plus, Search, Users } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -41,6 +41,10 @@ export default function EnrollmentClient({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [selectedTransferEnrollment, setSelectedTransferEnrollment] = useState<any>(null);
+  const [transferClassId, setTransferClassId] = useState("");
+  const [transferSchoolYearId, setTransferSchoolYearId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +59,31 @@ export default function EnrollmentClient({
       setError(result.error);
     } else {
       setOpen(false);
-      router.refresh();
+      router.push("/admin/enrollment");
+    }
+  }
+
+  async function handleTransfer(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    if (!selectedTransferEnrollment) {
+      setError("Please pick an enrollment to transfer.");
+      setLoading(false);
+      return;
+    }
+    const formData = new FormData(e.currentTarget);
+    formData.append("enrollment_id", selectedTransferEnrollment.id);
+    const result = await transferEnrollmentAction(formData);
+    setLoading(false);
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      setTransferOpen(false);
+      setSelectedTransferEnrollment(null);
+      setTransferClassId("");
+      setTransferSchoolYearId("");
+      router.push("/admin/enrollment");
     }
   }
 
@@ -185,6 +213,70 @@ export default function EnrollmentClient({
       </form>
 
       {/* Table */}
+      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Transfer Enrollment</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleTransfer} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label>Student</Label>
+              <div className="rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                {selectedTransferEnrollment?.student?.user?.full_name ?? "Select an enrollment"}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="class_id">New Class *</Label>
+              <select
+                id="class_id"
+                name="class_id"
+                required
+                value={transferClassId}
+                onChange={(event) => {
+                  setTransferClassId(event.target.value);
+                  const selected = classes.find((cls: any) => cls.id === event.target.value);
+                  setTransferSchoolYearId(selected?.school_year?.id ?? "");
+                }}
+                className="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm"
+              >
+                <option value="">Select a class...</option>
+                {classes
+                  .filter((cls: any) => cls.id !== selectedTransferEnrollment?.class_id)
+                  .map((cls: any) => (
+                    <option key={cls.id} value={cls.id}>
+                      {cls.grade_level} - {cls.section} ({cls.school_year?.name})
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="school_year_id">School Year</Label>
+              <input
+                id="school_year_id"
+                name="school_year_id"
+                value={transferSchoolYearId}
+                readOnly
+                className="flex h-8 w-full rounded-lg border border-input bg-gray-100 px-2.5 text-sm"
+                placeholder="Select a class first"
+              />
+            </div>
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            )}
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" disabled={loading || !transferClassId}>
+                {loading ? "Transferring..." : "Transfer"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setTransferOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardContent className="p-0">
           <table className="w-full text-sm">
@@ -223,7 +315,7 @@ export default function EnrollmentClient({
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      {e.status === "enrolled" && (
+                      {e.status === "enrolled" ? (
                         <div className="flex gap-1">
                           <Button
                             type="button"
@@ -239,12 +331,32 @@ export default function EnrollmentClient({
                             variant="ghost"
                             size="sm"
                             className="text-yellow-600 hover:text-yellow-700"
-                            onClick={async () => { await updateEnrollmentStatus(e.id, "transferred"); router.refresh(); }}
+                            onClick={() => {
+                              setSelectedTransferEnrollment(e);
+                              setTransferClassId("");
+                              setTransferSchoolYearId("");
+                              setTransferOpen(true);
+                            }}
                           >
                             Transfer
                           </Button>
                         </div>
-                      )}
+                      ) : e.status === "transferred" ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-yellow-600 hover:text-yellow-700"
+                          onClick={() => {
+                            setSelectedTransferEnrollment(e);
+                            setTransferClassId("");
+                            setTransferSchoolYearId("");
+                            setTransferOpen(true);
+                          }}
+                        >
+                          Transfer Again
+                        </Button>
+                      ) : null}
                     </td>
                   </tr>
                 ))
