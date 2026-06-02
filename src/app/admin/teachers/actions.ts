@@ -5,7 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 
 export async function createTeacher(formData: FormData) {
-  const supabase = await createClient();
   const adminClient = createAdminClient();
 
   const fullName = formData.get("full_name") as string;
@@ -27,22 +26,32 @@ export async function createTeacher(formData: FormData) {
     return { error: authError.message };
   }
 
-  // Upsert the users row (may not exist yet if no trigger)
-  const { error: userError } = await adminClient.from("users").upsert({
-    id: authData.user.id,
-    email,
-    full_name: fullName,
-    role: "teacher",
-  }, { onConflict: "id" });
+  // Ensure public.users has teacher role (trigger may default to student)
+  const { error: userError } = await adminClient.from("users").upsert(
+    {
+      id: authData.user.id,
+      email,
+      full_name: fullName,
+      role: "teacher",
+      is_active: true,
+    },
+    { onConflict: "id" }
+  );
 
   if (userError) return { error: userError.message };
 
-  // Create teacher profile
-  const { error: teacherError } = await supabase.from("teachers").insert({
+  await adminClient
+    .from("users")
+    .update({ role: "teacher", full_name: fullName, email })
+    .eq("id", authData.user.id);
+
+  // Create teacher profile (service role — reliable regardless of admin session RLS)
+  const { error: teacherError } = await adminClient.from("teachers").insert({
     user_id: authData.user.id,
     employee_number: employeeNumber || null,
     department: department || null,
     specialization: specialization || null,
+    status: "active",
   });
 
   if (teacherError) {

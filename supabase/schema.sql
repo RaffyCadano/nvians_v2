@@ -452,6 +452,14 @@ CREATE POLICY "Attendance records: student own" ON public.attendance_records
     student_id IN (SELECT id FROM public.students WHERE user_id = auth.uid())
   );
 
+CREATE POLICY "Attendance records: teacher session" ON public.attendance_records
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.attendance_sessions s
+      WHERE s.id = session_id AND s.created_by = auth.uid()
+    )
+  );
+
 -- Grade scores: teacher write own; student read own; admin all
 CREATE POLICY "Grade scores: admin full" ON public.grade_scores
   FOR ALL USING (
@@ -505,6 +513,19 @@ CREATE POLICY "Gallery: admin write" ON public.gallery_photos
   FOR ALL USING (EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff')));
 CREATE POLICY "Gallery albums: admin write" ON public.gallery_albums
   FOR ALL USING (EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff')));
+
+-- Announcements: authenticated read; teachers/admins post as self
+CREATE POLICY "Announcements: authenticated read" ON public.announcements
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Announcements: staff insert own" ON public.announcements
+  FOR INSERT WITH CHECK (
+    author_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM public.users u
+      WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff', 'teacher')
+    )
+  );
 
 -- Audit logs: admin read; insert by system
 CREATE POLICY "Audit logs: admin read" ON public.audit_logs
