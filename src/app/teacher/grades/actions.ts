@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 async function getTeacherClassSubject(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, classSubjectId: string) {
@@ -55,7 +56,8 @@ export async function createGradeCategory(formData: FormData) {
     return { error: "You are not assigned to this subject class." };
   }
 
-  const { error } = await supabase.from("grade_categories").insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("grade_categories").insert({
     class_subject_id: classSubjectId,
     name,
     weight,
@@ -106,7 +108,8 @@ export async function createGradeItem(formData: FormData) {
     return { error: "Category not found for this class." };
   }
 
-  const { error } = await supabase.from("grade_items").insert({
+  const admin = createAdminClient();
+  const { error } = await admin.from("grade_items").insert({
     category_id: categoryId,
     name,
     max_score: maxScore,
@@ -157,7 +160,8 @@ export async function saveGradeScore(gradeItemId: string, studentId: string, sco
     return { error: `Score cannot exceed ${item.max_score}.` };
   }
 
-  const { error } = await supabase.from("grade_scores").upsert(
+  const admin = createAdminClient();
+  const { error } = await admin.from("grade_scores").upsert(
     {
       grade_item_id: gradeItemId,
       student_id: studentId,
