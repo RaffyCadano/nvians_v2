@@ -4,6 +4,11 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import {
+  DEFAULT_STUDENT_PASSWORD,
+  MOCK_STUDENTS,
+  seedMockTeacherStudents,
+} from "./seed-mock-teacher-students.mjs";
 
 const MOCK_EMAIL = "teacher.mock@nvians.edu";
 
@@ -214,11 +219,21 @@ async function main() {
     console.log("Created announcement:", ann.title);
   }
 
+  const studentResult = await seedMockTeacherStudents(admin, {
+    advisoryClass,
+    schoolYearId: schoolYear.id,
+  });
+
   console.log("\nMock teacher demo data ready.");
-  console.log("  Login:", MOCK_EMAIL);
-  console.log("  Page:  /teacher/announcements");
-  console.log("\nNext: seed mock students for this class:");
-  console.log("  node --env-file=.env.local scripts/seed-mock-teacher-students.mjs");
+  console.log("  Teacher login:", MOCK_EMAIL);
+  console.log("  Advisory:", advisoryClass.grade_level, "—", advisoryClass.section);
+  console.log("  Subject: ", mathSubject.name, `(${term.name})`);
+  console.log("  Students enrolled:", studentResult.enrolledInClass);
+  console.log("  Pages:   /teacher/grades · /teacher/announcements · /teacher/assignments");
+  console.log("\nMock student logins (password for all):", DEFAULT_STUDENT_PASSWORD);
+  for (const s of MOCK_STUDENTS) {
+    console.log("  ", s.email);
+  }
 }
 
 main();

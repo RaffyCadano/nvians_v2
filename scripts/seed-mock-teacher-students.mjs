@@ -9,12 +9,12 @@
 
 import { createClient } from "@supabase/supabase-js";
 
-const MOCK_TEACHER_EMAIL = "teacher.mock@nvians.edu";
-const ADVISORY_GRADE = "Grade 7";
-const ADVISORY_SECTION = "Santos";
-const DEFAULT_PASSWORD = "StudentMock00!";
+export const MOCK_TEACHER_EMAIL = "teacher.mock@nvians.edu";
+export const ADVISORY_GRADE = "Grade 7";
+export const ADVISORY_SECTION = "Santos";
+export const DEFAULT_STUDENT_PASSWORD = "StudentMock00!";
 
-const MOCK_STUDENTS = [
+export const MOCK_STUDENTS = [
   {
     email: "student.mock1@nvians.edu",
     full_name: "Ana Garcia",
@@ -47,19 +47,7 @@ const MOCK_STUDENTS = [
   },
 ];
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!url || !serviceRoleKey) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
-  process.exit(1);
-}
-
-const admin = createClient(url, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
-
-async function ensureAuthUser({ email, full_name, password }) {
+async function ensureAuthUser(admin, { email, full_name, password }) {
   const { data: listed } = await admin.auth.admin.listUsers();
   const found = listed?.users?.find((u) => u.email === email);
 
@@ -81,7 +69,7 @@ async function ensureAuthUser({ email, full_name, password }) {
   return authData.user.id;
 }
 
-async function ensureStudentProfile(userId, student) {
+async function ensureStudentProfile(admin, userId, student) {
   const { error: userError } = await admin.from("users").upsert(
     {
       id: userId,
@@ -138,7 +126,7 @@ async function ensureStudentProfile(userId, student) {
   return created.id;
 }
 
-async function ensureEnrollment(studentId, classId, schoolYearId) {
+async function ensureEnrollment(admin, studentId, classId, schoolYearId) {
   const { data: existing } = await admin
     .from("enrollments")
     .select("id, status")
@@ -176,7 +164,59 @@ async function ensureEnrollment(studentId, classId, schoolYearId) {
   return "created";
 }
 
+/**
+ * @param {import('@supabase/supabase-js').SupabaseClient} admin
+ * @param {{ advisoryClass: { id: string, grade_level: string, section: string }, schoolYearId: string, log?: typeof console.log }} options
+ */
+export async function seedMockTeacherStudents(admin, { advisoryClass, schoolYearId, log = console.log }) {
+  log(`\nEnrolling mock students in ${advisoryClass.grade_level} — ${advisoryClass.section}:\n`);
+
+  let enrolled = 0;
+
+  for (const student of MOCK_STUDENTS) {
+    const userId = await ensureAuthUser(admin, {
+      email: student.email,
+      full_name: student.full_name,
+      password: DEFAULT_STUDENT_PASSWORD,
+    });
+
+    const studentId = await ensureStudentProfile(admin, userId, student);
+    const enrollmentResult = await ensureEnrollment(
+      admin,
+      studentId,
+      advisoryClass.id,
+      schoolYearId
+    );
+
+    if (enrollmentResult === "created" || enrollmentResult === "reactivated") {
+      enrolled += 1;
+    }
+
+    log(`  ✓ ${student.full_name} (${student.student_number}) — enrollment: ${enrollmentResult}`);
+  }
+
+  const { count } = await admin
+    .from("enrollments")
+    .select("*", { count: "exact", head: true })
+    .eq("class_id", advisoryClass.id)
+    .eq("status", "enrolled");
+
+  return { processed: MOCK_STUDENTS.length, newlyEnrolled: enrolled, enrolledInClass: count ?? 0 };
+}
+
 async function main() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRoleKey) {
+    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+    process.exit(1);
+  }
+
+  const admin = createClient(url, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
   const { data: teacherUser } = await admin
     .from("users")
     .select("id")
@@ -227,52 +267,25 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Enrolling students in ${advisoryClass.grade_level} — ${advisoryClass.section}\n`);
+  const result = await seedMockTeacherStudents(admin, {
+    advisoryClass,
+    schoolYearId: schoolYear.id,
+  });
 
-  let created = 0;
-  let enrolled = 0;
-
-  for (const student of MOCK_STUDENTS) {
-    const userId = await ensureAuthUser({
-      email: student.email,
-      full_name: student.full_name,
-      password: DEFAULT_PASSWORD,
-    });
-
-    const studentId = await ensureStudentProfile(userId, student);
-    const enrollmentResult = await ensureEnrollment(
-      studentId,
-      advisoryClass.id,
-      schoolYear.id
-    );
-
-    if (enrollmentResult === "created" || enrollmentResult === "reactivated") {
-      enrolled += 1;
-    }
-
-    created += 1;
-    console.log(
-      `  ✓ ${student.full_name} (${student.student_number}) — enrollment: ${enrollmentResult}`
-    );
-  }
-
-  const { count } = await admin
-    .from("enrollments")
-    .select("*", { count: "exact", head: true })
-    .eq("class_id", advisoryClass.id)
-    .eq("status", "enrolled");
-
-  console.log(`\nDone. Processed ${created} mock student(s).`);
-  console.log(`  Enrolled in class: ${count ?? 0}`);
+  console.log(`\nDone. Processed ${result.processed} mock student(s).`);
+  console.log(`  Enrolled in class: ${result.enrolledInClass}`);
   console.log("\nStudent login (all use the same password):");
-  console.log("  Password:", DEFAULT_PASSWORD);
+  console.log("  Password:", DEFAULT_STUDENT_PASSWORD);
   for (const s of MOCK_STUDENTS) {
     console.log("  ", s.email);
   }
-  console.log("\nTeacher can enter grades at /teacher/grades after adding categories & items.");
+  console.log("\nTeacher: teacher.mock@nvians.edu → /teacher/grades");
 }
 
-main().catch((err) => {
-  console.error(err.message || err);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]?.replace(/\\/g, "/").endsWith("seed-mock-teacher-students.mjs");
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error(err.message || err);
+    process.exit(1);
+  });
+}
