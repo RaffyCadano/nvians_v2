@@ -431,6 +431,15 @@ CREATE POLICY "Enrollments: student own" ON public.enrollments
     student_id IN (SELECT id FROM public.students WHERE user_id = auth.uid())
   );
 
+CREATE POLICY "Enrollments: teacher read class" ON public.enrollments
+  FOR SELECT USING (
+    class_id IN (
+      SELECT cs.class_id FROM public.class_subjects cs
+      JOIN public.teachers t ON t.id = cs.teacher_id
+      WHERE t.user_id = auth.uid()
+    )
+  );
+
 -- Attendance: teacher own sessions; student own records; admin all
 CREATE POLICY "Attendance sessions: admin full" ON public.attendance_sessions
   FOR ALL USING (
@@ -460,10 +469,50 @@ CREATE POLICY "Attendance records: teacher session" ON public.attendance_records
     )
   );
 
--- Grade scores: teacher write own; student read own; admin all
+-- Grades: teacher own class subject; student read own scores; admin all
+CREATE POLICY "Grade categories: admin full" ON public.grade_categories
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff'))
+  );
+
+CREATE POLICY "Grade categories: teacher own" ON public.grade_categories
+  FOR ALL USING (
+    class_subject_id IN (
+      SELECT cs.id FROM public.class_subjects cs
+      JOIN public.teachers t ON t.id = cs.teacher_id
+      WHERE t.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Grade items: admin full" ON public.grade_items
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff'))
+  );
+
+CREATE POLICY "Grade items: teacher own" ON public.grade_items
+  FOR ALL USING (
+    category_id IN (
+      SELECT gc.id FROM public.grade_categories gc
+      JOIN public.class_subjects cs ON cs.id = gc.class_subject_id
+      JOIN public.teachers t ON t.id = cs.teacher_id
+      WHERE t.user_id = auth.uid()
+    )
+  );
+
 CREATE POLICY "Grade scores: admin full" ON public.grade_scores
   FOR ALL USING (
     EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff'))
+  );
+
+CREATE POLICY "Grade scores: teacher own" ON public.grade_scores
+  FOR ALL USING (
+    grade_item_id IN (
+      SELECT gi.id FROM public.grade_items gi
+      JOIN public.grade_categories gc ON gc.id = gi.category_id
+      JOIN public.class_subjects cs ON cs.id = gc.class_subject_id
+      JOIN public.teachers t ON t.id = cs.teacher_id
+      WHERE t.user_id = auth.uid()
+    )
   );
 
 CREATE POLICY "Grade scores: student read own" ON public.grade_scores

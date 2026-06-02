@@ -115,6 +115,8 @@ async function main() {
   console.log("  Login at: /auth/login → redirects to /teacher/dashboard");
   console.log("\nNext: seed demo classes & announcements:");
   console.log("  node --env-file=.env.local scripts/seed-mock-teacher-data.mjs");
+  console.log("Then seed students for Grade 7 — Santos:");
+  console.log("  node --env-file=.env.local scripts/seed-mock-teacher-students.mjs");
 }
 
 main();

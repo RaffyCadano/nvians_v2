@@ -217,6 +217,8 @@ async function main() {
   console.log("\nMock teacher demo data ready.");
   console.log("  Login:", MOCK_EMAIL);
   console.log("  Page:  /teacher/announcements");
+  console.log("\nNext: seed mock students for this class:");
+  console.log("  node --env-file=.env.local scripts/seed-mock-teacher-students.mjs");
 }
 
 main();
