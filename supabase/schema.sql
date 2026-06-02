@@ -458,6 +458,11 @@ CREATE POLICY "Enrollments: teacher read class" ON public.enrollments
       JOIN public.teachers t ON t.id = cs.teacher_id
       WHERE t.user_id = auth.uid()
     )
+    OR class_id IN (
+      SELECT c.id FROM public.classes c
+      JOIN public.teachers t ON t.id = c.advisor_id
+      WHERE t.user_id = auth.uid()
+    )
   );
 
 -- Attendance: teacher own sessions; student own records; admin all
@@ -481,8 +486,23 @@ CREATE POLICY "Attendance records: student own" ON public.attendance_records
     student_id IN (SELECT id FROM public.students WHERE user_id = auth.uid())
   );
 
-CREATE POLICY "Attendance records: teacher session" ON public.attendance_records
-  FOR ALL USING (
+CREATE POLICY "Attendance records: teacher read" ON public.attendance_records
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.attendance_sessions s
+      WHERE s.id = session_id AND s.created_by = auth.uid()
+    )
+  );
+
+CREATE POLICY "Attendance records: teacher update" ON public.attendance_records
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.attendance_sessions s
+      WHERE s.id = session_id AND s.created_by = auth.uid()
+    )
+  )
+  WITH CHECK (
     EXISTS (
       SELECT 1 FROM public.attendance_sessions s
       WHERE s.id = session_id AND s.created_by = auth.uid()

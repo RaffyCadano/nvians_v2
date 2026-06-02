@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getClassRosterForTeacher } from "@/lib/teacher/class-roster";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { School, Users } from "lucide-react";
@@ -22,18 +23,9 @@ export default async function TeacherAdvisoryPage() {
     .eq("status", "active")
     .maybeSingle();
 
-  const { data: enrollments } = advisoryClass
-    ? await supabase
-        .from("enrollments")
-        .select(
-          "id, status, enrolled_at, student:students(id, student_number, status, user:users(full_name, email))"
-        )
-        .eq("class_id", advisoryClass.id)
-        .eq("status", "enrolled")
-        .order("enrolled_at", { ascending: true })
-    : { data: null };
-
-  const roster = enrollments ?? [];
+  const roster = advisoryClass
+    ? await getClassRosterForTeacher(user?.id ?? "", advisoryClass.id)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -108,26 +100,19 @@ export default async function TeacherAdvisoryPage() {
                 </thead>
                 <tbody className="divide-y">
                   {roster.length > 0 ? (
-                    roster.map((row: {
-                      id: string;
-                      enrolled_at: string;
-                      student?: {
-                        student_number?: string;
-                        user?: { full_name?: string; email?: string };
-                      };
-                    }) => (
-                      <tr key={row.id} className="hover:bg-gray-50">
+                    roster.map((row) => (
+                      <tr key={row.enrollmentId} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium text-gray-900">
-                          {row.student?.user?.full_name ?? "—"}
+                          {row.fullName}
                         </td>
                         <td className="px-4 py-3 text-gray-600">
-                          {row.student?.student_number ?? "—"}
+                          {row.studentNumber ?? "—"}
                         </td>
                         <td className="px-4 py-3 text-gray-600">
-                          {row.student?.user?.email ?? "—"}
+                          {row.email ?? "—"}
                         </td>
                         <td className="px-4 py-3 text-gray-600">
-                          {new Date(row.enrolled_at).toLocaleDateString()}
+                          {new Date(row.enrolledAt).toLocaleDateString()}
                         </td>
                       </tr>
                     ))

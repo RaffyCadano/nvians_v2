@@ -60,6 +60,16 @@ async function main() {
 
   const { data: subjects } = await admin.from("subjects").select("id, code, name").limit(10);
   console.log("SUBJECTS:", subjects);
+
+  const santosClassId = classSubjects?.[0]?.class_id;
+  if (santosClassId) {
+    const { count } = await admin
+      .from("enrollments")
+      .select("*", { count: "exact", head: true })
+      .eq("class_id", santosClassId)
+      .eq("status", "enrolled");
+    console.log("ENROLLED STUDENTS (teacher class):", count ?? 0);
+  }
 }
 
 main();

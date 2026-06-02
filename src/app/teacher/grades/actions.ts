@@ -3,25 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-
-async function getTeacherClassSubject(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, classSubjectId: string) {
-  const { data: teacher } = await supabase
-    .from("teachers")
-    .select("id")
-    .eq("user_id", userId)
-    .single();
-
-  if (!teacher) return null;
-
-  const { data: classSubject } = await supabase
-    .from("class_subjects")
-    .select("id, class_id")
-    .eq("id", classSubjectId)
-    .eq("teacher_id", teacher.id)
-    .maybeSingle();
-
-  return classSubject;
-}
+import { verifyTeacherOwnsClassSubject } from "@/lib/teacher/grades-data";
 
 function gradesPaths(classSubjectId: string) {
   return {
@@ -51,7 +33,7 @@ export async function createGradeCategory(formData: FormData) {
     return { error: "Weight must be a non-negative number." };
   }
 
-  const classSubject = await getTeacherClassSubject(supabase, user.id, classSubjectId);
+  const classSubject = await verifyTeacherOwnsClassSubject(user.id, classSubjectId);
   if (!classSubject) {
     return { error: "You are not assigned to this subject class." };
   }
@@ -92,12 +74,13 @@ export async function createGradeItem(formData: FormData) {
     return { error: "Max score must be a positive number." };
   }
 
-  const classSubject = await getTeacherClassSubject(supabase, user.id, classSubjectId);
+  const classSubject = await verifyTeacherOwnsClassSubject(user.id, classSubjectId);
   if (!classSubject) {
     return { error: "You are not assigned to this subject class." };
   }
 
-  const { data: category } = await supabase
+  const admin = createAdminClient();
+  const { data: category } = await admin
     .from("grade_categories")
     .select("id")
     .eq("id", categoryId)
@@ -108,7 +91,6 @@ export async function createGradeItem(formData: FormData) {
     return { error: "Category not found for this class." };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from("grade_items").insert({
     category_id: categoryId,
     name,
@@ -134,15 +116,15 @@ export async function saveGradeScore(gradeItemId: string, studentId: string, sco
     return { error: "Score must be a non-negative number." };
   }
 
-  const { data: item } = await supabase
+  const admin = createAdminClient();
+  const { data: item, error: itemError } = await admin
     .from("grade_items")
     .select("id, max_score, category:grade_categories(class_subject_id)")
     .eq("id", gradeItemId)
-    .single();
+    .maybeSingle();
 
-  if (!item) {
-    return { error: "Grade item not found." };
-  }
+  if (itemError) return { error: itemError.message };
+  if (!item) return { error: "Grade item not found." };
 
   const category = Array.isArray(item.category) ? item.category[0] : item.category;
   const classSubjectId = category?.class_subject_id as string | undefined;
@@ -151,7 +133,7 @@ export async function saveGradeScore(gradeItemId: string, studentId: string, sco
     return { error: "Grade item not found." };
   }
 
-  const classSubject = await getTeacherClassSubject(supabase, user.id, classSubjectId);
+  const classSubject = await verifyTeacherOwnsClassSubject(user.id, classSubjectId);
   if (!classSubject) {
     return { error: "You cannot edit scores for this class." };
   }
@@ -160,7 +142,6 @@ export async function saveGradeScore(gradeItemId: string, studentId: string, sco
     return { error: `Score cannot exceed ${item.max_score}.` };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from("grade_scores").upsert(
     {
       grade_item_id: gradeItemId,

@@ -4,80 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-
-async function syncAttendanceRecordsForClass(
-  sessionId: string,
-  classId: string
-): Promise<number> {
-  const admin = createAdminClient();
-
-  const { data: enrollments } = await admin
-    .from("enrollments")
-    .select("student_id")
-    .eq("class_id", classId)
-    .eq("status", "enrolled");
-
-  if (!enrollments?.length) return 0;
-
-  const { data: existing } = await admin
-    .from("attendance_records")
-    .select("student_id")
-    .eq("session_id", sessionId);
-
-  const existingIds = new Set((existing ?? []).map((r) => r.student_id));
-  const toInsert = enrollments
-    .filter((e) => !existingIds.has(e.student_id))
-    .map((e) => ({
-      session_id: sessionId,
-      student_id: e.student_id,
-      status: "present" as const,
-    }));
-
-  if (toInsert.length === 0) return 0;
-
-  const { error } = await admin.from("attendance_records").insert(toInsert);
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return toInsert.length;
-}
-
-/** Backfill attendance rows for enrolled students (e.g. session created before enrollments). */
-export async function ensureAttendanceRecordsForSession(sessionId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
-
-  const { data: session } = await supabase
-    .from("attendance_sessions")
-    .select("id, class_subject:class_subjects(class_id)")
-    .eq("id", sessionId)
-    .eq("created_by", user.id)
-    .maybeSingle();
-
-  if (!session) return { error: "Session not found." };
-
-  const classSubject = Array.isArray(session.class_subject)
-    ? session.class_subject[0]
-    : session.class_subject;
-  const classId = classSubject?.class_id as string | undefined;
-
-  if (!classId) return { error: "Class not found for this session." };
-
-  try {
-    const added = await syncAttendanceRecordsForClass(sessionId, classId);
-    if (added > 0) {
-      revalidatePath(`/teacher/attendance/${sessionId}`);
-    }
-    return { success: true, added };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to sync roster." };
-  }
-}
+import { syncAttendanceRecordsForClass } from "@/lib/teacher/attendance-session";
 
 export async function createAttendanceSession(formData: FormData) {
   const supabase = await createClient();
@@ -160,28 +87,26 @@ export async function updateAttendanceRecord(
     return { error: "You must be signed in." };
   }
 
-  const { data: record } = await supabase
+  const admin = createAdminClient();
+  const { data: record, error: recordError } = await admin
     .from("attendance_records")
-    .select("id, session_id")
+    .select("id, session_id, session:attendance_sessions(created_by)")
     .eq("id", recordId)
-    .single();
+    .maybeSingle();
+
+  if (recordError) {
+    return { error: recordError.message };
+  }
 
   if (!record) {
     return { error: "Record not found." };
   }
 
-  const { data: session } = await supabase
-    .from("attendance_sessions")
-    .select("id")
-    .eq("id", record.session_id)
-    .eq("created_by", user.id)
-    .maybeSingle();
-
-  if (!session) {
+  const session = Array.isArray(record.session) ? record.session[0] : record.session;
+  if (session?.created_by !== user.id) {
     return { error: "You cannot edit this session." };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin
     .from("attendance_records")
     .update({ status, remarks: remarks?.trim() || null })

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { loadGradeCategoriesForClassSubject } from "@/lib/teacher/grades-data";
 import { CategoriesManager } from "./categories-manager";
 
 function relationOne<T>(value: T | T[] | null | undefined): T | undefined {
@@ -36,26 +37,11 @@ export default async function TeacherGradeCategoriesPage({
 
   if (!classSubject) notFound();
 
-  const { data: categories } = await supabase
-    .from("grade_categories")
-    .select("id, name, weight, grade_items(id, name, max_score)")
-    .eq("class_subject_id", classSubjectId)
-    .order("name");
-
   const subject = relationOne(classSubject.subject);
   const cls = relationOne(classSubject.class);
   const term = relationOne(classSubject.term);
 
-  const normalizedCategories = (categories ?? []).map((c) => ({
-    id: c.id,
-    name: c.name,
-    weight: Number(c.weight),
-    items: (c.grade_items ?? []).map((item: { id: string; name: string; max_score: number }) => ({
-      id: item.id,
-      name: item.name,
-      maxScore: Number(item.max_score),
-    })),
-  }));
+  const normalizedCategories = await loadGradeCategoriesForClassSubject(classSubjectId);
 
   return (
     <div className="space-y-6 max-w-3xl">

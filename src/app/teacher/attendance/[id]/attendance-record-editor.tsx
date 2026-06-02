@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,12 @@ const STATUS_COLORS: Record<string, string> = {
   excused: "bg-yellow-100 text-yellow-700",
 };
 
+const STATUS_LABELS: Record<"present" | "absent" | "excused", string> = {
+  present: "Present",
+  absent: "Absent",
+  excused: "Excused",
+};
+
 type RecordRow = {
   id: string;
   status: "present" | "absent" | "excused";
@@ -20,14 +27,30 @@ type RecordRow = {
 };
 
 export function AttendanceRecordEditor({ record }: { record: RecordRow }) {
+  const router = useRouter();
   const [status, setStatus] = useState(record.status);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function setRecordStatus(next: "present" | "absent" | "excused") {
+    if (next === status || saving) return;
+
+    const previous = status;
     setSaving(true);
+    setError(null);
     setStatus(next);
-    await updateAttendanceRecord(record.id, next);
+
+    const result = await updateAttendanceRecord(record.id, next);
+
+    if (result?.error) {
+      setStatus(previous);
+      setError(result.error);
+      setSaving(false);
+      return;
+    }
+
     setSaving(false);
+    router.refresh();
   }
 
   return (
@@ -37,10 +60,11 @@ export function AttendanceRecordEditor({ record }: { record: RecordRow }) {
         {record.studentNumber && (
           <p className="text-xs text-gray-500 font-mono">{record.studentNumber}</p>
         )}
+        {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
       </div>
       <div className="flex items-center gap-2 flex-wrap">
         <Badge variant="secondary" className={STATUS_COLORS[status]}>
-          {status}
+          {STATUS_LABELS[status]}
         </Badge>
         {(["present", "absent", "excused"] as const).map((s) => (
           <Button
@@ -48,10 +72,10 @@ export function AttendanceRecordEditor({ record }: { record: RecordRow }) {
             type="button"
             size="sm"
             variant={status === s ? "default" : "outline"}
-            disabled={saving || status === s}
+            disabled={saving}
             onClick={() => setRecordStatus(s)}
           >
-            {s}
+            {STATUS_LABELS[s]}
           </Button>
         ))}
       </div>

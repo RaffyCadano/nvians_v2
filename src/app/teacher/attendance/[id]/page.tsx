@@ -1,17 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { loadTeacherAttendanceSession } from "@/lib/teacher/attendance-session";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
-import { AttendanceRecordEditor } from "./attendance-record-editor";
-import { ensureAttendanceRecordsForSession } from "../actions";
-
-function relationOne<T>(value: T | T[] | null | undefined): T | undefined {
-  if (value == null) return undefined;
-  return Array.isArray(value) ? value[0] : value;
-}
+import { AttendanceRecordList } from "./attendance-record-list";
 
 export default async function TeacherAttendanceSessionPage({
   params,
@@ -24,61 +19,10 @@ export default async function TeacherAttendanceSessionPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let { data: session } = await supabase
-    .from("attendance_sessions")
-    .select(
-      `*, 
-      class_subject:class_subjects(
-        class_id,
-        subject:subjects(name),
-        class:classes(grade_level, section)
-      ),
-      attendance_records(
-        id, status, remarks,
-        student:students(id, student_number, user:users(full_name))
-      )`
-    )
-    .eq("id", id)
-    .eq("created_by", user?.id ?? "")
-    .maybeSingle();
+  const data = user?.id ? await loadTeacherAttendanceSession(id, user.id) : null;
+  if (!data) notFound();
 
-  if (!session) notFound();
-
-  if ((session.attendance_records ?? []).length === 0) {
-    await ensureAttendanceRecordsForSession(id);
-    const { data: refreshed } = await supabase
-      .from("attendance_sessions")
-      .select(
-        `*, 
-        class_subject:class_subjects(
-          class_id,
-          subject:subjects(name),
-          class:classes(grade_level, section)
-        ),
-        attendance_records(
-          id, status, remarks,
-          student:students(id, student_number, user:users(full_name))
-        )`
-      )
-      .eq("id", id)
-      .eq("created_by", user?.id ?? "")
-      .maybeSingle();
-    if (refreshed) session = refreshed;
-  }
-
-  const classSubject = relationOne(session.class_subject);
-  const subject = relationOne(classSubject?.subject);
-  const cls = relationOne(classSubject?.class);
-
-  const records = (session.attendance_records ?? []).map((r) => ({
-    id: r.id,
-    status: r.status as "present" | "absent" | "excused",
-    remarks: r.remarks,
-    studentName: relationOne(relationOne(r.student)?.user)?.full_name ?? "Unknown",
-    studentNumber: relationOne(r.student)?.student_number ?? null,
-  }));
-
-  records.sort((a, b) => a.studentName.localeCompare(b.studentName));
+  const { session, roster, records } = data;
 
   const present = records.filter((r) => r.status === "present").length;
   const absent = records.filter((r) => r.status === "absent").length;
@@ -94,10 +38,11 @@ export default async function TeacherAttendanceSessionPage({
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {subject?.name ?? "Subject"} — Attendance
+            {session.subjectName} — Attendance
           </h1>
           <p className="text-sm text-gray-500">
-            {cls?.grade_level} - {cls?.section} · {format(new Date(session.date), "MMMM d, yyyy")}
+            {session.gradeLevel} - {session.section} ·{" "}
+            {format(new Date(session.date), "MMMM d, yyyy")}
           </p>
         </div>
       </div>
@@ -120,18 +65,27 @@ export default async function TeacherAttendanceSessionPage({
           <CardTitle className="text-base">Student records ({records.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {records.length > 0 ? (
-            <div className="divide-y">
-              {records.map((record) => (
-                <AttendanceRecordEditor key={record.id} record={record} />
-              ))}
-            </div>
-          ) : (
-            <p className="px-4 py-8 text-center text-gray-500 text-sm">
-              No students enrolled in this class. Enroll students in{" "}
-              {cls?.grade_level} — {cls?.section}, then refresh this page.
-            </p>
-          )}
+          <AttendanceRecordList
+            records={records}
+            emptyEnrollmentMessage={
+              <div className="space-y-2">
+                <p>
+                  No students are enrolled in {session.gradeLevel} — {session.section} (
+                  {roster.length} in school records for this class).
+                </p>
+                <p>
+                  Seed demo students, then refresh:{" "}
+                  <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                    node --env-file=.env.local scripts/seed-mock-teacher-data.mjs
+                  </code>
+                </p>
+                <p className="text-xs">
+                  Sign in as <strong>teacher.mock@nvians.edu</strong> so this class matches your
+                  account.
+                </p>
+              </div>
+            }
+          />
         </CardContent>
       </Card>
     </div>

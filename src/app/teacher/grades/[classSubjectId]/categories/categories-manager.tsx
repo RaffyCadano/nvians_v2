@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export function CategoriesManager({
   classSubjectId: string;
   categories: CategoryRow[];
 }) {
+  const router = useRouter();
   const [categoryError, setCategoryError] = useState("");
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
@@ -38,6 +40,7 @@ export function CategoriesManager({
       return;
     }
     e.currentTarget.reset();
+    router.refresh();
   }
 
   async function handleAddItem(categoryId: string, e: React.FormEvent<HTMLFormElement>) {
@@ -51,6 +54,7 @@ export function CategoriesManager({
       return;
     }
     e.currentTarget.reset();
+    router.refresh();
   }
 
   return (

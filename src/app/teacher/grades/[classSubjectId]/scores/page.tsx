@@ -1,4 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { getClassRosterForTeacher } from "@/lib/teacher/class-roster";
+import {
+  flattenGradeItems,
+  loadGradeCategoriesForClassSubject,
+  loadScoresForGradeItem,
+} from "@/lib/teacher/grades-data";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -39,57 +45,26 @@ export default async function TeacherGradeScoresPage({
 
   if (!classSubject) notFound();
 
-  const { data: categories } = await supabase
-    .from("grade_categories")
-    .select("id, name, grade_items(id, name, max_score)")
-    .eq("class_subject_id", classSubjectId)
-    .order("name");
-
-  const gradeItems = (categories ?? []).flatMap((c) =>
-    (c.grade_items ?? []).map((item: { id: string; name: string; max_score: number }) => ({
-      id: item.id,
-      name: item.name,
-      maxScore: Number(item.max_score),
-      categoryName: c.name,
-    }))
-  );
-
+  const categories = await loadGradeCategoriesForClassSubject(classSubjectId);
+  const gradeItems = flattenGradeItems(categories);
   const itemIds = gradeItems.map((i) => i.id);
 
-  const { data: enrollments } = await supabase
-    .from("enrollments")
-    .select("student:students(id, student_number, user:users(full_name))")
-    .eq("class_id", classSubject.class_id)
-    .eq("status", "enrolled");
+  const roster = await getClassRosterForTeacher(user?.id ?? "", classSubject.class_id);
 
-  const students = (enrollments ?? [])
-    .map((e) => {
-      const student = relationOne(e.student);
-      const profile = relationOne(student?.user);
-      return {
-        id: student?.id ?? "",
-        name: profile?.full_name ?? "Unknown",
-        studentNumber: student?.student_number ?? null,
-      };
-    })
-    .filter((s) => s.id)
+  const students = roster
+    .map((row) => ({
+      id: row.studentId,
+      name: row.fullName,
+      studentNumber: row.studentNumber,
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const activeItemId =
     selectedItemId && itemIds.includes(selectedItemId) ? selectedItemId : gradeItems[0]?.id;
 
-  let scoresByStudent: Record<string, number> = {};
-
-  if (activeItemId) {
-    const { data: scores } = await supabase
-      .from("grade_scores")
-      .select("student_id, score")
-      .eq("grade_item_id", activeItemId);
-
-    scoresByStudent = Object.fromEntries(
-      (scores ?? []).map((s) => [s.student_id, Number(s.score)])
-    );
-  }
+  const scoresByStudent = activeItemId
+    ? await loadScoresForGradeItem(activeItemId)
+    : {};
 
   const subject = relationOne(classSubject.subject);
   const cls = relationOne(classSubject.class);
