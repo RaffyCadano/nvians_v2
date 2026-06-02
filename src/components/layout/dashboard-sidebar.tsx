@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -15,6 +16,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   LayoutDashboard,
   Users,
@@ -75,6 +84,7 @@ interface SidebarProps {
 export function DashboardSidebar({ user, portal }: SidebarProps) {
   const pathname = usePathname();
   const navItems = NAV_ITEMS[portal];
+  const [isSignOutOpen, setIsSignOutOpen] = useState(false);
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-white">
@@ -135,13 +145,37 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-red-600 cursor-pointer"
-              onClick={() => { window.location.href = "/auth/signout"; }}
+              onClick={() => setIsSignOutOpen(true)}
             >
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Dialog open={isSignOutOpen} onOpenChange={setIsSignOutOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Confirm Sign Out</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to sign out? You will need to log in again to access the dashboard.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsSignOutOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  window.location.href = "/auth/signout";
+                }}
+              >
+                Sign Out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </aside>
   );
