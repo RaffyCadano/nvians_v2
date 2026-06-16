@@ -191,11 +191,7 @@ export function ScoreEntryForm({
             </div>
           ) : (
             <p className="px-4 py-8 text-center text-gray-500 text-sm">
-              No enrolled students in this class. Run{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-xs">
-                node --env-file=.env.local scripts/seed-mock-teacher-data.mjs
-              </code>{" "}
-              to add demo students.
+              No enrolled students in this class. Enroll students in Admin → Classes.
             </p>
           )}
         </CardContent>

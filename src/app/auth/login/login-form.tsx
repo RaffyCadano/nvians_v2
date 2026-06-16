@@ -3,14 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { login } from "@/app/auth/actions";
-import { MOCK_TEACHER_LOGIN } from "@/lib/mock-accounts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, GraduationCap } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
-export function LoginForm({ showDevLogin }: { showDevLogin: boolean }) {
+export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,10 +37,6 @@ export function LoginForm({ showDevLogin }: { showDevLogin: boolean }) {
       formData.get("email") as string,
       formData.get("password") as string
     );
-  }
-
-  async function handleMockTeacherLogin() {
-    await submitCredentials(MOCK_TEACHER_LOGIN.email, MOCK_TEACHER_LOGIN.password);
   }
 
   return (
@@ -104,31 +99,6 @@ export function LoginForm({ showDevLogin }: { showDevLogin: boolean }) {
               {loading ? "Signing in…" : "Sign In"}
             </Button>
           </form>
-
-          {showDevLogin && (
-            <div className="mt-6 space-y-2 border-t pt-6">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Development
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full justify-start gap-2"
-                disabled={loading}
-                onClick={handleMockTeacherLogin}
-              >
-                <GraduationCap className="h-4 w-4 shrink-0" />
-                Sign in as {MOCK_TEACHER_LOGIN.label}
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Run{" "}
-                <code className="rounded bg-muted px-1 py-0.5 text-[11px]">
-                  node --env-file=.env.local scripts/seed-mock-teacher.mjs
-                </code>{" "}
-                first if this account does not exist.
-              </p>
-            </div>
-          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             <Link href="/" className="hover:text-foreground hover:underline">

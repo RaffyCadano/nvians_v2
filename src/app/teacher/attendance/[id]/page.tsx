@@ -68,22 +68,11 @@ export default async function TeacherAttendanceSessionPage({
           <AttendanceRecordList
             records={records}
             emptyEnrollmentMessage={
-              <div className="space-y-2">
-                <p>
-                  No students are enrolled in {session.gradeLevel} — {session.section} (
-                  {roster.length} in school records for this class).
-                </p>
-                <p>
-                  Seed demo students, then refresh:{" "}
-                  <code className="rounded bg-muted px-1 py-0.5 text-xs">
-                    node --env-file=.env.local scripts/seed-mock-teacher-data.mjs
-                  </code>
-                </p>
-                <p className="text-xs">
-                  Sign in as <strong>teacher.mock@nvians.edu</strong> so this class matches your
-                  account.
-                </p>
-              </div>
+              <p>
+                No students are enrolled in {session.gradeLevel} — {session.section} (
+                {roster.length} in school records for this class). Enroll students in Admin →
+                Classes, then refresh this page.
+              </p>
             }
           />
         </CardContent>
