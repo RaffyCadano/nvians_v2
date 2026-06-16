@@ -108,7 +108,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[80vh] items-center overflow-hidden text-white sm:min-h-[85vh] lg:min-h-[90vh]">
+      <section className="relative flex min-h-[80vh] items-center overflow-hidden text-white sm:min-h-[75vh] lg:min-h-[80vh]">
         <Image
           src="/cover.jpg"
           alt=""
