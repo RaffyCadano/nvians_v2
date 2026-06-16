@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Clock, User, FileText, MessageSquare } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -24,23 +25,43 @@ export default function ContactPage() {
 
   return (
     <div>
-      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+      <section className="relative flex min-h-[45vh] items-center overflow-hidden text-white sm:min-h-[42vh] lg:min-h-[40vh]">
         <Image
           src="/contact-cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_50%]"
+          className="object-cover object-[center_40%] sm:object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">Contact Us</h1>
-          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+          <p className="mb-2 text-xs font-medium tracking-wider text-yellow-400 uppercase sm:mb-3 sm:text-sm lg:text-base">
+            Get in Touch
+          </p>
+          <h1 className="mb-3 max-w-3xl text-2xl font-bold leading-tight sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
+            Contact Us
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-blue-200 sm:text-base lg:text-lg">
             Have questions? We&apos;d love to hear from you. Reach us through any of the channels below.
           </p>
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
+            <a
+              href="tel:+6321234567"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md bg-yellow-500 px-6 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 sm:w-auto sm:min-w-[160px]"
+            >
+              <Phone className="mr-2 h-4 w-4 shrink-0" />
+              Call (02) 123-4567
+            </a>
+            <Link
+              href="/admissions"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:w-auto sm:min-w-[160px]"
+            >
+              View Admissions
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -68,7 +89,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form */}
-      <section className="bg-gray-50 py-12 sm:py-16">
+      <section id="contact-form" className="bg-gray-50 py-12 sm:py-16 scroll-mt-20">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Send Us a Message</h2>

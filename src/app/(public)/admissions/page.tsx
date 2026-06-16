@@ -71,35 +71,40 @@ export default function AdmissionsPage() {
   return (
     <div>
       {/* Header */}
-      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+      <section className="relative flex min-h-[45vh] items-center overflow-hidden text-white sm:min-h-[42vh] lg:min-h-[40vh]">
         <Image
           src="/admissions-cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_40%] sm:object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
           <div className="max-w-3xl">
-            <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">Admissions</h1>
-            <p className="text-blue-200 text-sm sm:text-base lg:text-lg max-w-2xl">
+            <p className="mb-2 text-xs font-medium tracking-wider text-yellow-400 uppercase sm:mb-3 sm:text-sm lg:text-base">
+              Enroll Today
+            </p>
+            <h1 className="mb-3 text-2xl font-bold leading-tight sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
+              Admissions
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-blue-200 sm:text-base lg:text-lg">
               Begin your journey at Nueva Vizcaya Institute. Review our requirements and enrollment process below.
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
               <Link
                 href="/contact"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-yellow-500 px-6 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 w-full sm:w-auto"
+                className="inline-flex h-11 w-full items-center justify-center rounded-md bg-yellow-500 px-6 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 sm:w-auto sm:min-w-[160px]"
               >
                 Inquire Now
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 shrink-0" />
               </Link>
               <Link
                 href="/programs"
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/20 w-full sm:w-auto"
+                className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:w-auto sm:min-w-[160px]"
               >
                 View Programs
               </Link>

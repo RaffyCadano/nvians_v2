@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
 import {
   GraduationCap,
   Trophy,
@@ -25,6 +26,7 @@ import {
   Monitor,
   Home,
   Hammer,
+  ArrowRight,
 } from "lucide-react";
 
 const JHS_SUBJECTS = [
@@ -236,28 +238,48 @@ export default function ProgramsPage() {
   return (
     <div>
       {/* Header */}
-      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+      <section className="relative flex min-h-[45vh] items-center overflow-hidden text-white sm:min-h-[42vh] lg:min-h-[40vh]">
         <Image
           src="/programs-cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_40%] sm:object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">Academic Programs</h1>
-          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+          <p className="mb-2 text-xs font-medium tracking-wider text-yellow-400 uppercase sm:mb-3 sm:text-sm lg:text-base">
+            Grades 7–12
+          </p>
+          <h1 className="mb-3 max-w-3xl text-2xl font-bold leading-tight sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
+            Academic Programs
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-blue-200 sm:text-base lg:text-lg">
             Junior and senior high school programs for Grades 7–12, aligned with the K–12 curriculum.
           </p>
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
+            <Link
+              href="#junior-high"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md bg-yellow-500 px-6 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 sm:w-auto sm:min-w-[160px]"
+            >
+              Junior High School
+              <ArrowRight className="ml-2 h-4 w-4 shrink-0" />
+            </Link>
+            <Link
+              href="#senior-high"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:w-auto sm:min-w-[160px]"
+            >
+              Senior High School
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Junior High School */}
-      <section className="bg-gray-50 py-12 sm:py-16">
+      <section id="junior-high" className="scroll-mt-20 bg-gray-50 py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-8 sm:mb-10">
             <div className="flex items-center gap-3 mb-3">
@@ -295,7 +317,7 @@ export default function ProgramsPage() {
       </section>
 
       {/* Senior High School */}
-      <section className="bg-white py-12 sm:py-16">
+      <section id="senior-high" className="scroll-mt-20 bg-white py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-8 sm:mb-10">
             <div className="flex items-center gap-3 mb-3">

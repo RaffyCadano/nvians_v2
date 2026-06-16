@@ -1,32 +1,51 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Music, Dumbbell, BookMarked, Globe, Camera } from "lucide-react";
+import { Users, Music, Dumbbell, BookMarked, Globe, Camera, ArrowRight } from "lucide-react";
 import Image from "next/image";
-
+import Link from "next/link";
 export default function StudentLifePage() {
   return (
     <div>
-      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+      <section className="relative flex min-h-[45vh] items-center overflow-hidden text-white sm:min-h-[42vh] lg:min-h-[40vh]">
         <Image
           src="/student-life-cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_40%] sm:object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">Student Life</h1>
-          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+          <p className="mb-2 text-xs font-medium tracking-wider text-yellow-400 uppercase sm:mb-3 sm:text-sm lg:text-base">
+            Campus Life
+          </p>
+          <h1 className="mb-3 max-w-3xl text-2xl font-bold leading-tight sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
+            Student Life
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-blue-200 sm:text-base lg:text-lg">
             Life at Nueva Vizcaya Institute goes beyond the classroom. Explore clubs, organizations, and events that make school life vibrant.
           </p>
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
+            <Link
+              href="#clubs"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md bg-yellow-500 px-6 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 sm:w-auto sm:min-w-[160px]"
+            >
+              Clubs & Organizations
+              <ArrowRight className="ml-2 h-4 w-4 shrink-0" />
+            </Link>
+            <Link
+              href="#events"
+              className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/60 bg-white/10 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:w-auto sm:min-w-[160px]"
+            >
+              Annual Events
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto max-w-7xl px-4">
+      <section id="clubs" className="scroll-mt-20 bg-white py-16">        <div className="container mx-auto max-w-7xl px-4">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Clubs & Organizations</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
@@ -70,7 +89,7 @@ export default function StudentLifePage() {
         </div>
       </section>
 
-      <section className="py-12 bg-gray-50 sm:py-16">
+      <section id="events" className="scroll-mt-20 bg-gray-50 py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 sm:text-3xl">Annual Events</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
