@@ -1,3 +1,4 @@
+import { loadStudentGrades } from "@/lib/student/grades-data";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,36 +6,11 @@ import { BarChart3 } from "lucide-react";
 
 export default async function StudentGradesPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("id")
-    .eq("user_id", user?.id)
-    .single();
-
-  const { data: scores } = await supabase
-    .from("grade_scores")
-    .select(
-      "*, grade_item:grade_items(name, max_score, category:grade_categories(name, weight, class_subject:class_subjects(subject:subjects(name), class:classes(grade_level, section), term:terms(name))))"
-    )
-    .eq("student_id", student?.id);
-
-  // Group by class_subject
-  const bySubject: Record<string, any> = {};
-  (scores ?? []).forEach((score: any) => {
-    const cs = score.grade_item?.category?.class_subject;
-    const key = cs?.subject?.name + "|" + cs?.class?.grade_level + "-" + cs?.class?.section;
-    if (!bySubject[key]) {
-      bySubject[key] = {
-        subject: cs?.subject?.name,
-        class: `${cs?.class?.grade_level} - ${cs?.class?.section}`,
-        term: cs?.term?.name,
-        items: [],
-      };
-    }
-    bySubject[key].items.push(score);
-  });
+  const groups = user?.id ? await loadStudentGrades(user.id) : [];
 
   return (
     <div className="space-y-6">
@@ -43,13 +19,13 @@ export default async function StudentGradesPage() {
         <p className="text-sm text-gray-500 mt-1">View your grade scores per subject.</p>
       </div>
 
-      {Object.keys(bySubject).length > 0 ? (
-        Object.values(bySubject).map((group: any) => (
-          <Card key={group.subject + group.class}>
+      {groups.length > 0 ? (
+        groups.map((group) => (
+          <Card key={group.key}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{group.subject}</CardTitle>
-                <Badge variant="secondary">{group.term}</Badge>
+                {group.term && <Badge variant="secondary">{group.term}</Badge>}
               </div>
               <p className="text-xs text-gray-500">{group.class}</p>
             </CardHeader>
@@ -65,16 +41,25 @@ export default async function StudentGradesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {group.items.map((score: any) => {
-                    const pct = ((score.score / score.grade_item?.max_score) * 100).toFixed(1);
+                  {group.items.map((score) => {
+                    const pct =
+                      score.maxScore > 0
+                        ? ((score.score / score.maxScore) * 100).toFixed(1)
+                        : "—";
                     return (
                       <tr key={score.id}>
-                        <td className="py-2 text-gray-800">{score.grade_item?.name}</td>
-                        <td className="py-2 text-gray-500">{score.grade_item?.category?.name}</td>
+                        <td className="py-2 text-gray-800">{score.itemName}</td>
+                        <td className="py-2 text-gray-500">{score.categoryName}</td>
                         <td className="py-2 text-right font-medium">{score.score}</td>
-                        <td className="py-2 text-right text-gray-500">{score.grade_item?.max_score}</td>
-                        <td className={`py-2 text-right font-semibold ${Number(pct) >= 75 ? "text-green-600" : "text-red-600"}`}>
-                          {pct}%
+                        <td className="py-2 text-right text-gray-500">{score.maxScore}</td>
+                        <td
+                          className={`py-2 text-right font-semibold ${
+                            pct !== "—" && Number(pct) >= 75
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {pct === "—" ? "—" : `${pct}%`}
                         </td>
                       </tr>
                     );
@@ -89,6 +74,9 @@ export default async function StudentGradesPage() {
           <CardContent className="py-16 text-center">
             <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No grades posted yet.</p>
+            <p className="text-xs text-gray-400 mt-2">
+              Scores appear here after your teacher enters them for your class.
+            </p>
           </CardContent>
         </Card>
       )}

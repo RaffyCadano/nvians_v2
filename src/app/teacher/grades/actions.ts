@@ -155,5 +155,6 @@ export async function saveGradeScore(gradeItemId: string, studentId: string, sco
   if (error) return { error: error.message };
 
   revalidatePath(gradesPaths(classSubjectId).scores);
+  revalidatePath("/student/grades");
   return { success: true };
 }

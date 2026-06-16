@@ -25,13 +25,8 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
 
-  // Public paths that don't require auth
   const publicPaths = [
     "/",
     "/about",
@@ -52,6 +47,20 @@ export async function updateSession(request: NextRequest) {
     publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/")) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/public");
+
+  let user = null;
+
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    if (!isPublic) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/login";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
 
   // Not logged in — redirect to login
   if (!user && !isPublic) {
