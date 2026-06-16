@@ -1,5 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Lightbulb, Target, Eye, Heart } from "lucide-react";
+import { Target, Eye, Heart } from "lucide-react";
 import Image from "next/image";
 
 export default function AboutPage() {
@@ -13,7 +12,7 @@ export default function AboutPage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_70%]"
+          className="object-cover object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
@@ -64,30 +63,19 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
-                <Image
-                  src="/about-school.jpg"
-                  alt="Nueva Vizcaya Institute school building"
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mt-8">
-                <Image
-                  src="/students-events.jpg"
-                  alt="Nueva Vizcaya Institute students and faculty"
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-blue-900/50" />
-                <div className="absolute inset-0 flex items-center justify-center text-center">
-                  <div>
-                    <p className="text-5xl font-black text-white sm:text-6xl">50+</p>
-                    <p className="text-sm font-semibold text-blue-100 mt-2 sm:text-lg">Years of Excellence</p>
-                  </div>
+            <div className="relative overflow-hidden rounded-2xl aspect-[4/3] sm:aspect-[16/9]">
+              <Image
+                src="/about-school.jpg"
+                alt="Nueva Vizcaya Institute school building"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-blue-900/40" />
+              <div className="absolute inset-0 flex items-center justify-center text-center">
+                <div>
+                  <p className="text-5xl font-black text-white sm:text-6xl">50+</p>
+                  <p className="text-sm font-semibold text-blue-100 mt-2 sm:text-lg">Years of Excellence</p>
                 </div>
               </div>
             </div>
@@ -96,58 +84,46 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Vision Values */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto max-w-7xl px-4">
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                icon: Target,
-                title: "Mission",
-                color: "text-blue-600",
-                bg: "bg-blue-50",
-                content:
-                  "To provide holistic, quality education that empowers students academically, morally, and socially — preparing them to be competent, ethical, and productive members of society.",
-              },
-              {
-                icon: Eye,
-                title: "Vision",
-                color: "text-purple-600",
-                bg: "bg-purple-50",
-                content:
-                  "To be a leading educational institution recognized for academic excellence, character development, and community engagement — producing globally competitive graduates.",
-              },
-              {
-                icon: Heart,
-                title: "Core Values",
-                color: "text-red-600",
-                bg: "bg-red-50",
-                content: null,
-                values: ["Excellence", "Integrity", "Service", "Respect", "Innovation", "Teamwork"],
-              },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <Card key={item.title} className="h-full">
-                  <CardContent className="pt-6">
-                    <div className={`inline-flex rounded-lg p-3 ${item.bg} mb-4`}>
-                      <Icon className={`h-5 w-5 ${item.color}`} />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                    {item.content ? (
-                      <p className="text-gray-600 leading-relaxed text-sm">{item.content}</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {item.values?.map((v) => (
-                          <span key={v} className={`inline-flex items-center rounded-full ${item.bg} ${item.color} px-3 py-1 text-xs font-medium`}>
-                            {v}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+      <section className="bg-gray-50 py-12 sm:py-16">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="space-y-10">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <Target className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">Mission</h3>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
+                To provide holistic, quality education that empowers students academically, morally, and socially — preparing them to be competent, ethical, and productive members of society.
+              </p>
+            </div>
+
+            <div className="h-px bg-gray-200" />
+
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <Eye className="h-5 w-5 text-purple-600" />
+                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">Vision</h3>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
+                To be a leading educational institution recognized for academic excellence, character development, and community engagement — producing globally competitive graduates.
+              </p>
+            </div>
+
+            <div className="h-px bg-gray-200" />
+
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <Heart className="h-5 w-5 text-red-600" />
+                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">Core Values</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["Excellence", "Integrity", "Service", "Respect", "Innovation", "Teamwork"].map((v) => (
+                  <span key={v} className="rounded-full bg-white border px-4 py-1.5 text-sm font-medium text-gray-700">
+                    {v}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

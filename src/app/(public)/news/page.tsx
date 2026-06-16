@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
 import { format } from "date-fns";
+import Image from "next/image";
 
 export default async function NewsPage() {
   const supabase = await createClient();
@@ -23,10 +24,21 @@ export default async function NewsPage() {
 
   return (
     <div>
-      <section className="bg-gradient-to-br from-blue-900 to-blue-700 text-white py-16">
-        <div className="container mx-auto max-w-7xl px-4">
-          <h1 className="text-4xl font-bold mb-4">News & Events</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+        <Image
+          src="/news-cover.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">News & Events</h1>
+          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
             Stay updated with the latest happenings, achievements, and upcoming events at Nueva Vizcaya Institute.
           </p>
         </div>

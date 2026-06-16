@@ -243,7 +243,7 @@ export default function ProgramsPage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_30%]"
+          className="object-cover object-center"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
