@@ -1,7 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Music, Dumbbell, BookMarked, Globe, Camera, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CLUBS } from "./clubs";
+
 export default function StudentLifePage() {
   return (
     <div>
@@ -45,44 +47,42 @@ export default function StudentLifePage() {
         </div>
       </section>
 
-      <section id="clubs" className="scroll-mt-20 bg-white py-16">        <div className="container mx-auto max-w-7xl px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Clubs & Organizations</h2>
+      <section id="clubs" className="scroll-mt-20 bg-white py-16">
+        <div className="container mx-auto max-w-7xl px-4">
+          <h2 className="mb-8 text-2xl font-bold text-gray-900">Clubs & Organizations</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { icon: BookMarked, title: "Academic Clubs", items: ["Math Club", "Science Society", "English Club", "Debate Team"], color: "text-blue-600", bg: "bg-blue-50", image: "/club-academic.jpg" },
-              { icon: Music, title: "Arts & Culture", items: ["Choir", "Dance Troupe", "Theater Guild", "Art Club"], color: "text-purple-600", bg: "bg-purple-50", image: "/club-arts.jpg" },
-              { icon: Dumbbell, title: "Sports Organizations", items: ["Basketball Team", "Volleyball Team", "Swimming Club", "Athletics"], color: "text-green-600", bg: "bg-green-50", image: "/club-sports.jpg" },
-              { icon: Users, title: "Student Government", items: ["Supreme Student Government", "Class Officers", "Grade Level Reps"], color: "text-orange-600", bg: "bg-orange-50", image: "/club-government.jpg" },
-              { icon: Globe, title: "Community Service", items: ["Red Cross Youth", "Environmental Club", "Outreach Program"], color: "text-teal-600", bg: "bg-teal-50", image: "/club-community.jpg" },
-              { icon: Camera, title: "Campus Press & Media", items: ["School Newspaper", "Photography Club", "Broadcast Journalism", "Social Media Team"], color: "text-rose-600", bg: "bg-rose-50", image: "/club-media.jpg" },
-            ].map((club) => {
+            {CLUBS.map((club) => {
               const Icon = club.icon;
               return (
-                <Card key={club.title} className="group overflow-hidden border py-0">
-                  <div className="relative aspect-[16/9] w-full overflow-hidden">
-                    <Image
-                      src={club.image}
-                      alt={club.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 backdrop-blur-sm`}>
-                        <Icon className={`h-4 w-4 ${club.color}`} />
+                <Link key={club.slug} href={`/student-life/${club.slug}`} className="group block h-full">
+                  <Card className="flex h-full flex-col overflow-hidden border py-0 transition-shadow hover:shadow-md">
+                    <div className="relative aspect-[16/9] w-full overflow-hidden">
+                      <Image
+                        src={club.image}
+                        alt={club.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 backdrop-blur-sm">
+                          <Icon className={`h-4 w-4 ${club.color}`} />
+                        </div>
+                        <span className="text-sm font-semibold text-white drop-shadow-sm">
+                          {club.title}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-white drop-shadow-sm">{club.title}</span>
                     </div>
-                  </div>
-                  <CardContent className="p-5">
-                    <ul className="space-y-2">
-                      {club.items.map((item) => (
-                        <li key={item} className="text-sm text-gray-600">• {item}</li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                    <CardContent className="flex flex-1 flex-col p-5">
+                      <p className="text-sm leading-relaxed text-gray-600">{club.description}</p>
+                      <span className="mt-auto inline-flex items-center gap-1 border-t border-gray-100 pt-4 text-sm font-semibold text-blue-600 transition-colors group-hover:text-blue-700">
+                        Learn more
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
@@ -91,8 +91,8 @@ export default function StudentLifePage() {
 
       <section id="events" className="scroll-mt-20 bg-gray-50 py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 sm:text-3xl">Annual Events</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
+          <h2 className="mb-8 text-2xl font-bold text-gray-900 sm:text-3xl">Annual Events</h2>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {[
               { name: "Foundation Day", month: "January", desc: "Annual celebration of the school's founding anniversary.", image: "/event-foundation.jpg" },
               { name: "Science Fair", month: "February", desc: "Showcase of student research and innovation projects.", image: "/event-science.jpg" },
