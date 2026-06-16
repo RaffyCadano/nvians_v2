@@ -19,3 +19,4 @@
 [debug] [2026-06-16T06:13:39.179Z] Checked if tokens are valid: true, expires at: 1781592776767
 [debug] [2026-06-16T06:13:39.179Z] Checked if tokens are valid: true, expires at: 1781592776767
 [debug] [2026-06-16T06:13:39.179Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/nvians [none]
+[debug] [2026-06-16T06:13:39.505Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/nvians 200
