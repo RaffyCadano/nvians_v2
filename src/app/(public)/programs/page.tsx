@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 import {
   GraduationCap,
   Trophy,
@@ -235,10 +236,21 @@ export default function ProgramsPage() {
   return (
     <div>
       {/* Header */}
-      <section className="bg-gradient-to-br from-blue-900 to-blue-700 py-12 text-white sm:py-16">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <h1 className="text-3xl font-bold mb-3 sm:text-4xl sm:mb-4">Academic Programs</h1>
-          <p className="text-blue-200 max-w-2xl text-sm sm:text-base">
+      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+        <Image
+          src="/programs-cover.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_30%]"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">Academic Programs</h1>
+          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
             Junior and senior high school programs for Grades 7–12, aligned with the K–12 curriculum.
           </p>
         </div>

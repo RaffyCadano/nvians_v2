@@ -8,12 +8,12 @@ export default function AboutPage() {
       {/* Header */}
       <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
         <Image
-          src="/cover.jpg"
+          src="/about-cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_70%]"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />

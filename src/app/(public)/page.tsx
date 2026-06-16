@@ -110,12 +110,12 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative flex min-h-[80vh] items-center overflow-hidden text-white sm:min-h-[75vh] lg:min-h-[80vh]">
         <Image
-          src="/cover.jpg"
+          src="/cover.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_20%]"
           aria-hidden
         />
         <div className="absolute inset-0 bg-blue-950/50" />
