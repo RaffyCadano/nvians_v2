@@ -22,6 +22,7 @@ const navLinks = [
 export default function PublicNavbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const isLoginPage = pathname === "/auth/login";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -52,9 +53,11 @@ export default function PublicNavbar() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/auth/login">Sign In</Link>
-          </Button>
+          {!isLoginPage && (
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/auth/login">Sign In</Link>
+            </Button>
+          )}
           <Button asChild size="sm">
             <Link href="/admissions">Apply Now</Link>
           </Button>
@@ -89,10 +92,12 @@ export default function PublicNavbar() {
             </Link>
           ))}
           <div className="pt-2 flex gap-2">
-            <Button asChild variant="outline" size="sm" className="flex-1">
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-            <Button asChild size="sm" className="flex-1">
+            {!isLoginPage && (
+              <Button asChild variant="outline" size="sm" className="flex-1">
+                <Link href="/auth/login">Sign In</Link>
+              </Button>
+            )}
+            <Button asChild size="sm" className={isLoginPage ? "w-full" : "flex-1"}>
               <Link href="/admissions">Apply Now</Link>
             </Button>
           </div>
