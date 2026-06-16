@@ -107,7 +107,7 @@ export function AnnouncementForm({
             <div className="space-y-1.5">
               <Label>Advisory class</Label>
               <Select value={classId} onValueChange={(v) => v && setClassId(v)} items={advisoryItems}>
-                <SelectTrigger className="w-full min-w-[280px]">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Select class">{selectedAdvisoryLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -129,7 +129,7 @@ export function AnnouncementForm({
                 onValueChange={(v) => v && setClassSubjectId(v)}
                 items={subjectItems}
               >
-                <SelectTrigger className="w-full min-w-[280px]">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Select subject">{selectedSubjectLabel}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>

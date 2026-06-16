@@ -1,77 +1,60 @@
-"use client";
+import { Inbox, KeyRound, Mail } from "lucide-react";
+import { ForgotPasswordForm } from "./forgot-password-form";
 
-import { useState } from "react";
-import Link from "next/link";
-import { forgotPassword } from "@/app/auth/actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+const steps = [
+  { icon: Mail, label: "Enter your registered school email" },
+  { icon: Inbox, label: "Open the reset link we send you" },
+  { icon: KeyRound, label: "Choose a new secure password" },
+];
 
 export default function ForgotPasswordPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const result = await forgotPassword(formData);
-
-    if (result?.error) {
-      setError(result.error);
-    } else if (result?.success) {
-      setSuccess(result.success);
-    }
-    setLoading(false);
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-          <CardDescription>
-            Enter your email and we'll send you a reset link
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {success ? (
-            <div className="rounded-md bg-green-50 p-4 text-sm text-green-700 border border-green-200">
-              {success}
+    <section className="relative flex flex-1 items-center overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+      <div
+        className="absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-yellow-400/10 blur-3xl"
+        aria-hidden
+      />
+
+      <div className="container relative mx-auto max-w-7xl px-4 py-10 sm:py-16 lg:py-24">
+        <div className="grid w-full items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          <div className="order-2 max-w-lg space-y-6 lg:order-1 lg:space-y-8">
+            <div className="space-y-5">
+              <div className="inline-block h-1 w-12 rounded-full bg-yellow-400" aria-hidden />
+              <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+                Forgot your{" "}
+                <span className="text-yellow-400">password?</span>
+              </h1>
+              <p className="text-base leading-relaxed text-blue-100 sm:text-lg">
+                No worries — enter the email linked to your NVIANS account and we&apos;ll help you
+                get back in.
+              </p>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
-                  {error}
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@school.edu"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Sending…" : "Send Reset Link"}
-              </Button>
-            </form>
-          )}
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            <Link href="/auth/login" className="hover:text-foreground hover:underline">
-              ← Back to Login
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+
+            <ul className="space-y-3">
+              {steps.map(({ icon: Icon, label }) => (
+                <li
+                  key={label}
+                  className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 backdrop-blur-sm"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-400/20">
+                    <Icon className="h-4 w-4 text-yellow-300" />
+                  </div>
+                  <span className="text-sm font-medium text-blue-50">{label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="order-1 lg:order-2">
+            <ForgotPasswordForm />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -6,7 +6,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-screen flex-col">
       <PublicNavbar />
       <main className="flex flex-1 flex-col">{children}</main>
-      <PublicFooter />
+      <div className="hidden sm:block">
+        <PublicFooter />
+      </div>
     </div>
   );
 }

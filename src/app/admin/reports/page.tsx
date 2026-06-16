@@ -71,7 +71,7 @@ export default async function AdminReportsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {stats.map((s) => (
           <Card key={s.label}>
             <CardContent className="flex items-center gap-4 py-5">

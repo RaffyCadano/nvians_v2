@@ -55,7 +55,7 @@ export default async function StudentAttendancePage() {
           <CardTitle className="text-base">Attendance History</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
             <thead className="border-b bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Date</th>
@@ -100,7 +100,7 @@ export default async function StudentAttendancePage() {
                 </tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </CardContent>
       </Card>
     </div>

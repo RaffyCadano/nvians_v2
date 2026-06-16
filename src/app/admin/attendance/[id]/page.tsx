@@ -63,7 +63,7 @@ export default async function AttendanceSessionPage({
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: "Present", value: present, color: "text-green-700", bg: "bg-green-50" },
           { label: "Absent", value: absent, color: "text-red-700", bg: "bg-red-50" },
@@ -82,7 +82,7 @@ export default async function AttendanceSessionPage({
           <CardTitle className="text-base">Student Records ({records.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
             <thead className="border-b bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Student</th>
@@ -124,7 +124,7 @@ export default async function AttendanceSessionPage({
                 </tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </CardContent>
       </Card>
     </div>

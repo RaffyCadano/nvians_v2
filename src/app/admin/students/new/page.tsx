@@ -41,7 +41,7 @@ export default function NewStudentPage() {
         <CardHeader><CardTitle className="text-base">Student Information</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="full_name">Full Name *</Label>
                 <Input id="full_name" name="full_name" placeholder="Maria Santos" required />

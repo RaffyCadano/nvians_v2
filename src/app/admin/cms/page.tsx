@@ -17,7 +17,7 @@ export default async function AdminCMSPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Website CMS</h1>
           <p className="text-sm text-gray-500 mt-1">Manage news, events, and gallery content.</p>
@@ -45,7 +45,7 @@ export default async function AdminCMSPage() {
           </div>
           <Card>
             <CardContent className="p-0">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
                 <thead className="border-b bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
@@ -84,7 +84,7 @@ export default async function AdminCMSPage() {
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table></div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -100,7 +100,7 @@ export default async function AdminCMSPage() {
           </div>
           <Card>
             <CardContent className="p-0">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
                 <thead className="border-b bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-gray-600">Title</th>
@@ -135,7 +135,7 @@ export default async function AdminCMSPage() {
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table></div>
             </CardContent>
           </Card>
         </TabsContent>

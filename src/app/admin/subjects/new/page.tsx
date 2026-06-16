@@ -42,7 +42,7 @@ export default function NewSubjectPage() {
         <CardHeader><CardTitle className="text-base">Subject Details</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="name">Subject Name *</Label>
                 <Input id="name" name="name" placeholder="Mathematics" required />

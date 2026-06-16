@@ -73,7 +73,7 @@ export function NewSessionForm({ classSubjects }: { classSubjects: ClassSubjectO
               items={selectItems}
               required
             >
-              <SelectTrigger id="class_subject_id" className="w-full min-w-[280px]">
+              <SelectTrigger id="class_subject_id" className="w-full min-w-0">
                 <SelectValue placeholder="Select class">{selectedLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>

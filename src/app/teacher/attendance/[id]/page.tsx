@@ -47,7 +47,7 @@ export default async function TeacherAttendanceSessionPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: "Present", value: present, color: "text-green-700", bg: "bg-green-50" },
           { label: "Absent", value: absent, color: "text-red-700", bg: "bg-red-50" },

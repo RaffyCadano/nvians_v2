@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen antialiased font-sans">
+      <body className="min-h-screen overflow-x-hidden antialiased font-sans">
         <TooltipProvider>
           {children}
           <Toaster />

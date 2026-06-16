@@ -206,7 +206,7 @@ export default function ClassSubjectsClient({
                 {termSubjects.length === 0 ? (
                   <p className="text-sm text-gray-400 px-6 pb-5">No subjects assigned for this term.</p>
                 ) : (
-                  <table className="w-full text-sm">
+                  <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
                     <thead className="border-t border-b bg-gray-50">
                       <tr>
                         <th className="px-4 py-2.5 text-left font-medium text-gray-600">Subject</th>
@@ -245,7 +245,7 @@ export default function ClassSubjectsClient({
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 )}
               </CardContent>
             </Card>

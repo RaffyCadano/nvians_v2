@@ -90,7 +90,7 @@ export function NewAssignmentForm({ classSubjects }: { classSubjects: ClassSubje
               items={selectItems}
               required
             >
-              <SelectTrigger id="class_subject_id" className="w-full min-w-[280px]">
+              <SelectTrigger id="class_subject_id" className="w-full min-w-0">
                 <SelectValue placeholder="Select class">{selectedLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>

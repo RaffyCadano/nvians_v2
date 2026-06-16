@@ -30,7 +30,7 @@ export default async function StudentGradesPage() {
               <p className="text-xs text-gray-500">{group.class}</p>
             </CardHeader>
             <CardContent>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
                 <thead className="border-b">
                   <tr>
                     <th className="py-2 text-left font-medium text-gray-600">Item</th>
@@ -65,7 +65,7 @@ export default async function StudentGradesPage() {
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
             </CardContent>
           </Card>
         ))

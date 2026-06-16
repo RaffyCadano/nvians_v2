@@ -79,7 +79,7 @@ export default function ClassEditForm({
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="grade_level">Grade Level *</Label>
                 <select

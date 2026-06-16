@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { DashboardShell } from "@/components/layout/dashboard-sidebar";
 import type { User } from "@/types";
 
 export default async function AdminLayout({
@@ -33,11 +33,8 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <DashboardSidebar user={user} portal="admin" />
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6">{children}</div>
-      </main>
-    </div>
+    <DashboardShell user={user} portal="admin">
+      {children}
+    </DashboardShell>
   );
 }

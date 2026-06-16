@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   Users,
@@ -39,6 +40,7 @@ import {
   LogOut,
   ChevronRight,
   Megaphone,
+  Menu,
 } from "lucide-react";
 import type { User } from "@/types";
 
@@ -76,25 +78,32 @@ const NAV_ITEMS = {
   ],
 };
 
-interface SidebarProps {
+interface DashboardShellProps {
   user: User;
   portal: "admin" | "teacher" | "student";
+  children: React.ReactNode;
 }
 
-export function DashboardSidebar({ user, portal }: SidebarProps) {
+function DashboardSidebarContent({
+  user,
+  portal,
+  onNavigate,
+}: {
+  user: User;
+  portal: "admin" | "teacher" | "student";
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const navItems = NAV_ITEMS[portal];
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-white">
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b px-6">
+    <div className="flex h-full flex-col bg-white">
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
         <Image src="/school-logo.png" alt="NVIANS Logo" width={32} height={32} className="h-8 w-auto" />
         <span className="font-semibold text-gray-900">NVIANS SMS</span>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
@@ -104,6 +113,7 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={onNavigate}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active
@@ -121,18 +131,17 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* User */}
-      <div className="border-t p-4">
+      <div className="shrink-0 border-t p-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-100 text-left w-full rounded-lg">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar_url} />
-                <AvatarFallback>{user.full_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-gray-900 truncate">{user.full_name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user.role}</p>
-              </div>
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-100">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.avatar_url} />
+              <AvatarFallback>{user.full_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="truncate text-sm font-medium text-gray-900">{user.full_name}</p>
+              <p className="text-xs capitalize text-gray-500">{user.role}</p>
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top" className="w-48">
             <DropdownMenuGroup>
@@ -144,7 +153,7 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-red-600 cursor-pointer"
+              className="cursor-pointer text-red-600"
               onClick={() => setIsSignOutOpen(true)}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -158,7 +167,8 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
             <DialogHeader>
               <DialogTitle>Confirm Sign Out</DialogTitle>
               <DialogDescription>
-                Are you sure you want to sign out? You will need to log in again to access the dashboard.
+                Are you sure you want to sign out? You will need to log in again to access the
+                dashboard.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="justify-end gap-2">
@@ -177,6 +187,54 @@ export function DashboardSidebar({ user, portal }: SidebarProps) {
           </DialogContent>
         </Dialog>
       </div>
+    </div>
+  );
+}
+
+export function DashboardShell({ user, portal, children }: DashboardShellProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-gray-50 lg:flex-row">
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-white px-4 lg:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <Image src="/school-logo.png" alt="NVIANS Logo" width={28} height={28} className="h-7 w-auto" />
+        <span className="truncate font-semibold text-gray-900">NVIANS SMS</span>
+      </header>
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 p-0">
+          <DashboardSidebarContent
+            user={user}
+            portal={portal}
+            onNavigate={() => setMobileOpen(false)}
+          />
+        </SheetContent>
+      </Sheet>
+
+      <aside className="hidden h-screen w-64 shrink-0 border-r lg:flex">
+        <DashboardSidebarContent user={user} portal={portal} />
+      </aside>
+
+      <main className="min-w-0 flex-1 overflow-y-auto">
+        <div className="p-4 sm:p-6">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+/** @deprecated Use DashboardShell instead */
+export function DashboardSidebar({ user, portal }: { user: User; portal: "admin" | "teacher" | "student" }) {
+  return (
+    <aside className="hidden h-screen w-64 flex-col border-r bg-white lg:flex">
+      <DashboardSidebarContent user={user} portal={portal} />
     </aside>
   );
 }
