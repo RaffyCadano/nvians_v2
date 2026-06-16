@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
             </h1>
             <p className="text-base leading-relaxed text-blue-100 sm:text-lg">
               Choose a strong password with at least 8 characters. You&apos;ll use it to sign in to
-              your NVIANS portal.
+              your Nueva Vizcaya Institute portal.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/25">
                     <Image
                       src="/school-logo.png"
-                      alt="NVIANS"
+                      alt="Nueva Vizcaya Institute"
                       width={40}
                       height={40}
                       className="h-10 w-auto"

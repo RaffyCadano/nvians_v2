@@ -100,8 +100,8 @@ function DashboardSidebarContent({
   return (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
-        <Image src="/school-logo.png" alt="NVIANS Logo" width={32} height={32} className="h-8 w-auto" />
-        <span className="font-semibold text-gray-900">NVIANS SMS</span>
+        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={32} height={32} className="h-8 w-auto" />
+        <span className="font-semibold text-gray-900">Nueva Vizcaya Institute</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-4">
@@ -205,8 +205,8 @@ export function DashboardShell({ user, portal, children }: DashboardShellProps) 
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <Image src="/school-logo.png" alt="NVIANS Logo" width={28} height={28} className="h-7 w-auto" />
-        <span className="truncate font-semibold text-gray-900">NVIANS SMS</span>
+        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={28} height={28} className="h-7 w-auto" />
+        <span className="truncate font-semibold text-gray-900">Nueva Vizcaya Institute</span>
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

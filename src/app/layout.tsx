@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NVIANS School Management System",
+  title: "Nueva Vizcaya Institute School Management System",
   description: "A comprehensive school management system for students, teachers, and administrators.",
   icons: {
     icon: "/school-logo.png",

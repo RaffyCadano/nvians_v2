@@ -29,9 +29,12 @@ export default function PublicNavbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/school-logo.png" alt="NVIANS Logo" width={36} height={36} className="h-9 w-auto" />
-          <span className="font-bold text-gray-900">NVIANS</span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={36} height={36} className="h-9 w-auto" />
+          <div className="leading-tight">
+            <span className="block text-sm font-bold text-gray-900">Nueva Vizcaya Institute</span>
+            <span className="block text-[10px] italic text-gray-500">The home of the achievers, the proud and the champions!</span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -74,14 +77,11 @@ export default function PublicNavbar() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="flex h-full w-full max-w-xs flex-col gap-0 p-0 sm:max-w-sm">
-          <SheetHeader className="border-b px-4 py-4 text-left">
-            <div className="flex items-center gap-2 pr-8">
-              <Image src="/school-logo.png" alt="NVIANS Logo" width={32} height={32} className="h-8 w-auto" />
-              <SheetTitle className="text-base font-bold text-gray-900">NVIANS</SheetTitle>
-            </div>
+          <SheetHeader className="sr-only">
+            <SheetTitle>Menu</SheetTitle>
           </SheetHeader>
 
-          <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-12 pb-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

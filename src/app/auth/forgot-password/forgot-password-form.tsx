@@ -57,7 +57,7 @@ export function ForgotPasswordForm() {
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/25 backdrop-blur-sm">
               <Image
                 src="/school-logo.png"
-                alt="NVIANS"
+                alt="Nueva Vizcaya Institute"
                 width={40}
                 height={40}
                 className="h-10 w-auto"

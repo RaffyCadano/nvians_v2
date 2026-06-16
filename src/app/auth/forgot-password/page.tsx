@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
                 <span className="text-yellow-400">password?</span>
               </h1>
               <p className="text-base leading-relaxed text-blue-100 sm:text-lg">
-                No worries — enter the email linked to your NVIANS account and we&apos;ll help you
+                No worries — enter the email linked to your Nueva Vizcaya Institute account and we&apos;ll help you
                 get back in.
               </p>
             </div>

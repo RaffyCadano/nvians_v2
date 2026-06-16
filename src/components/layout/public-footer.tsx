@@ -10,8 +10,8 @@ export default function PublicFooter() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/school-logo.png" alt="NVIANS Logo" width={36} height={36} className="h-9 w-auto" />
-              <span className="font-bold text-white text-lg">NVIANS</span>
+              <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={36} height={36} className="h-9 w-auto" />
+              <span className="font-bold text-white text-lg">Nueva Vizcaya Institute</span>
             </div>
             <p className="text-sm leading-relaxed">
               Nurturing minds, shaping futures. A premier educational institution committed to excellence in education.
@@ -84,7 +84,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="mt-10 border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} NVIANS School. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Nueva Vizcaya Institute. All rights reserved.</p>
           <p>School Management System v2.0</p>
         </div>
       </div>

@@ -26,7 +26,7 @@ export default function LoginPage() {
             <div className="space-y-5">
               <div className="inline-block h-1 w-12 rounded-full bg-yellow-400" aria-hidden />
               <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-                NVIANS{" "}
+                Nueva Vizcaya Institute{" "}
                 <span className="text-yellow-400">SMS</span>
               </h1>
               <p className="text-base leading-relaxed text-blue-100 sm:text-lg">

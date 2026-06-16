@@ -8,7 +8,7 @@ export default function StudentLifePage() {
         <div className="container mx-auto max-w-7xl px-4">
           <h1 className="text-4xl font-bold mb-4">Student Life</h1>
           <p className="text-blue-200 max-w-2xl">
-            Life at NVIANS goes beyond the classroom. Explore clubs, organizations, and events that make school life vibrant.
+            Life at Nueva Vizcaya Institute goes beyond the classroom. Explore clubs, organizations, and events that make school life vibrant.
           </p>
         </div>
       </section>

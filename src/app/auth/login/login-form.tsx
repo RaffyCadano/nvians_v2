@@ -81,7 +81,7 @@ export function LoginForm() {
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/25 backdrop-blur-sm">
               <Image
                 src="/school-logo.png"
-                alt="NVIANS"
+                alt="Nueva Vizcaya Institute"
                 width={40}
                 height={40}
                 className="h-10 w-auto"
@@ -93,7 +93,7 @@ export function LoginForm() {
                 School Portal
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Welcome back</h2>
-              <p className="mt-1 text-sm text-blue-100">Sign in to your NVIANS account</p>
+              <p className="mt-1 text-sm text-blue-100">Sign in to your Nueva Vizcaya Institute account</p>
             </div>
           </div>
 
@@ -194,7 +194,7 @@ export function LoginForm() {
 
         <div className="border-t border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/50 px-8 py-4 text-center">
           <p className="text-xs text-gray-500">
-            Secure access for authorized NVIANS students, faculty, and staff
+            Secure access for authorized Nueva Vizcaya Institute students, faculty, and staff
           </p>
         </div>
       </div>

@@ -48,7 +48,7 @@ const PROGRAMS = [
     badge: "bg-blue-100 text-blue-700",
     dot: "bg-blue-600",
     image: "/junior-high-class.jpg",
-    imageAlt: "Junior high school students learning in class at NVIANS",
+    imageAlt: "Junior high school students learning in class at Nueva Vizcaya Institute",
   },
   {
     level: "Senior High School",
@@ -60,23 +60,55 @@ const PROGRAMS = [
     bg: "bg-purple-50",
     badge: "bg-purple-100 text-purple-700",
     dot: "bg-purple-600",
-    image: "/students-events.jpg",
-    imageAlt: "NVIANS senior high students at a school event",
+    image: "/senior-high-class.jpg",
+    imageAlt: "Senior high school students learning in class at Nueva Vizcaya Institute",
   },
 ] as const;
 
 const SHS_TRACKS = [
-  { name: "Academic", desc: "STEM, ABM, HUMSS", icon: BookOpen },
-  { name: "TVL", desc: "Technical-vocational livelihood", icon: Wrench },
-  { name: "Sports", desc: "Athletics & physical education", icon: Medal },
-  { name: "Arts & Design", desc: "Visual & performing arts", icon: Palette },
+  {
+    name: "Academic",
+    desc: "STEM, ABM, HUMSS",
+    detail: "Prepare for college with rigorous academic strands in science, business, and humanities.",
+    icon: BookOpen,
+    strands: ["STEM", "ABM", "HUMSS", "GAS"],
+    image: "/track-academic.jpg",
+    imageAlt: "Students studying in a classroom",
+  },
+  {
+    name: "TVL",
+    desc: "Technical-Vocational Livelihood",
+    detail: "Gain hands-on skills and industry certifications for immediate employment or entrepreneurship.",
+    icon: Wrench,
+    strands: ["ICT", "Home Economics", "Industrial Arts", "Agri-Fishery"],
+    image: "/track-tvl.jpg",
+    imageAlt: "Students working on technical skills",
+  },
+  {
+    name: "Sports",
+    desc: "Athletics & Physical Education",
+    detail: "Develop athletic excellence with competitive training programs and sports science foundations.",
+    icon: Medal,
+    strands: ["Team Sports", "Individual Sports", "Sports Science"],
+    image: "/track-sports.jpg",
+    imageAlt: "Students in athletic training",
+  },
+  {
+    name: "Arts & Design",
+    desc: "Visual & Performing Arts",
+    detail: "Nurture creativity through studio practice, design thinking, and performance-based learning.",
+    icon: Palette,
+    strands: ["Visual Arts", "Media Arts", "Performing Arts"],
+    image: "/track-arts.jpg",
+    imageAlt: "Students creating art",
+  },
 ] as const;
 
 export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[520px] items-center overflow-hidden text-white sm:min-h-[620px] lg:min-h-[720px] xl:min-h-[80vh]">
+      <section className="relative flex min-h-[80vh] items-center overflow-hidden text-white sm:min-h-[85vh] lg:min-h-[90vh]">
         <Image
           src="/cover.jpg"
           alt=""
@@ -86,45 +118,33 @@ export default function HomePage() {
           className="object-cover object-center"
           aria-hidden
         />
-        <div className="absolute inset-0 bg-blue-950/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/30 via-blue-900/20 to-blue-950/50" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.07]" aria-hidden />
+        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
 
         <div className="container relative z-10 mx-auto max-w-7xl px-4 py-16 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-3xl text-center">
             <Badge
               variant="secondary"
-              className="mb-4 border-blue-600 bg-blue-700/50 text-blue-100"
+              className="mb-4 border-blue-500/50 bg-blue-600/40 text-blue-100"
             >
-              Excellence in Education
+              Excellence in Education · Grades 7–12
             </Badge>
             <h1 className="mb-5 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
               Nurturing Minds,{" "}
               <span className="text-yellow-400">Shaping Futures</span>
             </h1>
             <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-blue-100 sm:text-lg lg:text-xl">
-              NVIANS is a premier educational institution providing quality junior and senior high
-              school education (Grades 7–12), empowering students to reach their full potential.
+              Nueva Vizcaya Institute is a premier educational institution providing quality junior
+              and senior high school education, empowering students to reach their full potential.
             </p>
-            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                size="lg"
-                className="h-12 w-full bg-yellow-500 font-semibold text-gray-900 hover:bg-yellow-400 sm:w-auto"
-              >
-                <Link href="/admissions">
-                  Apply for Admission
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="h-12 w-full border-white/70 bg-white/5 text-white hover:bg-white/15 hover:text-white sm:w-auto"
-              >
-                <Link href="/about">Learn More</Link>
-              </Button>
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/admissions" className="inline-flex h-12 items-center justify-center rounded-md bg-yellow-500 px-8 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400 w-full sm:w-auto">
+                Apply for Admission
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+              <Link href="/about" className="inline-flex h-12 items-center justify-center rounded-md border border-white/60 bg-white/10 px-8 text-sm font-semibold text-white transition-colors hover:bg-white/20 w-full sm:w-auto">
+                Learn More
+              </Link>
             </div>
           </div>
         </div>
@@ -149,14 +169,14 @@ export default function HomePage() {
             {PROGRAMS.map((prog) => {
               const Icon = prog.icon;
               return (
-                <Card key={prog.level} className="h-full overflow-hidden py-0 transition-shadow hover:shadow-md">
-                  <div className="relative aspect-[16/10] w-full sm:aspect-[16/9]">
+                <Card key={prog.level} className="group h-full overflow-hidden py-0 transition-shadow hover:shadow-md">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[16/9]">
                     <Image
                       src={prog.image}
                       alt={prog.imageAlt}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
+                      className="object-cover scale-110 transition-transform duration-500 group-hover:scale-100"
                     />
                   </div>
                   <CardHeader className="space-y-3 px-6 pt-6">
@@ -197,25 +217,49 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 sm:mt-12">
-            <h3 className="mb-4 text-center text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">
+            <h3 className="mb-2 text-center text-lg font-semibold text-gray-900 sm:mb-3 sm:text-xl">
               Senior High Tracks
             </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <p className="mb-6 text-center text-sm text-gray-500 sm:mb-8 sm:text-base">
+              Explore our specialized tracks designed to prepare students for college, careers, and beyond.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
               {SHS_TRACKS.map((track) => {
                 const Icon = track.icon;
                 return (
                   <div
                     key={track.name}
-                    className="flex items-start gap-3 rounded-xl border bg-white p-4 sm:p-5"
+                    className="group overflow-hidden rounded-xl border bg-white transition-all hover:border-purple-200 hover:shadow-md"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50">
-                      <Icon className="h-5 w-5 text-purple-600" />
+                    <div className="relative aspect-[16/9] w-full overflow-hidden">
+                      <Image
+                        src={track.image}
+                        alt={track.imageAlt}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 backdrop-blur-sm">
+                          <Icon className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-white drop-shadow-sm">{track.name}</span>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-gray-900">{track.name}</p>
-                      <p className="mt-0.5 text-xs leading-snug text-gray-500 sm:text-sm">
-                        {track.desc}
-                      </p>
+                    <div className="p-5 sm:p-6">
+                      <p className="text-sm font-medium text-purple-600">{track.desc}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-gray-600">{track.detail}</p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {track.strands.map((strand) => (
+                          <span
+                            key={strand}
+                            className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700"
+                          >
+                            {strand}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 );
@@ -224,23 +268,21 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 text-center sm:mt-12">
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link href="/programs">
-                View all programs
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <Link href="/programs" className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 w-full sm:w-auto">
+              View all programs
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Why NVIANS */}
+      {/* Why Nueva Vizcaya Institute */}
       <section className="bg-white py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto max-w-7xl px-4">
           <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
             <div className="order-2 lg:order-1">
               <h2 className="mb-6 text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
-                Why Choose NVIANS?
+                Why Choose Nueva Vizcaya Institute?
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-5">
                 {WHY_ITEMS.map((item) => (
@@ -263,7 +305,7 @@ export default function HomePage() {
               <div className="relative overflow-hidden rounded-2xl shadow-md">
                 <Image
                   src="/students-events.jpg"
-                  alt="NVIANS students participating in a school event"
+                  alt="Nueva Vizcaya Institute students participating in a school event"
                   width={640}
                   height={480}
                   className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:min-h-64 lg:min-h-72"
@@ -287,19 +329,25 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-blue-700 py-16 text-white">
-        <div className="container mx-auto max-w-7xl px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Start Your Journey at NVIANS</h2>
-          <p className="text-blue-200 mb-8 max-w-xl mx-auto">
-            Join thousands of students who have found their path to success at NVIANS. Enrollment is now open.
+      <section className="relative overflow-hidden bg-blue-700 py-12 sm:py-16 lg:py-24 text-white">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white sm:h-96 sm:w-96" />
+          <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-yellow-400 sm:h-96 sm:w-96" />
+        </div>
+        <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold mb-3 sm:text-3xl sm:mb-4 lg:text-4xl lg:mb-6">
+            Start Your Journey at Nueva Vizcaya Institute
+          </h2>
+          <p className="text-blue-200 mb-6 sm:mb-8 max-w-md sm:max-w-xl mx-auto text-sm sm:text-base lg:text-lg">
+            Join thousands of students who have found their path to success at Nueva Vizcaya Institute. Enrollment is now open.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-semibold">
-              <Link href="/admissions">Enroll Now</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-              <Link href="/contact">Contact Us</Link>
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <Link href="/admissions" className="inline-flex items-center justify-center rounded-md bg-white px-8 py-3 text-sm font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-50 sm:w-auto">
+              Enroll Now
+            </Link>
+            <Link href="/contact" className="inline-flex items-center justify-center rounded-md border border-white px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto">
+              Contact Us
+            </Link>
           </div>
         </div>
       </section>

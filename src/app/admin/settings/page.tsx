@@ -48,7 +48,7 @@ export default function AdminSettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label>School Name</Label>
-            <Input defaultValue="NVIANS School Management System" readOnly className="bg-gray-50" />
+            <Input defaultValue="Nueva Vizcaya Institute School Management System" readOnly className="bg-gray-50" />
             <p className="text-xs text-gray-400">Edit <code>NEXT_PUBLIC_APP_NAME</code> in <code>.env.local</code> to change.</p>
           </div>
           <div className="space-y-1.5">

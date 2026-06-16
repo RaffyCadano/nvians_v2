@@ -27,7 +27,7 @@ export default async function NewsPage() {
         <div className="container mx-auto max-w-7xl px-4">
           <h1 className="text-4xl font-bold mb-4">News & Events</h1>
           <p className="text-blue-200 max-w-2xl">
-            Stay updated with the latest happenings, achievements, and upcoming events at NVIANS.
+            Stay updated with the latest happenings, achievements, and upcoming events at Nueva Vizcaya Institute.
           </p>
         </div>
       </section>

@@ -1,16 +1,45 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Lightbulb, Target, Eye, Heart } from "lucide-react";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
-    <div className="py-16">
+    <div>
       {/* Header */}
-      <section className="bg-gradient-to-br from-blue-900 to-blue-700 text-white py-16">
-        <div className="container mx-auto max-w-7xl px-4">
-          <h1 className="text-4xl font-bold mb-4">About NVIANS</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative flex min-h-[40vh] items-center overflow-hidden text-white sm:min-h-[45vh]">
+        <Image
+          src="/cover.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-indigo-900/30" />
+        <div className="container relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+          <p className="mb-3 text-sm font-medium tracking-wider text-yellow-400 uppercase sm:text-base">Our Story</p>
+          <h1 className="text-3xl font-bold mb-3 sm:text-4xl lg:text-5xl sm:mb-4">About Nueva Vizcaya Institute</h1>
+          <p className="text-blue-200 max-w-2xl text-sm sm:text-base lg:text-lg">
             Discover our story, values, and the vision that drives us to deliver excellence in education.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm sm:gap-8 sm:text-base">
+            <div>
+              <p className="text-2xl font-bold text-white sm:text-3xl">50+</p>
+              <p className="text-blue-300 text-xs sm:text-sm">Years of Excellence</p>
+            </div>
+            <div className="h-10 w-px bg-white/20" />
+            <div>
+              <p className="text-2xl font-bold text-white sm:text-3xl">10K+</p>
+              <p className="text-blue-300 text-xs sm:text-sm">Alumni Worldwide</p>
+            </div>
+            <div className="h-10 w-px bg-white/20" />
+            <div>
+              <p className="text-2xl font-bold text-white sm:text-3xl">100%</p>
+              <p className="text-blue-300 text-xs sm:text-sm">Dedicated Faculty</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -22,7 +51,7 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our History</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  NVIANS was founded over five decades ago with a simple yet powerful vision: to provide
+                  Nueva Vizcaya Institute was founded over five decades ago with a simple yet powerful vision: to provide
                   quality education that is accessible, relevant, and transformative.
                 </p>
                 <p>
@@ -35,10 +64,31 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="rounded-2xl bg-gray-50 p-10 text-center min-h-64 flex items-center justify-center">
-              <div>
-                <p className="text-6xl font-black text-blue-700">50+</p>
-                <p className="text-xl font-semibold text-gray-700 mt-2">Years of Excellence</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
+                <Image
+                  src="/about-school.jpg"
+                  alt="Nueva Vizcaya Institute school building"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative overflow-hidden rounded-2xl aspect-[3/4] mt-8">
+                <Image
+                  src="/students-events.jpg"
+                  alt="Nueva Vizcaya Institute students and faculty"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-blue-900/50" />
+                <div className="absolute inset-0 flex items-center justify-center text-center">
+                  <div>
+                    <p className="text-5xl font-black text-white sm:text-6xl">50+</p>
+                    <p className="text-sm font-semibold text-blue-100 mt-2 sm:text-lg">Years of Excellence</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
