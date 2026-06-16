@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, User, FileText, MessageSquare } from "lucide-react";
 import Image from "next/image";
 
 export default function ContactPage() {
@@ -70,43 +70,101 @@ export default function ContactPage() {
       {/* Contact Form */}
       <section className="bg-gray-50 py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="text-center mb-8">
+          <div className="mb-8 text-center">
             <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Send Us a Message</h2>
             <p className="mt-1 text-sm text-gray-500">We&apos;ll get back to you within 1–2 business days.</p>
           </div>
 
-          {submitted ? (
-            <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
-              <p className="font-semibold text-green-700">Thank you for reaching out!</p>
-              <p className="mt-1 text-sm text-green-600">
-                We&apos;ve received your message and will respond shortly.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6 sm:p-8">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" required placeholder="Juan dela Cruz" />
+          <div className="mx-auto max-w-7xl">
+            {submitted ? (
+              <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
+                <p className="font-semibold text-green-700">Thank you for reaching out!</p>
+                <p className="mt-1 text-sm text-green-600">
+                  We&apos;ve received your message and will respond shortly.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border bg-white p-6 sm:p-8">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-gray-700">
+                      Full Name
+                    </Label>
+                    <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                      <User className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <Input
+                        id="name"
+                        name="name"
+                        required
+                        placeholder="Juan dela Cruz"
+                        className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-gray-700">
+                      Email
+                    </Label>
+                    <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                      <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        placeholder="juan@email.com"
+                        className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required placeholder="juan@email.com" />
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject" className="text-gray-700">
+                    Subject
+                  </Label>
+                  <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <Input
+                      id="subject"
+                      name="subject"
+                      required
+                      placeholder="Inquiry about admissions..."
+                      className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" name="subject" required placeholder="Inquiry about admissions..." />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="message">Message</Label>
-                <Textarea id="message" name="message" required placeholder="Write your message here..." rows={4} />
-              </div>
-              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-                {loading ? "Sending…" : "Send Message"}
-              </Button>
-            </form>
-          )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-gray-700">
+                    Message
+                  </Label>
+                  <div className="rounded-lg border border-input bg-background px-3 py-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <div className="flex gap-2">
+                      <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                      <Textarea
+                        id="message"
+                        name="message"
+                        required
+                        placeholder="Write your message here..."
+                        rows={4}
+                        className="min-h-[120px] resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={loading}
+                  className="h-11 w-full bg-yellow-400 text-base font-semibold text-gray-900 hover:bg-yellow-300"
+                >
+                  {loading ? "Sending…" : "Send Message"}
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
       </section>
 
