@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedStats } from "@/components/public/animated-stats";
+import { DevDisclaimerModal } from "@/components/public/dev-disclaimer-modal";
 import {
   ArrowRight,
   GraduationCap,
@@ -107,6 +108,7 @@ const SHS_TRACKS = [
 export default function HomePage() {
   return (
     <>
+      <DevDisclaimerModal />
       {/* Hero */}
       <section className="relative flex min-h-[80vh] items-center overflow-hidden text-white sm:min-h-[75vh] lg:min-h-[80vh]">
         <Image
