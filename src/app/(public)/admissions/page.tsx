@@ -98,10 +98,8 @@ export default function AdmissionsPage() {
                 </p>
                 <div className="space-y-2">
                   {[
-                    { level: "Elementary", amount: "Contact Registrar" },
-                    { level: "Junior High", amount: "Contact Registrar" },
-                    { level: "Senior High", amount: "Contact Registrar" },
-                    { level: "College", amount: "Contact Registrar" },
+                    { level: "Junior High (Grades 7–10)", amount: "Contact Registrar" },
+                    { level: "Senior High (Grades 11–12)", amount: "Contact Registrar" },
                   ].map((t) => (
                     <div key={t.level} className="flex justify-between text-sm border-b pb-2">
                       <span className="text-gray-700">{t.level}</span>

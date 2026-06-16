@@ -718,7 +718,7 @@ CREATE POLICY "Submissions: student own" ON public.submissions
 
 -- News & Events: public read (via policy on anon); admin write
 CREATE POLICY "News: public read published" ON public.news
-  FOR SELECT USING (status = 'published');
+  FOR SELECT USING (is_published = TRUE);
 
 CREATE POLICY "News: admin full" ON public.news
   FOR ALL USING (
@@ -796,5 +796,5 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_class ON public.enrollments(class_id)
 CREATE INDEX IF NOT EXISTS idx_attendance_session ON public.attendance_records(session_id);
 CREATE INDEX IF NOT EXISTS idx_grade_scores_student ON public.grade_scores(student_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_student ON public.submissions(student_id);
-CREATE INDEX IF NOT EXISTS idx_news_status ON public.news(status);
+CREATE INDEX IF NOT EXISTS idx_news_published ON public.news(is_published);
 CREATE INDEX IF NOT EXISTS idx_news_published_at ON public.news(published_at);

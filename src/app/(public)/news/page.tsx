@@ -11,7 +11,7 @@ export default async function NewsPage() {
     supabase
       .from("news")
       .select("*")
-      .eq("status", "published")
+      .eq("is_published", true)
       .order("published_at", { ascending: false })
       .limit(9),
     supabase

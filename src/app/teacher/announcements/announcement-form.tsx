@@ -87,7 +87,7 @@ export function AnnouncementForm({
 
           <div className="space-y-1.5">
             <Label>Audience</Label>
-            <Select value={audience} onValueChange={setAudience}>
+            <Select value={audience} onValueChange={(v) => v && setAudience(v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select audience" />
               </SelectTrigger>
@@ -106,7 +106,7 @@ export function AnnouncementForm({
           {audience === "advisory" && advisoryClasses.length > 0 && (
             <div className="space-y-1.5">
               <Label>Advisory class</Label>
-              <Select value={classId} onValueChange={setClassId} items={advisoryItems}>
+              <Select value={classId} onValueChange={(v) => v && setClassId(v)} items={advisoryItems}>
                 <SelectTrigger className="w-full min-w-[280px]">
                   <SelectValue placeholder="Select class">{selectedAdvisoryLabel}</SelectValue>
                 </SelectTrigger>
@@ -126,7 +126,7 @@ export function AnnouncementForm({
               <Label>Subject</Label>
               <Select
                 value={classSubjectId}
-                onValueChange={setClassSubjectId}
+                onValueChange={(v) => v && setClassSubjectId(v)}
                 items={subjectItems}
               >
                 <SelectTrigger className="w-full min-w-[280px]">

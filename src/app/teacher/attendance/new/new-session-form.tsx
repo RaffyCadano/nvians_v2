@@ -69,7 +69,7 @@ export function NewSessionForm({ classSubjects }: { classSubjects: ClassSubjectO
             <Label htmlFor="class_subject_id">Subject class *</Label>
             <Select
               value={classSubjectId}
-              onValueChange={setClassSubjectId}
+              onValueChange={(v) => v && setClassSubjectId(v)}
               items={selectItems}
               required
             >

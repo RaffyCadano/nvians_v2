@@ -5,10 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
   GraduationCap,
-  BookOpen,
   Users,
   Trophy,
-  Star,
   ChevronRight,
 } from "lucide-react";
 
@@ -28,8 +26,8 @@ export default function HomePage() {
               <span className="text-yellow-400">Shaping Futures</span>
             </h1>
             <p className="text-lg sm:text-xl text-blue-100 mb-8 leading-relaxed">
-              NVIANS is a premier educational institution providing quality education from
-              Elementary through College, empowering students to reach their full potential.
+              NVIANS is a premier educational institution providing quality junior and senior high
+              school education (Grades 7–12), empowering students to reach their full potential.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold">
@@ -70,18 +68,12 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Academic Programs</h2>
             <p className="text-gray-600 max-w-xl mx-auto">
-              From elementary to college, we offer comprehensive programs designed to develop well-rounded individuals.
+              Junior and senior high school programs (Grades 7–12) designed to develop well-rounded,
+              college- and career-ready graduates.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
             {[
-              {
-                level: "Elementary",
-                desc: "Grades 1–6. Building strong foundations in literacy, numeracy, and values.",
-                icon: BookOpen,
-                color: "text-green-600",
-                bg: "bg-green-50",
-              },
               {
                 level: "Junior High School",
                 desc: "Grades 7–10. Developing critical thinking and core academic competencies.",
@@ -95,13 +87,6 @@ export default function HomePage() {
                 icon: Trophy,
                 color: "text-purple-600",
                 bg: "bg-purple-50",
-              },
-              {
-                level: "College",
-                desc: "Degree programs in Business, Education, Engineering, and more.",
-                icon: Star,
-                color: "text-orange-600",
-                bg: "bg-orange-50",
               },
             ].map((prog) => {
               const Icon = prog.icon;

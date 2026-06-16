@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BarChart3, ChevronRight } from "lucide-react";
 
+function relationOne<T>(value: T | T[] | null | undefined): T | undefined {
+  if (value == null) return undefined;
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function AdminGradesPage({
   searchParams,
 }: {
@@ -54,18 +59,24 @@ export default async function AdminGradesPage({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {(classSubjects ?? []).map((cs: any) => (
+        {(classSubjects ?? []).map((cs) => {
+          const subject = relationOne(cs.subject);
+          const cls = relationOne(cs.class);
+          const term = relationOne(cs.term);
+          const teacher = relationOne(cs.teacher);
+          const teacherUser = relationOne(teacher?.user);
+          return (
           <Card
             key={cs.id}
             className={`cursor-pointer transition-shadow hover:shadow-md ${class_subject === cs.id ? "ring-2 ring-blue-500" : ""}`}
           >
             <CardContent className="flex items-center justify-between py-4">
               <div>
-                <p className="font-semibold text-gray-900">{cs.subject?.name}</p>
+                <p className="font-semibold text-gray-900">{subject?.name}</p>
                 <p className="text-sm text-gray-500">
-                  {cs.class?.grade_level} - {cs.class?.section}
+                  {cls?.grade_level} - {cls?.section}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">{cs.term?.name} · {cs.teacher?.user?.full_name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{term?.name} · {teacherUser?.full_name}</p>
               </div>
               <Button asChild variant="ghost" size="sm">
                 <Link href={`/admin/grades?class_subject=${cs.id}`}>
@@ -74,7 +85,8 @@ export default async function AdminGradesPage({
               </Button>
             </CardContent>
           </Card>
-        ))}
+        );
+        })}
         {(!classSubjects || classSubjects.length === 0) && (
           <div className="col-span-3 py-16 text-center text-gray-500">
             <BarChart3 className="h-10 w-10 text-gray-300 mx-auto mb-3" />
@@ -83,11 +95,14 @@ export default async function AdminGradesPage({
         )}
       </div>
 
-      {class_subject && selected && (
+      {class_subject && selected && (() => {
+        const subject = relationOne(selected.subject);
+        const cls = relationOne(selected.class);
+        return (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {selected.subject?.name} — {selected.class?.grade_level} {selected.class?.section}
+              {subject?.name} — {cls?.grade_level} {cls?.section}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -119,7 +134,8 @@ export default async function AdminGradesPage({
             </table>
           </CardContent>
         </Card>
-      )}
+        );
+      })()}
     </div>
   );
 }

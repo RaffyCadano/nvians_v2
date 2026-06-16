@@ -8,12 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { ALLOWED_GRADE_LEVELS } from "@/lib/constants/grade-levels";
 import { updateClass } from "../actions";
 
-const GRADE_LEVELS = [
-  "Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6",
-  "Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12",
-];
+const GRADE_LEVELS = [...ALLOWED_GRADE_LEVELS];
 
 export default function ClassEditForm({
   classData,

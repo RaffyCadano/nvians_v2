@@ -26,8 +26,8 @@ export default function AboutPage() {
                   quality education that is accessible, relevant, and transformative.
                 </p>
                 <p>
-                  What started as a small elementary school has grown into a full-cycle educational
-                  institution serving thousands of students from Kinder through College.
+                  What started as a small community school has grown into a junior and senior high
+                  institution serving students in Grades 7 through 12.
                 </p>
                 <p>
                   Over the years, our school has produced graduates who have gone on to become leaders

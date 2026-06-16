@@ -1,19 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Trophy, Star } from "lucide-react";
+import { GraduationCap, Trophy } from "lucide-react";
 
 const programs = [
-  {
-    icon: BookOpen,
-    level: "Elementary",
-    grades: "Grades 1 – 6",
-    color: "text-green-600",
-    bg: "bg-green-50",
-    badge: "bg-green-100 text-green-700",
-    description:
-      "Our Elementary program builds strong academic foundations in Reading, Mathematics, Science, and Filipino while nurturing values and social skills.",
-    subjects: ["English", "Filipino", "Mathematics", "Science", "Araling Panlipunan", "MAPEH", "TLE", "ESP"],
-  },
   {
     icon: GraduationCap,
     level: "Junior High School",
@@ -22,7 +10,7 @@ const programs = [
     bg: "bg-blue-50",
     badge: "bg-blue-100 text-blue-700",
     description:
-      "Junior High builds on elementary foundations with deeper academic competencies, critical thinking, and exposure to career pathways.",
+      "Junior High develops critical thinking, core academic competencies, and exposure to career pathways.",
     subjects: ["English", "Filipino", "Mathematics", "Science", "AP", "EsP", "TLE/EPP", "MAPEH"],
   },
   {
@@ -36,17 +24,6 @@ const programs = [
       "Senior High offers specialized tracks: Academic Track (STEM, ABM, HUMSS), TVL Track, Sports Track, and Arts & Design Track.",
     subjects: ["Core Subjects", "STEM Track", "ABM Track", "HUMSS Track", "TVL Track", "Sports Track"],
   },
-  {
-    icon: Star,
-    level: "College",
-    grades: "4-Year Degree Programs",
-    color: "text-orange-600",
-    bg: "bg-orange-50",
-    badge: "bg-orange-100 text-orange-700",
-    description:
-      "Our college department offers CHED-recognized degree programs in business, education, engineering, and liberal arts.",
-    subjects: ["Business Administration", "Teacher Education", "Information Technology", "Engineering", "Hospitality"],
-  },
 ];
 
 export default function ProgramsPage() {
@@ -56,7 +33,7 @@ export default function ProgramsPage() {
         <div className="container mx-auto max-w-7xl px-4">
           <h1 className="text-4xl font-bold mb-4">Academic Programs</h1>
           <p className="text-blue-200 max-w-2xl">
-            From Elementary to College, NVIANS offers comprehensive programs designed for every stage of learning.
+            Junior and senior high school programs for Grades 7–12, aligned with the K–12 curriculum.
           </p>
         </div>
       </section>
