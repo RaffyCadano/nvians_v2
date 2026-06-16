@@ -10,6 +10,39 @@ import { Mail, Phone, MapPin, Clock, User, FileText, MessageSquare } from "lucid
 import Image from "next/image";
 import Link from "next/link";
 
+const CONTACT_ITEMS = [
+  {
+    icon: MapPin,
+    title: "Visit Us",
+    color: "text-blue-600",
+    detail: "123 School Street, Brgy. San Jose, City, Province 1234",
+  },
+  {
+    icon: Phone,
+    title: "Call Us",
+    color: "text-green-600",
+    links: [
+      { text: "(02) 123-4567", href: "tel:+6321234567" },
+      { text: "0917-123-4567", href: "tel:+639171234567" },
+    ],
+  },
+  {
+    icon: Mail,
+    title: "Email Us",
+    color: "text-purple-600",
+    links: [
+      { text: "info@nvians.edu.ph", href: "mailto:info@nvians.edu.ph" },
+      { text: "admissions@nvians.edu.ph", href: "mailto:admissions@nvians.edu.ph" },
+    ],
+  },
+  {
+    icon: Clock,
+    title: "Office Hours",
+    color: "text-orange-600",
+    detail: "Monday – Friday, 7:00 AM – 5:00 PM",
+  },
+] as const;
+
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,19 +101,28 @@ export default function ContactPage() {
       {/* Contact Info */}
       <section className="bg-white py-12 sm:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: MapPin, title: "Visit Us", detail: "123 School Street, Brgy. San Jose, City, Province 1234", color: "text-blue-600" },
-              { icon: Phone, title: "Call Us", detail: "(02) 123-4567\n0917-123-4567", color: "text-green-600" },
-              { icon: Mail, title: "Email Us", detail: "info@nvians.edu.ph\nadmissions@nvians.edu.ph", color: "text-purple-600" },
-              { icon: Clock, title: "Office Hours", detail: "Monday – Friday\n7:00 AM – 5:00 PM", color: "text-orange-600" },
-            ].map((item) => {
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {CONTACT_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.title} className="rounded-xl border p-5 text-center transition-colors hover:bg-gray-50">
+                <div key={item.title} className="rounded-xl border p-5 text-center">
                   <Icon className={`mx-auto h-6 w-6 ${item.color}`} />
                   <p className="mt-3 text-sm font-semibold text-gray-900">{item.title}</p>
-                  <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-gray-500">{item.detail}</p>
+                  {"detail" in item && item.detail ? (
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500">{item.detail}</p>
+                  ) : (
+                    <div className="mt-1 space-y-1">
+                      {item.links.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          className="block text-xs text-blue-600 hover:underline"
+                        >
+                          {link.text}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -89,36 +131,41 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form */}
-      <section id="contact-form" className="bg-gray-50 py-12 sm:py-16 scroll-mt-20">
+      <section id="contact-form" className="scroll-mt-20 bg-gray-50 py-10 sm:py-14 lg:py-16">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 text-center">
+          <div className="mx-auto mb-6 max-w-2xl text-center sm:mb-8">
             <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Send Us a Message</h2>
-            <p className="mt-1 text-sm text-gray-500">We&apos;ll get back to you within 1–2 business days.</p>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-500 sm:text-base">
+              We&apos;ll get back to you within 1–2 business days.
+            </p>
           </div>
 
-          <div className="mx-auto max-w-7xl">
+          <div className="mx-auto w-full max-w-2xl">
             {submitted ? (
-              <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
+              <div className="rounded-xl border border-green-200 bg-green-50 p-6 text-center sm:p-8">
                 <p className="font-semibold text-green-700">Thank you for reaching out!</p>
                 <p className="mt-1 text-sm text-green-600">
                   We&apos;ve received your message and will respond shortly.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border bg-white p-6 sm:p-8">
-                <div className="grid gap-5 sm:grid-cols-2">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4 rounded-xl border bg-white p-4 sm:space-y-5 sm:p-6 lg:p-8"
+              >
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-gray-700">
                       Full Name
                     </Label>
-                    <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <div className="flex h-11 min-w-0 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
                       <User className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <Input
                         id="name"
                         name="name"
                         required
                         placeholder="Juan dela Cruz"
-                        className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                        className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                       />
                     </div>
                   </div>
@@ -126,7 +173,7 @@ export default function ContactPage() {
                     <Label htmlFor="email" className="text-gray-700">
                       Email
                     </Label>
-                    <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <div className="flex h-11 min-w-0 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
                       <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <Input
                         id="email"
@@ -134,7 +181,7 @@ export default function ContactPage() {
                         type="email"
                         required
                         placeholder="juan@email.com"
-                        className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                        className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                       />
                     </div>
                   </div>
@@ -144,14 +191,14 @@ export default function ContactPage() {
                   <Label htmlFor="subject" className="text-gray-700">
                     Subject
                   </Label>
-                  <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                  <div className="flex h-11 min-w-0 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
                     <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <Input
                       id="subject"
                       name="subject"
                       required
                       placeholder="Inquiry about admissions..."
-                      className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                      className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                     />
                   </div>
                 </div>
@@ -161,7 +208,7 @@ export default function ContactPage() {
                     Message
                   </Label>
                   <div className="rounded-lg border border-input bg-background px-3 py-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-                    <div className="flex gap-2">
+                    <div className="flex min-w-0 gap-2">
                       <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                       <Textarea
                         id="message"
@@ -169,7 +216,7 @@ export default function ContactPage() {
                         required
                         placeholder="Write your message here..."
                         rows={4}
-                        className="min-h-[120px] resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+                        className="min-h-[100px] min-w-0 flex-1 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 sm:min-h-[120px]"
                       />
                     </div>
                   </div>
@@ -179,7 +226,7 @@ export default function ContactPage() {
                   type="submit"
                   size="lg"
                   disabled={loading}
-                  className="h-11 w-full bg-yellow-400 text-base font-semibold text-gray-900 hover:bg-yellow-300"
+                  className="h-11 w-full bg-yellow-400 text-sm font-semibold text-gray-900 hover:bg-yellow-300 sm:text-base"
                 >
                   {loading ? "Sending…" : "Send Message"}
                 </Button>

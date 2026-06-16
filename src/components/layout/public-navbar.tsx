@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const navLinks = [
@@ -56,13 +55,19 @@ export default function PublicNavbar() {
 
         <div className="hidden items-center gap-2 lg:flex">
           {!isAuthPage && (
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
+            <Link
+              href="/auth/login"
+              className="inline-flex h-9 items-center justify-center rounded-md px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            >
+              Sign In
+            </Link>
           )}
-          <Button asChild size="sm">
-            <Link href="/admissions">Apply Now</Link>
-          </Button>
+          <Link
+            href="/admissions"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-yellow-500 px-4 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400"
+          >
+            Apply Now
+          </Link>
         </div>
 
         <button
@@ -77,42 +82,49 @@ export default function PublicNavbar() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="flex h-full w-full max-w-xs flex-col gap-0 p-0 sm:max-w-sm">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Menu</SheetTitle>
+          <SheetHeader className=" px-4 py-5 pr-12">
+            <SheetTitle className="text-base font-semibold text-gray-900">Menu</SheetTitle>
           </SheetHeader>
 
-          <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-12 pb-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname === link.href
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="flex-1 overflow-y-auto px-4 py-0 pb-4">
+            <ul className="divide-y divide-gray-100">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "block py-3 text-sm font-medium transition-colors",
+                      pathname === link.href
+                        ? "text-blue-600"
+                        : "text-gray-700 hover:text-gray-900"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
 
           <div className="mt-auto border-t px-4 py-4">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {!isAuthPage && (
-                <Button asChild variant="outline" size="sm" className="w-full">
-                  <Link href="/auth/login" onClick={() => setOpen(false)}>
-                    Sign In
-                  </Link>
-                </Button>
-              )}
-              <Button asChild size="sm" className="w-full">
-                <Link href="/admissions" onClick={() => setOpen(false)}>
-                  Apply Now
+                <Link
+                  href="/auth/login"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md border border-gray-200 bg-white text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                >
+                  Sign In
                 </Link>
-              </Button>
+              )}
+              <Link
+                href="/admissions"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-11 w-full items-center justify-center rounded-md bg-yellow-500 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-400"
+              >
+                Apply Now
+              </Link>
             </div>
           </div>
         </SheetContent>
