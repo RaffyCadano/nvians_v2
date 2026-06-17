@@ -1,0 +1,16 @@
+[debug] [2026-06-17T06:02:15.594Z] ----------------------------------------------------------------------
+[debug] [2026-06-17T06:02:15.596Z] Command:       E:\node.exe C:\Users\raffy\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js deploy --only apphosting
+[debug] [2026-06-17T06:02:15.597Z] CLI Version:   15.20.0
+[debug] [2026-06-17T06:02:15.597Z] Platform:      win32
+[debug] [2026-06-17T06:02:15.597Z] Node Version:  v24.13.0
+[debug] [2026-06-17T06:02:15.597Z] Time:          Wed Jun 17 2026 02:02:15 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-06-17T06:02:15.597Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-17T06:02:18.654Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-17T06:02:18.654Z] > authorizing via signed-in user (raffyespiritu.cadano@gmail.com)
+[debug] [2026-06-17T06:02:18.654Z] [iam] checking project nvians for permissions ["firebase.projects.get"]
+[debug] [2026-06-17T06:02:18.655Z] Checked if tokens are valid: false, expires at: 1781676417787
+[debug] [2026-06-17T06:02:18.655Z] Checked if tokens are valid: false, expires at: 1781676417787
+[debug] [2026-06-17T06:02:18.655Z] > refreshing access token with scopes: []
+[debug] [2026-06-17T06:02:18.657Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-06-17T06:02:18.657Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]

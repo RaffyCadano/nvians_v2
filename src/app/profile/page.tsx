@@ -37,21 +37,21 @@ export default async function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                   <User className="h-4 w-4" />
                   <span>Full Name</span>
                 </div>
                 <p className="text-lg font-semibold text-slate-900">{user.full_name}</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                   <Mail className="h-4 w-4" />
                   <span>Email</span>
                 </div>
                 <p className="text-lg font-semibold text-slate-900">{user.email}</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                   <ShieldCheck className="h-4 w-4" />
                   <span>Role</span>
@@ -60,7 +60,7 @@ export default async function ProfilePage() {
                   {user.role}
                 </Badge>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
                   <CalendarDays className="h-4 w-4" />
                   <span>Joined</span>
@@ -75,7 +75,7 @@ export default async function ProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
               <h2 className="text-sm font-semibold text-slate-900">Account status</h2>
               <p className="mt-2 text-sm text-slate-600">
                 {user.is_active ? (

@@ -72,7 +72,7 @@ export default async function NewsPage() {
           {news && news.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {news.map((article: any) => (
-                <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <Card key={article.id} className="overflow-hidden transition-colors">
                   {article.cover_image && (
                     <div className="h-48 bg-gray-100">
                       <img

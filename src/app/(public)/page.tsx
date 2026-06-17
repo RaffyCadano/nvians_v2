@@ -171,7 +171,7 @@ export default function HomePage() {
             {PROGRAMS.map((prog) => {
               const Icon = prog.icon;
               return (
-                <Card key={prog.level} className="group h-full overflow-hidden py-0 transition-shadow hover:shadow-md">
+                <Card key={prog.level} className="group h-full overflow-hidden py-0 transition-colors">
                   <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[16/9]">
                     <Image
                       src={prog.image}
@@ -231,7 +231,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={track.name}
-                    className="group overflow-hidden rounded-xl border bg-white transition-all hover:border-purple-200 hover:shadow-md"
+                    className="group overflow-hidden rounded-xl border bg-white transition-all hover:border-purple-200"
                   >
                     <div className="relative aspect-[16/9] w-full overflow-hidden">
                       <Image
@@ -304,7 +304,7 @@ export default function HomePage() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <div className="relative overflow-hidden rounded-2xl shadow-md">
+              <div className="relative overflow-hidden rounded-2xl">
                 <Image
                   src="/students-events.jpg"
                   alt="Nueva Vizcaya Institute students participating in a school event"

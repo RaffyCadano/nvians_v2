@@ -67,7 +67,7 @@ export default async function StudentDashboardPage() {
           const Icon = item.icon;
           return (
             <a key={item.href} href={item.href}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="cursor-pointer">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">{item.title}</CardTitle>
                   <div className={`rounded-lg p-2 ${item.bg}`}>

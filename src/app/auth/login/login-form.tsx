@@ -39,7 +39,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-white/20 bg-white shadow-lg">
+    <div className="w-full overflow-hidden rounded-xl border border-white/20 bg-white">
       <div className="border-b border-gray-100 bg-blue-50 px-6 py-5 text-center sm:px-8">
         <h2 className="text-xl font-semibold text-gray-900">Welcome back</h2>
         <p className="mt-1 text-sm text-gray-600">

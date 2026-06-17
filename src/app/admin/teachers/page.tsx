@@ -169,7 +169,7 @@ export default async function TeachersPage({
           return (
             <div
               key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+              className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -210,7 +210,7 @@ export default async function TeachersPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         {/* Main list */}
-        <section className="min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <section className="min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
             <h2 className="font-semibold text-gray-900">
               {searchQuery ? `Results for "${searchQuery}"` : "All Teachers"}
@@ -331,7 +331,7 @@ export default async function TeachersPage({
         {/* Sidebar */}
         <aside className="flex flex-col gap-5 lg:sticky lg:top-7">
           {disabledCount > 0 && (
-            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section className="rounded-xl border border-gray-200 bg-white p-5">
               <div className="flex items-center gap-2.5">
                 <UserX className="h-4 w-4 text-red-500" />
                 <h2 className="text-base font-bold text-gray-900">Account Status</h2>
@@ -350,7 +350,7 @@ export default async function TeachersPage({
           )}
 
           {departmentCounts.length > 0 && (
-            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section className="rounded-xl border border-gray-200 bg-white p-5">
               <h2 className="text-base font-bold text-gray-900">By Department</h2>
               <ul className="mt-4 space-y-2">
                 {departmentCounts.slice(0, 6).map(([dept, count]) => (
@@ -368,7 +368,7 @@ export default async function TeachersPage({
             </section>
           )}
 
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="text-base font-bold text-gray-900">Quick Guide</h2>
             <ul className="mt-4 space-y-3 text-sm text-gray-600">
               <li className="flex gap-3">

@@ -21,11 +21,20 @@ export default async function NewEnrollmentPage() {
       .order("start_date", { ascending: false }),
   ]);
 
+  const studentList = students ?? [];
+  const classList = classes ?? [];
+  const schoolYearList = schoolYears ?? [];
+
   return (
     <EnrollmentForm
-      students={students ?? []}
-      classes={classes ?? []}
-      schoolYears={schoolYears ?? []}
+      students={studentList}
+      classes={classList}
+      schoolYears={schoolYearList}
+      stats={{
+        students: studentList.length,
+        classes: classList.length,
+        schoolYears: schoolYearList.length,
+      }}
     />
   );
 }

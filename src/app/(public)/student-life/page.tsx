@@ -55,7 +55,7 @@ export default function StudentLifePage() {
               const Icon = club.icon;
               return (
                 <Link key={club.slug} href={`/student-life/${club.slug}`} className="group block h-full">
-                  <Card className="flex h-full flex-col overflow-hidden border py-0 transition-shadow hover:shadow-md">
+                  <Card className="flex h-full flex-col overflow-hidden border py-0 transition-colors">
                     <div className="relative aspect-[16/9] w-full overflow-hidden">
                       <Image
                         src={club.image}

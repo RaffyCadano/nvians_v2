@@ -183,7 +183,7 @@ function NavLink({
       className={cn(
         "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
         active
-          ? "bg-blue-500/15 text-white shadow-sm"
+          ? "bg-blue-500/15 text-white"
           : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100"
       )}
     >

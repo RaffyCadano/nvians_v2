@@ -57,7 +57,7 @@ export default function FacilitiesPage() {
                   href={`/facilities/${facility.slug}`}
                   className="group block h-full"
                 >
-                  <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-white transition-all hover:shadow-md">
+                  <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-white transition-all">
                     <div className="relative aspect-[16/9] w-full overflow-hidden">
                       <Image
                         src={facility.image}

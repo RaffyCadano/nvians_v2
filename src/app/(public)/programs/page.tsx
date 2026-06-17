@@ -78,7 +78,7 @@ export default function ProgramsPage() {
                   href={`/programs/junior-high/${subj.slug}`}
                   className="group block h-full"
                 >
-                  <Card className="flex h-full flex-col border bg-white transition-all hover:border-blue-200 hover:shadow-md">
+                  <Card className="flex h-full flex-col border bg-white transition-all hover:border-blue-200">
                     <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 transition-colors group-hover:bg-blue-100">
                         <Icon className="h-5 w-5 text-blue-600" />
