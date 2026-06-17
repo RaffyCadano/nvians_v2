@@ -174,3 +174,26 @@ input[data-slot="input"],
   caret-color: #111827 !important;
   color-scheme: light !important;
 }
+
+.dashboard-nav-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.55) transparent;
+}
+
+.dashboard-nav-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-nav-scroll::-webkit-scrollbar-track {
+  margin: 6px 0;
+  background: transparent;
+}
+
+.dashboard-nav-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(100, 116, 139, 0.45);
+}
+
+.dashboard-nav-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}

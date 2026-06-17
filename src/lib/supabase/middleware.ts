@@ -7,25 +7,9 @@ import {
   toAdminInternalPath,
   toAdminPublicPath,
 } from "@/lib/admin-routes";
-import {
-  getAdminAppUrl,
-  getDashboardUrl,
-  getPublicAppUrl,
-  isAdminHost,
-  isLocalHost,
-} from "@/lib/site-urls";
+import { getDashboardUrl } from "@/lib/site-urls";
 import { getRequestHost } from "@/lib/request-host";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
-
-const PUBLIC_SITE_PREFIXES = [
-  "/about",
-  "/programs",
-  "/admissions",
-  "/student-life",
-  "/facilities",
-  "/news",
-  "/contact",
-];
 
 function redirectWithCookies(url: string, cookieSource?: NextResponse) {
   const response = NextResponse.redirect(url);
@@ -43,61 +27,11 @@ function applyCookies(from: NextResponse, to: NextResponse) {
 }
 
 function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
-  const host = getRequestHost(request.headers);
   const { pathname, search } = request.nextUrl;
-  const onAdminHost = isAdminHost(host);
-  const onLocal = isLocalHost(host);
-
-  if (onLocal) {
-    if (pathname.startsWith("/admin/") || pathname === "/admin") {
-      return redirectWithCookies(
-        `${request.nextUrl.origin}${toAdminPublicPath(pathname)}${search}`,
-        cookieSource
-      );
-    }
-    return null;
-  }
-
-  if (onAdminHost) {
-    if (pathname === "/" || pathname === "/admin" || pathname === "/admin/") {
-      return redirectWithCookies(
-        `${request.nextUrl.origin}/dashboard${search}`,
-        cookieSource
-      );
-    }
-
-    if (pathname.startsWith("/admin/") || pathname === "/admin") {
-      return redirectWithCookies(
-        `${request.nextUrl.origin}${toAdminPublicPath(pathname)}${search}`,
-        cookieSource
-      );
-    }
-
-    if (
-      PUBLIC_SITE_PREFIXES.some(
-        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-      )
-    ) {
-      return redirectWithCookies(`${getPublicAppUrl()}${pathname}${search}`, cookieSource);
-    }
-
-    if (pathname.startsWith("/teacher") || pathname.startsWith("/student")) {
-      return redirectWithCookies(`${getPublicAppUrl()}${pathname}${search}`, cookieSource);
-    }
-
-    return null;
-  }
 
   if (pathname.startsWith("/admin")) {
     return redirectWithCookies(
-      `${getAdminAppUrl()}${toAdminPublicPath(pathname)}${search}`,
-      cookieSource
-    );
-  }
-
-  if (isAdminPortalPublicPath(pathname)) {
-    return redirectWithCookies(
-      `${getAdminAppUrl()}${pathname}${search}`,
+      `${request.nextUrl.origin}${toAdminPublicPath(pathname)}${search}`,
       cookieSource
     );
   }
@@ -238,10 +172,7 @@ function finalizeAdminRewrite(
 ) {
   const { pathname } = request.nextUrl;
 
-  if (
-    (isAdminHost(host) || isLocalHost(host)) &&
-    isAdminPortalPublicPath(pathname)
-  ) {
+  if (isAdminPortalPublicPath(pathname)) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = toAdminInternalPath(pathname);
     return applyCookies(supabaseResponse, NextResponse.rewrite(rewriteUrl, { request }));

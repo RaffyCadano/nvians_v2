@@ -1,26 +1,11 @@
-const DEFAULT_ADMIN_HOST = "admin.dashboard.nvians.com";
 const DEFAULT_PUBLIC_URL = "https://nvians.com";
-
-export function getAdminHost() {
-  return process.env.NEXT_PUBLIC_ADMIN_HOST ?? DEFAULT_ADMIN_HOST;
-}
 
 export function getPublicAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? DEFAULT_PUBLIC_URL;
 }
 
-export function getAdminAppUrl() {
-  return process.env.NEXT_PUBLIC_ADMIN_URL ?? `https://${getAdminHost()}`;
-}
-
 export function normalizeHost(host: string | null) {
   return (host ?? "").split(":")[0].toLowerCase();
-}
-
-export function isAdminHost(host: string | null) {
-  const normalized = normalizeHost(host);
-  const adminHost = getAdminHost();
-  return normalized === adminHost || normalized === `www.${adminHost}`;
 }
 
 export function isLocalHost(host: string | null) {
@@ -28,22 +13,23 @@ export function isLocalHost(host: string | null) {
   return normalized === "localhost" || normalized === "127.0.0.1";
 }
 
-import { getAdminDashboardUrl } from "@/lib/admin-routes";
+/** Admin portal on the main domain. */
+export function getAdminPortalUrl() {
+  return `${getPublicAppUrl()}/dashboard`;
+}
 
-/** Dashboard URL for a role; admins go to the admin subdomain /dashboard in production. */
-export function getDashboardUrl(role: string, host: string | null) {
+/** Dashboard URL for a role. */
+export function getDashboardUrl(role: string, _host: string | null) {
   if (role === "admin" || role === "staff") {
-    return getAdminDashboardUrl(host);
+    return "/dashboard";
   }
 
   if (role === "teacher") return "/teacher/dashboard";
   return "/student/dashboard";
 }
 
-/** Base URL for auth emails/callbacks when the request originates from the admin host. */
+/** Base URL for auth emails/callbacks. */
 export function getAuthBaseUrl(host: string | null) {
-  if (isAdminHost(host) || isLocalHost(host)) {
-    return isLocalHost(host) ? "http://localhost:3000" : getAdminAppUrl();
-  }
+  if (isLocalHost(host)) return "http://localhost:3000";
   return getPublicAppUrl();
 }

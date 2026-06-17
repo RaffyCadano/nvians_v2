@@ -14,13 +14,3 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: NEXT_PUBLIC_ADMIN_HOST
-    value: admin.dashboard.nvians.com
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_ADMIN_URL
-    value: https://admin.dashboard.nvians.com
-    availability:
-      - BUILD
-      - RUNTIME

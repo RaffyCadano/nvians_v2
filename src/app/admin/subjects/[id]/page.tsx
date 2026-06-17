@@ -1,159 +1,76 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import SubjectDetailForm from "./detail-form";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { updateSubject } from "../actions";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+function relationOne<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
 
-export default function SubjectDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const [subject, setSubject] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+type ClassLink = {
+  id: string;
+  class: {
+    id: string;
+    grade_level: string;
+    section: string;
+    school_year: { name: string } | null;
+  } | null;
+};
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("subjects")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error || !data) {
-        setError("Subject not found.");
-      } else {
-        setSubject(data);
-      }
-      setLoading(false);
-    }
-    load();
-  }, [id]);
+export default async function SubjectDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-    const formData = new FormData(e.currentTarget);
-    const result = await updateSubject(id, formData);
-    if (result?.error) {
-      setError(result.error);
-      setSaving(false);
-    } else {
-      router.push("/subjects");
-    }
+  const { data: subject, error } = await supabase
+    .from("subjects")
+    .select(
+      `
+      *,
+      class_subjects(
+        id,
+        class:classes(
+          id,
+          grade_level,
+          section,
+          school_year:school_years(name)
+        )
+      )
+    `
+    )
+    .eq("id", id)
+    .single();
+
+  if (error || !subject) {
+    notFound();
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!subject) {
-    return (
-      <div className="max-w-2xl space-y-4">
-        <p className="text-red-600">{error || "Subject not found."}</p>
-        <Link href="/subjects" className="text-sm text-blue-600 hover:underline">
-          ← Back to Subjects
-        </Link>
-      </div>
-    );
-  }
+  const classLinks = (subject.class_subjects ?? []) as ClassLink[];
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/subjects" className="text-gray-500 hover:text-gray-700">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Subject</h1>
-          <p className="text-sm text-gray-500">Update subject information.</p>
-        </div>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Subject Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Subject Name *</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  required
-                  defaultValue={subject.name}
-                  placeholder="Mathematics"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="code">Subject Code *</Label>
-                <Input
-                  id="code"
-                  name="code"
-                  required
-                  defaultValue={subject.code}
-                  placeholder="MATH-7"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  name="status"
-                  defaultValue={subject.status ?? "active"}
-                  className="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                defaultValue={subject.description ?? ""}
-                placeholder="Brief description of this subject..."
-                rows={3}
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-                {error}
-              </p>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/subjects")}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <SubjectDetailForm
+      subject={{
+        id: subject.id,
+        name: subject.name,
+        code: subject.code,
+        description: subject.description,
+        status: subject.status as "active" | "archived",
+        created_at: subject.created_at,
+      }}
+      classLinks={classLinks.map((link) => {
+        const cls = relationOne(link.class);
+        const schoolYear = relationOne(cls?.school_year);
+        return {
+          id: link.id,
+          classId: cls?.id ?? "",
+          gradeLevel: cls?.grade_level ?? "—",
+          section: cls?.section ?? "—",
+          schoolYear: schoolYear?.name ?? "—",
+        };
+      })}
+    />
   );
 }

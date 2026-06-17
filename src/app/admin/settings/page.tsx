@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { changePassword } from "./actions";
 import { toast } from "sonner";
-import { getAdminAppUrl, getPublicAppUrl } from "@/lib/site-urls";
+import { getAdminPortalUrl, getPublicAppUrl } from "@/lib/site-urls";
 import { Globe, KeyRound, Link2, School, Settings } from "lucide-react";
 
 export default function AdminSettingsPage() {
@@ -92,7 +92,7 @@ export default function AdminSettingsPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Admin portal URL</Label>
-                <Input defaultValue={getAdminAppUrl()} readOnly className="bg-gray-50 text-gray-900" />
+                <Input defaultValue={getAdminPortalUrl()} readOnly className="bg-gray-50 text-gray-900" />
               </div>
             </div>
           </section>

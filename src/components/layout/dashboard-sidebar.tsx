@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -45,6 +45,7 @@ import {
   PieChart,
   ChevronDown,
   ExternalLink,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import type { User } from "@/types";
@@ -209,10 +210,12 @@ function DashboardSidebarContent({
   user,
   portal,
   onNavigate,
+  showClose,
 }: {
   user: User;
   portal: "admin" | "teacher" | "student";
   onNavigate?: () => void;
+  showClose?: boolean;
 }) {
   const pathname = usePathname();
   const navGroups = PORTAL_NAV[portal];
@@ -241,11 +244,22 @@ function DashboardSidebarContent({
               {PORTAL_LABELS[portal]}
             </p>
           </div>
+          {showClose && onNavigate && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onNavigate}
+              aria-label="Close navigation menu"
+              className="shrink-0 text-slate-400 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="dashboard-nav-scroll flex-1 overflow-x-hidden overflow-y-auto px-3 py-4">
         <div className="space-y-5">
           {navGroups.map((group) => (
             <div key={group.label}>
@@ -291,7 +305,7 @@ function DashboardSidebarContent({
       </nav>
 
       {/* User footer */}
-      <div className="shrink-0 border-t border-white/[0.06] p-3">
+      <div className="shrink-0 border-t border-white/[0.06] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl bg-white/[0.04] px-3 py-2.5 text-left ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.08] focus:outline-none">
             <Avatar className="h-9 w-9 ring-2 ring-white/10">
@@ -356,16 +370,22 @@ function DashboardSidebarContent({
 
 export function DashboardShell({ user, portal, children }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-gray-50 lg:flex-row">
-      {/* Mobile header */}
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-slate-800 bg-slate-950 px-4 lg:hidden">
+    <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 md:flex-row">
+      {/* Mobile / tablet header */}
+      <header className="sticky top-0 z-40 flex min-h-14 shrink-0 items-center gap-3 border-b border-slate-800 bg-slate-950 px-4 pt-[max(0px,env(safe-area-inset-top))] pb-3 md:hidden">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
+          aria-expanded={mobileOpen}
           className="text-slate-300 hover:bg-white/10 hover:text-white"
         >
           <Menu className="h-5 w-5" />
@@ -384,20 +404,25 @@ export function DashboardShell({ user, portal, children }: DashboardShellProps) 
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 border-slate-800 bg-slate-950 p-0">
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          className="h-dvh w-[min(18rem,88vw)] max-w-none gap-0 overflow-hidden border-slate-800 bg-slate-950 p-0 sm:w-72"
+        >
           <DashboardSidebarContent
             user={user}
             portal={portal}
+            showClose
             onNavigate={() => setMobileOpen(false)}
           />
         </SheetContent>
       </Sheet>
 
-      <aside className="hidden h-screen w-[272px] shrink-0 lg:flex">
+      <aside className="hidden h-dvh w-[272px] shrink-0 md:flex">
         <DashboardSidebarContent user={user} portal={portal} />
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto">
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">{children}</div>
       </main>
     </div>
@@ -413,7 +438,7 @@ export function DashboardSidebar({
   portal: "admin" | "teacher" | "student";
 }) {
   return (
-    <aside className="hidden h-screen w-[272px] shrink-0 lg:flex">
+    <aside className="hidden h-dvh w-[272px] shrink-0 md:flex">
       <DashboardSidebarContent user={user} portal={portal} />
     </aside>
   );

@@ -8,7 +8,7 @@ type AdminLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   href: string;
 };
 
-/** Link that resolves /admin/* paths to clean URLs on the admin subdomain. */
+/** Link that resolves /admin/* paths to clean URLs like /dashboard. */
 export function AdminLink({ href, ...props }: AdminLinkProps) {
   const host = typeof window !== "undefined" ? window.location.hostname : null;
   return <Link href={adminPath(href, host)} {...props} />;

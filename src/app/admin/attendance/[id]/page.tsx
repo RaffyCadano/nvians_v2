@@ -1,11 +1,22 @@
-import { createClient } from "@/lib/supabase/server";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
+import AttendanceSessionDetail from "./session-detail";
+
+function relationOne<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+type AttendanceRecord = {
+  id: string;
+  status: string;
+  remarks: string | null;
+  student: {
+    id: string;
+    student_number: string | null;
+    user: { full_name: string } | { full_name: string }[] | null;
+  } | null;
+};
 
 export default async function AttendanceSessionPage({
   params,
@@ -13,15 +24,17 @@ export default async function AttendanceSessionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: session } = await supabase
     .from("attendance_sessions")
     .select(
       `*, 
       class_subject:class_subjects(
-        subject:subjects(name),
-        class:classes(grade_level, section)
+        id,
+        subject:subjects(name, code),
+        class:classes(id, grade_level, section),
+        teacher:teachers(user:users(full_name))
       ),
       attendance_records(
         id, status, remarks,
@@ -33,100 +46,44 @@ export default async function AttendanceSessionPage({
 
   if (!session) notFound();
 
-  const records: any[] = session.attendance_records ?? [];
-  const present = records.filter((r) => r.status === "present").length;
-  const absent = records.filter((r) => r.status === "absent").length;
-  const excused = records.filter((r) => r.status === "excused").length;
+  const classSubject = relationOne(session.class_subject);
+  const subject = relationOne(classSubject?.subject);
+  const cls = relationOne(classSubject?.class);
+  const teacher = relationOne(classSubject?.teacher);
+  const teacherUser = relationOne(teacher?.user);
 
-  const STATUS_COLORS: Record<string, string> = {
-    present: "bg-green-100 text-green-700",
-    absent: "bg-red-100 text-red-700",
-    excused: "bg-yellow-100 text-yellow-700",
-    late: "bg-orange-100 text-orange-700",
-  };
+  const records = ((session.attendance_records ?? []) as AttendanceRecord[])
+    .map((record) => {
+      const student = relationOne(record.student);
+      const user = relationOne(student?.user);
+      return {
+        id: record.id,
+        status: record.status,
+        remarks: record.remarks,
+        studentId: student?.id ?? "",
+        studentName: user?.full_name ?? "Unknown student",
+        studentNumber: student?.student_number ?? null,
+      };
+    })
+    .sort((a, b) => a.studentName.localeCompare(b.studentName));
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/attendance"><ArrowLeft className="h-4 w-4" /></Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {session.class_subject?.subject?.name} — Attendance
-          </h1>
-          <p className="text-sm text-gray-500">
-            {session.class_subject?.class?.grade_level} - {session.class_subject?.class?.section} ·{" "}
-            {format(new Date(session.date), "MMMM d, yyyy")}
-          </p>
-        </div>
-      </div>
-
-      {/* Summary */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[
-          { label: "Present", value: present, color: "text-green-700", bg: "bg-green-50" },
-          { label: "Absent", value: absent, color: "text-red-700", bg: "bg-red-50" },
-          { label: "Excused", value: excused, color: "text-yellow-700", bg: "bg-yellow-50" },
-        ].map((s) => (
-          <div key={s.label} className={`rounded-xl ${s.bg} p-4 text-center`}>
-            <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Records */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Student Records ({records.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
-            <thead className="border-b bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Student</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Student No.</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Remarks</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {records.length > 0 ? (
-                records
-                  .sort((a, b) =>
-                    a.student?.user?.full_name?.localeCompare(b.student?.user?.full_name)
-                  )
-                  .map((record: any) => (
-                    <tr key={record.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">
-                        {record.student?.user?.full_name}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500 font-mono text-xs">
-                        {record.student?.student_number ?? "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          variant="secondary"
-                          className={STATUS_COLORS[record.status] ?? "bg-gray-100 text-gray-600"}
-                        >
-                          {record.status}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">{record.remarks ?? "—"}</td>
-                    </tr>
-                  ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                    No records in this session.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table></div>
-        </CardContent>
-      </Card>
-    </div>
+    <AttendanceSessionDetail
+      session={{
+        id: session.id,
+        date: session.date,
+        createdAt: session.created_at,
+      }}
+      classInfo={{
+        classSubjectId: classSubject?.id ?? "",
+        classId: cls?.id ?? "",
+        subjectName: subject?.name ?? "Unknown subject",
+        subjectCode: subject?.code ?? "—",
+        gradeLevel: cls?.grade_level ?? "—",
+        section: cls?.section ?? "—",
+        teacherName: teacherUser?.full_name ?? "No teacher assigned",
+      }}
+      records={records}
+    />
   );
 }

@@ -1,5 +1,3 @@
-import { getAdminAppUrl, isAdminHost, isLocalHost } from "@/lib/site-urls";
-
 export const ADMIN_ROUTE_SEGMENTS = [
   "dashboard",
   "school-years",
@@ -33,36 +31,25 @@ export function toAdminInternalPath(publicPath: string) {
   return `/admin${publicPath}`;
 }
 
-export function usesAdminPublicPaths(host: string | null) {
-  return isAdminHost(host) && !isLocalHost(host);
+export function isAdminAreaPath(pathname: string, _host: string | null) {
+  return isAdminPortalPublicPath(pathname) || pathname.startsWith("/admin");
 }
 
-export function isAdminAreaPath(pathname: string, host: string | null) {
-  if (isAdminHost(host) && !isLocalHost(host)) {
-    return isAdminPortalPublicPath(pathname);
-  }
-  return pathname.startsWith("/admin") || (isLocalHost(host) && isAdminPortalPublicPath(pathname));
+export function getAdminDashboardPath(_host: string | null) {
+  return "/dashboard";
 }
 
-export function getAdminDashboardPath(host: string | null) {
-  return usesAdminPublicPaths(host) ? "/dashboard" : "/admin/dashboard";
-}
-
-export function getAdminDashboardUrl(host: string | null) {
-  if (isLocalHost(host)) return "/admin/dashboard";
-  return `${getAdminAppUrl()}/dashboard`;
+export function getAdminDashboardUrl(_host: string | null) {
+  return "/dashboard";
 }
 
 /**
  * Resolve an admin route for links/redirects.
- * Accepts either /admin/students or /students — returns the correct href for the current host.
+ * Accepts either /admin/students or /students — returns the correct href.
  */
-export function adminPath(path: string, host: string | null) {
+export function adminPath(path: string, _host: string | null) {
   const clean = path.startsWith("/admin") ? toAdminPublicPath(path) : path;
-
-  if (usesAdminPublicPaths(host)) return clean;
-  if (isLocalHost(host)) return toAdminInternalPath(clean);
-  return `${getAdminAppUrl()}${clean}`;
+  return clean;
 }
 
 export function adminNavHref(internalPath: string, host: string | null) {
