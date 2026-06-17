@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { changePassword } from "./actions";
 import { toast } from "sonner";
-import { KeyRound, School } from "lucide-react";
+import { getAdminAppUrl, getPublicAppUrl } from "@/lib/site-urls";
 
 export default function AdminSettingsPage() {
   const [pwLoading, setPwLoading] = useState(false);
@@ -52,8 +52,12 @@ export default function AdminSettingsPage() {
             <p className="text-xs text-gray-400">Edit <code>NEXT_PUBLIC_APP_NAME</code> in <code>.env.local</code> to change.</p>
           </div>
           <div className="space-y-1.5">
-            <Label>App URL</Label>
-            <Input defaultValue={process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"} readOnly className="bg-gray-50" />
+            <Label>Public site URL</Label>
+            <Input defaultValue={getPublicAppUrl()} readOnly className="bg-gray-50" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Admin portal URL</Label>
+            <Input defaultValue={getAdminAppUrl()} readOnly className="bg-gray-50" />
           </div>
         </CardContent>
       </Card>

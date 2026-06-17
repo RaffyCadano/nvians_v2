@@ -1,7 +1,71 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  getAdminAppUrl,
+  getPublicAppUrl,
+  isAdminHost,
+  isLocalHost,
+} from "@/lib/site-urls";
+
+const PUBLIC_SITE_PREFIXES = [
+  "/about",
+  "/programs",
+  "/admissions",
+  "/student-life",
+  "/facilities",
+  "/news",
+  "/contact",
+];
+
+function redirectWithCookies(url: string, cookieSource?: NextResponse) {
+  const response = NextResponse.redirect(url);
+  cookieSource?.cookies.getAll().forEach((cookie) => {
+    response.cookies.set(cookie);
+  });
+  return response;
+}
+
+function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
+  const host = request.headers.get("host");
+  const { pathname, search } = request.nextUrl;
+  const onAdminHost = isAdminHost(host);
+  const onLocal = isLocalHost(host);
+
+  if (onLocal) return null;
+
+  if (onAdminHost) {
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/dashboard";
+      return redirectWithCookies(url.toString(), cookieSource);
+    }
+
+    if (
+      PUBLIC_SITE_PREFIXES.some(
+        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+      )
+    ) {
+      return redirectWithCookies(`${getPublicAppUrl()}${pathname}${search}`, cookieSource);
+    }
+
+    if (pathname.startsWith("/teacher") || pathname.startsWith("/student")) {
+      return redirectWithCookies(`${getPublicAppUrl()}${pathname}${search}`, cookieSource);
+    }
+
+    return null;
+  }
+
+  if (pathname.startsWith("/admin")) {
+    return redirectWithCookies(`${getAdminAppUrl()}${pathname}${search}`, cookieSource);
+  }
+
+  return null;
+}
 
 export async function updateSession(request: NextRequest) {
+  const hostRedirect = applyHostRouting(request);
+  if (hostRedirect) return hostRedirect;
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -86,9 +150,7 @@ export async function updateSession(request: NextRequest) {
     const redirectTo = (path: string) => {
       const url = request.nextUrl.clone();
       url.pathname = path;
-      const res = NextResponse.redirect(url);
-      supabaseResponse.cookies.getAll().forEach((c) => res.cookies.set(c));
-      return res;
+      return redirectWithCookies(url.toString(), supabaseResponse);
     };
 
     // Admin/staff → only /admin
