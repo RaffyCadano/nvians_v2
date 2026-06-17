@@ -98,13 +98,13 @@ function DashboardSidebarContent({
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
 
   return (
-    <div className="flex h-full flex-col bg-white">
-      <div className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
-        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={32} height={32} className="h-8 w-auto" />
-        <span className="font-semibold text-gray-900">Nueva Vizcaya Institute</span>
+    <div className="flex h-full w-full flex-col bg-white">
+      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b px-4">
+        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={32} height={32} className="h-8 w-auto shrink-0" />
+        <span className="truncate text-sm font-semibold leading-tight text-gray-900">Nueva Vizcaya Institute</span>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -115,7 +115,7 @@ function DashboardSidebarContent({
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     active
                       ? "bg-blue-50 text-blue-700"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -131,9 +131,9 @@ function DashboardSidebarContent({
         </ul>
       </nav>
 
-      <div className="shrink-0 border-t p-4">
+      <div className="shrink-0 border-t px-3 py-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-100">
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-gray-100">
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.avatar_url} />
               <AvatarFallback>{user.full_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
@@ -219,12 +219,14 @@ export function DashboardShell({ user, portal, children }: DashboardShellProps) 
         </SheetContent>
       </Sheet>
 
-      <aside className="hidden h-screen w-64 shrink-0 border-r lg:flex">
+      <aside className="hidden h-screen w-64 shrink-0 border-r bg-white lg:flex">
         <DashboardSidebarContent user={user} portal={portal} />
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto">
-        <div className="p-4 sm:p-6">{children}</div>
+        <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
+          {children}
+        </div>
       </main>
     </div>
   );
