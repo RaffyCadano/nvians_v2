@@ -4,9 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { forgotPassword } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail } from "lucide-react";
+
+const FIELD_STYLE = {
+  color: "#111827",
+  WebkitTextFillColor: "#111827",
+  caretColor: "#111827",
+  backgroundColor: "#ffffff",
+} as const;
 
 export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +37,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-white/20 bg-white">
+    <div className="auth-form-root w-full overflow-hidden rounded-xl border border-white/20 bg-white text-gray-900">
       <div className="border-b border-gray-100 bg-blue-50 px-6 py-5 text-center sm:px-8">
         <h2 className="text-xl font-semibold text-gray-900">Reset password</h2>
         <p className="mt-1 text-sm text-gray-600">
@@ -65,16 +71,17 @@ export function ForgotPasswordForm() {
               <Label htmlFor="email" className="text-gray-700">
                 Email
               </Label>
-              <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-white px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
-                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <Input
+              <div className="flex h-11 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 transition-colors focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
+                <Mail className="h-4 w-4 shrink-0 text-gray-400" />
+                <input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="you@school.edu"
                   required
                   autoComplete="email"
-                  className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                  className="auth-field-input h-full min-w-0 flex-1 border-0 bg-white px-0 text-base outline-none placeholder:text-gray-400 md:text-sm"
+                  style={FIELD_STYLE}
                 />
               </div>
             </div>

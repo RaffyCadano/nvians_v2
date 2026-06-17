@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthBaseUrl, getDashboardUrl } from "@/lib/site-urls";
+import { getRequestHost } from "@/lib/request-host";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -34,7 +35,7 @@ export async function login(formData: FormData) {
 
   revalidatePath("/", "layout");
 
-  const host = (await headers()).get("host");
+  const host = getRequestHost(await headers());
   redirect(getDashboardUrl(role ?? "student", host));
 }
 
@@ -70,7 +71,7 @@ export async function logout() {
 
 export async function forgotPassword(formData: FormData) {
   const supabase = await createClient();
-  const host = (await headers()).get("host");
+  const host = getRequestHost(await headers());
   const authBaseUrl = getAuthBaseUrl(host);
 
   const { error } = await supabase.auth.resetPasswordForEmail(

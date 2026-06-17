@@ -1,8 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { getRequestHost } from "@/lib/request-host";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const host = getRequestHost(await headers());
+  const cookieOptions = getSupabaseCookieOptions(host);
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +26,7 @@ export async function createClient() {
           }
         },
       },
+      ...(cookieOptions ? { cookieOptions } : {}),
     }
   );
 }

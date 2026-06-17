@@ -1,0 +1,36 @@
+/* Plain CSS — not processed through Tailwind layers so it wins in production builds. */
+.auth-form-root {
+  color-scheme: light;
+}
+
+.auth-form-root input,
+.auth-form-root textarea,
+.auth-form-root select,
+.auth-field-input {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #111827 !important;
+  background-color: #ffffff !important;
+  color-scheme: light !important;
+}
+
+.auth-form-root input::placeholder,
+.auth-form-root textarea::placeholder,
+.auth-field-input::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+.auth-form-root input:-webkit-autofill,
+.auth-form-root input:-webkit-autofill:hover,
+.auth-form-root input:-webkit-autofill:focus,
+.auth-field-input:-webkit-autofill,
+.auth-field-input:-webkit-autofill:hover,
+.auth-field-input:-webkit-autofill:focus {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+}

@@ -1,5 +1,6 @@
 import PublicNavbar from "@/components/layout/public-navbar";
 import PublicFooter from "@/components/layout/public-footer";
+import "./auth-forms.css";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

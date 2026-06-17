@@ -9,10 +9,13 @@ import {
 } from "@/lib/admin-routes";
 import {
   getAdminAppUrl,
+  getDashboardUrl,
   getPublicAppUrl,
   isAdminHost,
   isLocalHost,
 } from "@/lib/site-urls";
+import { getRequestHost } from "@/lib/request-host";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 const PUBLIC_SITE_PREFIXES = [
   "/about",
@@ -40,7 +43,7 @@ function applyCookies(from: NextResponse, to: NextResponse) {
 }
 
 function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
-  const host = request.headers.get("host");
+  const host = getRequestHost(request.headers);
   const { pathname, search } = request.nextUrl;
   const onAdminHost = isAdminHost(host);
   const onLocal = isLocalHost(host);
@@ -103,11 +106,12 @@ function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
 }
 
 export async function updateSession(request: NextRequest) {
-  const host = request.headers.get("host");
+  const host = getRequestHost(request.headers);
   const hostRedirect = applyHostRouting(request);
   if (hostRedirect) return hostRedirect;
 
   let supabaseResponse = NextResponse.next({ request });
+  const cookieOptions = getSupabaseCookieOptions(host);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -127,6 +131,7 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
+      ...(cookieOptions ? { cookieOptions } : {}),
     }
   );
 
@@ -171,6 +176,23 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
+  }
+
+  if (user && pathname === "/auth/login") {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const role = profile?.role ?? (user.user_metadata?.role as string | undefined);
+    if (role) {
+      const destination = getDashboardUrl(role, host);
+      const url = destination.startsWith("http")
+        ? destination
+        : `${request.nextUrl.origin}${destination}`;
+      return redirectWithCookies(url, supabaseResponse);
+    }
   }
 
   const inPortal =

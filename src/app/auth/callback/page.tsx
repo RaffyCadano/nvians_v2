@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDashboardUrl } from "@/lib/site-urls";
+import { getRequestHost } from "@/lib/request-host";
 
 export default async function AuthCallbackPage({
   searchParams,
@@ -20,7 +21,7 @@ export default async function AuthCallbackPage({
     redirect(next);
   }
 
-  const host = (await headers()).get("host");
+  const host = getRequestHost(await headers());
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

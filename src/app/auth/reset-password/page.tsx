@@ -5,9 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { resetPassword } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, KeyRound, Lock, Sparkles } from "lucide-react";
+
+const FIELD_STYLE = {
+  color: "#111827",
+  WebkitTextFillColor: "#111827",
+  caretColor: "#111827",
+  backgroundColor: "#ffffff",
+} as const;
+
+const fieldClassName =
+  "auth-field-input h-11 min-w-0 flex-1 border-0 bg-white px-0 text-base outline-none placeholder:text-gray-400 md:text-sm";
 
 export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +59,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div className="order-1 w-full max-w-md justify-self-center lg:order-2 lg:justify-self-end">
-            <div className="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-white/40">
+            <div className="auth-form-root scheme-light overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-white/40">
               <div className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-8 py-8 text-white">
                 <div className="relative flex items-start gap-4">
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/25">
@@ -85,18 +94,19 @@ export default function ResetPasswordPage() {
                     <Label htmlFor="password" className="text-gray-700">
                       New password
                     </Label>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
                         <Lock className="h-4 w-4 text-blue-600" />
                       </div>
-                      <Input
+                      <input
                         id="password"
                         name="password"
                         type="password"
                         required
                         minLength={8}
                         placeholder="At least 8 characters"
-                        className="h-11 border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
+                        className={fieldClassName}
+                        style={FIELD_STYLE}
                       />
                     </div>
                   </div>
@@ -105,18 +115,19 @@ export default function ResetPasswordPage() {
                     <Label htmlFor="confirm_password" className="text-gray-700">
                       Confirm password
                     </Label>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
                         <KeyRound className="h-4 w-4 text-blue-600" />
                       </div>
-                      <Input
+                      <input
                         id="confirm_password"
                         name="confirm_password"
                         type="password"
                         required
                         minLength={8}
                         placeholder="Re-enter password"
-                        className="h-11 border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
+                        className={fieldClassName}
+                        style={FIELD_STYLE}
                       />
                     </div>
                   </div>

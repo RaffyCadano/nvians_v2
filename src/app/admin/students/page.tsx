@@ -31,6 +31,11 @@ type EnrollmentRow = {
   class: { grade_level: string; section: string } | null;
 };
 
+function relationOne<T>(value: T | T[] | null | undefined): T | null {
+  if (value == null) return null;
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
 const STATUS_CONFIG = {
   active: {
     label: "Active",
@@ -84,13 +89,19 @@ export default async function StudentsPage({
     );
   });
 
-  const enrollmentByStudent = ((enrollments ?? []) as EnrollmentRow[]).reduce<
-    Record<string, EnrollmentRow[]>
-  >((acc, row) => {
-    if (!acc[row.student_id]) acc[row.student_id] = [];
-    acc[row.student_id].push(row);
-    return acc;
-  }, {});
+  const enrollmentByStudent = (enrollments ?? []).reduce<Record<string, EnrollmentRow[]>>(
+    (acc, raw) => {
+      const row: EnrollmentRow = {
+        student_id: raw.student_id,
+        status: raw.status,
+        class: relationOne(raw.class),
+      };
+      if (!acc[row.student_id]) acc[row.student_id] = [];
+      acc[row.student_id].push(row);
+      return acc;
+    },
+    {},
+  );
 
   const activeCount = rows.filter((s) => s.status === "active").length;
   const disabledCount = rows.filter((s) => s.status === "disabled").length;

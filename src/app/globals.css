@@ -126,13 +126,34 @@
   }
   html {
     @apply scroll-smooth font-sans;
+    color-scheme: light;
   }
 
   input,
   textarea,
   select {
-    color: var(--foreground);
-    -webkit-text-fill-color: currentColor;
+    color: #111827;
+    -webkit-text-fill-color: #111827;
+    color-scheme: light;
+    caret-color: #111827;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111827 !important;
+    caret-color: #111827;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -140,4 +161,16 @@
       scroll-behavior: auto;
     }
   }
+}
+
+/* Unlayered — must override Tailwind utilities in production builds */
+input[data-slot="input"],
+.auth-field-input,
+.auth-form-root input,
+.auth-form-root textarea,
+.auth-form-root select {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #111827 !important;
+  color-scheme: light !important;
 }
