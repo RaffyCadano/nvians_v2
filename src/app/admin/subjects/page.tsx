@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteSubjectButton } from "./delete-subject-button";
 import {
   Archive,
   ArrowRight,
@@ -222,6 +223,12 @@ export default async function SubjectsPage() {
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>
+                        <DeleteSubjectButton
+                          subjectId={subject.id}
+                          subjectName={subject.name}
+                          subjectCode={subject.code}
+                          classCount={classCount}
+                        />
                       </div>
                     </div>
                   </div>

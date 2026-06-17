@@ -12,9 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuGroup,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -22,7 +19,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -32,6 +28,7 @@ import {
   GraduationCap,
   BookOpen,
   Calendar,
+  CalendarDays,
   ClipboardList,
   BarChart3,
   Settings,
@@ -45,6 +42,7 @@ import {
   PieChart,
   ChevronDown,
   ExternalLink,
+  UserRound,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -65,6 +63,7 @@ const ADMIN_NAV: NavGroup[] = [
       { href: "/school-years", label: "School Years", icon: Calendar },
       { href: "/classes", label: "Classes", icon: School },
       { href: "/subjects", label: "Subjects", icon: BookOpen },
+      { href: "/schedule", label: "Schedule", icon: CalendarDays },
       { href: "/teachers", label: "Teachers", icon: UserCheck },
       { href: "/students", label: "Students", icon: GraduationCap },
     ],
@@ -146,6 +145,22 @@ const PORTAL_LABELS = {
   teacher: "Teacher Portal",
   student: "Student Portal",
 } as const;
+
+const PORTAL_BADGE = {
+  admin: "bg-blue-500/20 text-blue-300 ring-blue-400/20",
+  teacher: "bg-violet-500/20 text-violet-300 ring-violet-400/20",
+  student: "bg-emerald-500/20 text-emerald-300 ring-emerald-400/20",
+} as const;
+
+function getUserInitials(name: string | undefined) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((part) => part.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 interface DashboardShellProps {
   user: User;
@@ -305,60 +320,158 @@ function DashboardSidebarContent({
       </nav>
 
       {/* User footer */}
-      <div className="shrink-0 border-t border-white/[0.06] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="shrink-0 border-t border-white/[0.06] bg-slate-950/40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl bg-white/[0.04] px-3 py-2.5 text-left ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.08] focus:outline-none">
-            <Avatar className="h-9 w-9 ring-2 ring-white/10">
-              <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="bg-blue-600 text-xs font-semibold text-white">
-                {user.full_name?.charAt(0)?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-sm font-medium text-white">{user.full_name}</p>
-              <p className="truncate text-xs capitalize text-slate-400">{user.role}</p>
+          <DropdownMenuTrigger
+            className={cn(
+              "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left",
+              "bg-white/[0.04] ring-1 ring-white/[0.06]",
+              "transition-all duration-150 hover:bg-white/[0.08] hover:ring-white/10",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40"
+            )}
+          >
+            <div className="relative shrink-0">
+              <Avatar className="h-10 w-10 ring-2 ring-white/10 transition-transform group-hover:scale-[1.02]">
+                <AvatarImage src={user.avatar_url} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-xs font-semibold text-white">
+                  {getUserInitials(user.full_name)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-slate-950 bg-green-400" />
             </div>
-            <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="truncate text-sm font-semibold text-white">{user.full_name}</p>
+              <span
+                className={cn(
+                  "mt-1 inline-flex max-w-full items-center truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase ring-1",
+                  PORTAL_BADGE[portal]
+                )}
+              >
+                {PORTAL_LABELS[portal]}
+              </span>
+            </div>
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-slate-500 transition-colors group-hover:bg-white/[0.08] group-hover:text-slate-300">
+              <ChevronDown className="h-4 w-4" />
+            </span>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-52">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => { window.location.href = "/profile"; }}>
-                Profile
+
+          <DropdownMenuContent
+            align="start"
+            side="top"
+            sideOffset={10}
+            className="w-[calc(var(--anchor-width)+0px)] min-w-[15rem] overflow-hidden rounded-xl border border-white/10 bg-slate-900 p-0 text-slate-100 shadow-xl shadow-black/40 ring-1 ring-white/5"
+          >
+            <div className="border-b border-white/[0.06] bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3.5">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-11 w-11 ring-2 ring-white/10">
+                  <AvatarImage src={user.avatar_url} />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-sm font-semibold text-white">
+                    {getUserInitials(user.full_name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white">{user.full_name}</p>
+                  <p className="truncate text-xs text-slate-400">{user.email}</p>
+                  <span
+                    className={cn(
+                      "mt-1.5 inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase ring-1",
+                      PORTAL_BADGE[portal]
+                    )}
+                  >
+                    {PORTAL_LABELS[portal]}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-1.5">
+              <DropdownMenuItem
+                className="cursor-pointer gap-2.5 rounded-lg px-2.5 py-2 text-slate-200 focus:bg-white/[0.08] focus:text-white"
+                onClick={() => {
+                  window.location.href = "/profile";
+                }}
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06]">
+                  <UserRound className="h-3.5 w-3.5 text-slate-300" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Profile</p>
+                  <p className="text-[11px] text-slate-500">Account settings</p>
+                </div>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer text-red-600 focus:text-red-600"
-              onClick={() => setIsSignOutOpen(true)}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </DropdownMenuItem>
+            </div>
+
+            <div className="border-t border-white/[0.06] p-1.5">
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer gap-2.5 rounded-lg px-2.5 py-2 focus:bg-red-500/15 focus:text-red-300"
+                onClick={() => setIsSignOutOpen(true)}
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-red-500/15">
+                  <LogOut className="h-3.5 w-3.5 text-red-400" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-red-300">Sign out</p>
+                  <p className="text-[11px] text-red-400/70">End your session</p>
+                </div>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <Dialog open={isSignOutOpen} onOpenChange={setIsSignOutOpen}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>Confirm Sign Out</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to sign out? You will need to log in again to access the
-                dashboard.
+          <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+            <div className="border-b border-white/[0.06] bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 px-6 py-5 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-500/15 ring-1 ring-red-400/25">
+                  <LogOut className="h-5 w-5 text-red-300" />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-semibold text-white">
+                    Sign out?
+                  </DialogTitle>
+                  <p className="mt-0.5 text-xs text-slate-400">{PORTAL_LABELS[portal]}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-5">
+              <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5">
+                <Avatar className="h-10 w-10 ring-2 ring-white">
+                  <AvatarImage src={user.avatar_url} />
+                  <AvatarFallback className="bg-blue-600 text-sm font-semibold text-white">
+                    {user.full_name?.charAt(0)?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-gray-900">{user.full_name}</p>
+                  <p className="truncate text-xs capitalize text-gray-500">{user.role}</p>
+                </div>
+              </div>
+
+              <DialogDescription className="mt-4 text-sm leading-relaxed text-gray-600">
+                You&apos;ll need to sign in again to access your dashboard, grades, and other
+                portal features.
               </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsSignOutOpen(false)}>
-                Cancel
+            </div>
+
+            <DialogFooter className="!m-0 gap-2.5 border-t border-gray-100 bg-gray-50/80 px-6 py-4 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => setIsSignOutOpen(false)}
+              >
+                Stay signed in
               </Button>
               <Button
                 variant="destructive"
+                className="w-full sm:w-auto"
                 onClick={() => {
                   window.location.href = "/auth/signout";
                 }}
               >
-                Sign Out
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out
               </Button>
             </DialogFooter>
           </DialogContent>

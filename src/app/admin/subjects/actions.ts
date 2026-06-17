@@ -81,3 +81,22 @@ export async function updateSubject(id: string, formData: FormData) {
   if (error) return { error: error.message };
   return { success: true };
 }
+
+export async function deleteSubject(id: string) {
+  const access = await assertAdminAccess();
+  if ("error" in access) return access;
+
+  const supabase = createAdminClient();
+
+  const { count, error: countError } = await supabase
+    .from("class_subjects")
+    .select("*", { count: "exact", head: true })
+    .eq("subject_id", id);
+
+  if (countError) return { error: countError.message };
+
+  const { error } = await supabase.from("subjects").delete().eq("id", id);
+
+  if (error) return { error: error.message };
+  return { success: true, removedClassLinks: count ?? 0 };
+}

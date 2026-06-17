@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import NewSchoolYearForm from "./new-form";
 
 export default async function NewSchoolYearPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: schoolYears } = await supabase.from("school_years").select("id, status");
 

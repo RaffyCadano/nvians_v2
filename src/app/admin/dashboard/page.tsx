@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatsLineChart } from "./stats-line-chart";
+import { buildMonthlyTrend } from "./trend-utils";
 import {
   ArrowRight,
   BarChart3,
@@ -13,7 +15,6 @@ import {
   Plus,
   School,
   UserCheck,
-  Users,
 } from "lucide-react";
 
 function getGreeting() {
@@ -100,6 +101,10 @@ export default async function AdminDashboardPage() {
     { count: enrollmentCount },
     { data: activeSchoolYear },
     { data: recentEnrollments },
+    { data: studentDates },
+    { data: teacherDates },
+    { data: classDates },
+    { data: enrollmentDates },
   ] = await Promise.all([
     supabase.from("students").select("*", { count: "exact", head: true }).eq("status", "active"),
     supabase.from("teachers").select("*", { count: "exact", head: true }).eq("status", "active"),
@@ -121,6 +126,10 @@ export default async function AdminDashboardPage() {
       .eq("status", "enrolled")
       .order("enrolled_at", { ascending: false })
       .limit(5),
+    supabase.from("students").select("created_at").eq("status", "active"),
+    supabase.from("teachers").select("created_at").eq("status", "active"),
+    supabase.from("classes").select("created_at").eq("status", "active"),
+    supabase.from("enrollments").select("enrolled_at").eq("status", "enrolled"),
   ]);
 
   const counts = {
@@ -131,38 +140,42 @@ export default async function AdminDashboardPage() {
     enrollments: enrollmentCount ?? 0,
   };
 
-  const stats = [
+  const trendSeries = [
     {
       title: "Students",
-      value: counts.students,
       href: "/students",
-      icon: GraduationCap,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      current: counts.students,
+      data: buildMonthlyTrend((studentDates ?? []).map((r) => r.created_at)),
     },
     {
       title: "Teachers",
-      value: counts.teachers,
       href: "/teachers",
-      icon: UserCheck,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      current: counts.teachers,
+      data: buildMonthlyTrend((teacherDates ?? []).map((r) => r.created_at)),
     },
     {
       title: "Classes",
-      value: counts.classes,
       href: "/classes",
-      icon: School,
+      stroke: "#9333ea",
       color: "text-purple-600",
       bg: "bg-purple-50",
+      current: counts.classes,
+      data: buildMonthlyTrend((classDates ?? []).map((r) => r.created_at)),
     },
     {
       title: "Enrollments",
-      value: counts.enrollments,
       href: "/enrollment",
-      icon: Users,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      current: counts.enrollments,
+      data: buildMonthlyTrend((enrollmentDates ?? []).map((r) => r.enrolled_at)),
     },
   ];
 
@@ -182,31 +195,8 @@ export default async function AdminDashboardPage() {
         </p>
       </section>
 
-      {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Link
-              key={stat.title}
-              href={stat.href}
-              className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-200 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.title}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </section>
+      {/* Stats trend chart */}
+      <StatsLineChart series={trendSeries} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 xl:grid-cols-[minmax(0,1fr)_400px] 2xl:grid-cols-[minmax(0,1fr)_440px] xl:gap-10 lg:items-start">
         {/* Main column */}

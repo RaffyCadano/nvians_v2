@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ALLOWED_GRADE_LEVELS } from "@/lib/constants/grade-levels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteClassButton } from "./delete-class-button";
 import {
   ArrowRight,
   BookOpen,
@@ -23,6 +24,7 @@ type ClassRow = {
   school_year: { name: string } | null;
   advisor: { user: { full_name: string } | null } | null;
   enrollments: { count: number }[];
+  class_subjects: { count: number }[];
 };
 
 const STATUS_CONFIG = {
@@ -58,7 +60,7 @@ export default async function ClassesPage() {
     supabase
       .from("classes")
       .select(
-        "*, school_year:school_years(name), advisor:teachers(user:users(full_name)), enrollments(count)"
+        "*, school_year:school_years(name), advisor:teachers(user:users(full_name)), enrollments(count), class_subjects(count)"
       )
       .order("grade_level")
       .order("section"),
@@ -183,6 +185,7 @@ export default async function ClassesPage() {
                 const config = STATUS_CONFIG[cls.status] ?? STATUS_CONFIG.active;
                 const gradeColor = getGradeColor(cls.grade_level);
                 const studentCount = cls.enrollments?.[0]?.count ?? 0;
+                const subjectCount = cls.class_subjects?.[0]?.count ?? 0;
                 const advisorName = cls.advisor?.user?.full_name;
 
                 return (
@@ -239,6 +242,14 @@ export default async function ClassesPage() {
                             Students
                           </Link>
                         </Button>
+                        <DeleteClassButton
+                          classId={cls.id}
+                          gradeLevel={cls.grade_level}
+                          section={cls.section}
+                          schoolYearName={cls.school_year?.name ?? "No school year"}
+                          studentCount={studentCount}
+                          subjectCount={subjectCount}
+                        />
                       </div>
                     </div>
                   </div>

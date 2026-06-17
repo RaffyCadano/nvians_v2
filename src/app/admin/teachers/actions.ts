@@ -2,19 +2,51 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { redirect } from "next/navigation";
+
+async function assertAdminAccess() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be signed in." as const };
+  }
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !["admin", "staff"].includes(profile.role)) {
+    return { error: "You do not have permission to manage teachers." as const };
+  }
+
+  return { user };
+}
 
 export async function createTeacher(formData: FormData) {
+  const access = await assertAdminAccess();
+  if ("error" in access) return access;
+
+  const fullName = (formData.get("full_name") as string)?.trim();
+  const email = (formData.get("email") as string)?.trim();
+  const password = formData.get("password") as string;
+  const employeeNumber = (formData.get("employee_number") as string)?.trim();
+  const department = (formData.get("department") as string)?.trim();
+  const specialization = (formData.get("specialization") as string)?.trim();
+
+  if (!fullName || !email || !password) {
+    return { error: "Full name, email, and password are required." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+
   const adminClient = createAdminClient();
 
-  const fullName = formData.get("full_name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const employeeNumber = formData.get("employee_number") as string;
-  const department = formData.get("department") as string;
-  const specialization = formData.get("specialization") as string;
-
-  // Create auth user using service role key
   const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email,
     password,
@@ -26,7 +58,6 @@ export async function createTeacher(formData: FormData) {
     return { error: authError.message };
   }
 
-  // Ensure public.users has teacher role (trigger may default to student)
   const { error: userError } = await adminClient.from("users").upsert(
     {
       id: authData.user.id,
@@ -45,7 +76,6 @@ export async function createTeacher(formData: FormData) {
     .update({ role: "teacher", full_name: fullName, email })
     .eq("id", authData.user.id);
 
-  // Create teacher profile (service role — reliable regardless of admin session RLS)
   const { error: teacherError } = await adminClient.from("teachers").insert({
     user_id: authData.user.id,
     employee_number: employeeNumber || null,
@@ -58,7 +88,7 @@ export async function createTeacher(formData: FormData) {
     return { error: teacherError.message };
   }
 
-  redirect("/teachers");
+  return { success: true };
 }
 
 export async function updateTeacher(id: string, formData: FormData) {

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteSchoolYearButton } from "./delete-school-year-button";
 import {
   Archive,
   ArrowRight,
@@ -22,6 +23,8 @@ type SchoolYear = {
   status: "active" | "upcoming" | "archived";
   created_at: string;
   terms: { count: number }[];
+  classes: { count: number }[];
+  enrollments: { count: number }[];
 };
 
 function formatShortDate(value: string) {
@@ -83,14 +86,14 @@ const STATUS_CONFIG = {
 } as const;
 
 export default async function SchoolYearsPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
-  const { data: schoolYears } = await supabase
+  const { data: schoolYears, error } = await supabase
     .from("school_years")
-    .select("*, terms(count)")
+    .select("*, terms(count), classes(count), enrollments(count)")
     .order("start_date", { ascending: false });
 
-  const years = (schoolYears ?? []) as SchoolYear[];
+  const years = (error ? [] : (schoolYears ?? [])) as SchoolYear[];
   const activeYear = years.find((sy) => sy.status === "active");
   const upcomingCount = years.filter((sy) => sy.status === "upcoming").length;
   const archivedCount = years.filter((sy) => sy.status === "archived").length;
@@ -196,6 +199,8 @@ export default async function SchoolYearsPage() {
                 const config = STATUS_CONFIG[sy.status] ?? STATUS_CONFIG.upcoming;
                 const StatusIcon = config.icon;
                 const termCount = sy.terms?.[0]?.count ?? 0;
+                const classCount = sy.classes?.[0]?.count ?? 0;
+                const enrollmentCount = sy.enrollments?.[0]?.count ?? 0;
                 const progress = getYearProgress(sy.start_date, sy.end_date);
                 const isActive = sy.status === "active";
 
@@ -249,7 +254,7 @@ export default async function SchoolYearsPage() {
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end lg:flex-row">
+                      <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
                         <Button asChild variant="outline" size="sm">
                           <Link href={`/school-years/${sy.id}`}>Edit</Link>
                         </Button>
@@ -259,6 +264,14 @@ export default async function SchoolYearsPage() {
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>
+                        <DeleteSchoolYearButton
+                          schoolYearId={sy.id}
+                          schoolYearName={sy.name}
+                          status={sy.status}
+                          termCount={termCount}
+                          classCount={classCount}
+                          enrollmentCount={enrollmentCount}
+                        />
                       </div>
                     </div>
                   </div>

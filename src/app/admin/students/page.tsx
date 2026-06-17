@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DeleteStudentButton } from "./delete-student-button";
 import {
   ArrowRight,
   CheckCircle2,
@@ -305,6 +306,13 @@ export default async function StudentsPage({
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>
+                        <DeleteStudentButton
+                          studentId={student.id}
+                          studentName={name}
+                          studentEmail={student.user?.email ?? ""}
+                          studentNumber={student.student_number}
+                          enrollmentCount={studentEnrollments.length}
+                        />
                       </div>
                     </div>
                   </div>

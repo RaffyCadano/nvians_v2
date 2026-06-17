@@ -175,6 +175,18 @@ input[data-slot="input"],
   color-scheme: light !important;
 }
 
+input::placeholder,
+textarea::placeholder,
+input[data-slot="input"]::placeholder,
+textarea[data-slot="textarea"]::placeholder,
+.auth-field-input::placeholder,
+.auth-form-root input::placeholder,
+.auth-form-root textarea::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
 .dashboard-nav-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 116, 139, 0.55) transparent;

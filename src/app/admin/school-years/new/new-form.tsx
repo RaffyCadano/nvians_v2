@@ -1,11 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { createSchoolYear } from "../actions";
 import {
   ArrowLeft,
@@ -49,8 +57,10 @@ export default function NewSchoolYearForm({
     upcoming: number;
   };
 }) {
+  const router = useRouter();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -64,14 +74,57 @@ export default function NewSchoolYearForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    const formData = new FormData(e.currentTarget);
-    const result = await createSchoolYear(formData);
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
+    if (!e.currentTarget.checkValidity()) {
+      e.currentTarget.reportValidity();
+      return;
     }
+    if (!name.trim() || !startDate || !endDate) {
+      setError("School year name, start date, and end date are required.");
+      return;
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      setError("End date must be after start date.");
+      return;
+    }
+    setError("");
+    setConfirmOpen(true);
+  }
+
+  function buildFormData() {
+    const formData = new FormData();
+    formData.set("name", name.trim());
+    formData.set("start_date", startDate);
+    formData.set("end_date", endDate);
+    if (isActive) formData.set("is_active", "true");
+    return formData;
+  }
+
+  async function handleConfirmCreate() {
+    setCreating(true);
+    setError("");
+
+    try {
+      const result = await createSchoolYear(buildFormData());
+
+      if (!result || !("success" in result)) {
+        setError(result?.error ?? "Failed to create school year. Please try again.");
+        return;
+      }
+
+      setConfirmOpen(false);
+      router.push("/school-years");
+      router.refresh();
+    } catch {
+      setError("Failed to create school year. Please try again.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  function handleConfirmOpenChange(open: boolean) {
+    if (creating) return;
+    setConfirmOpen(open);
+    if (!open) setError("");
   }
 
   const statCards = [
@@ -243,15 +296,15 @@ export default function NewSchoolYearForm({
                 </div>
               </div>
 
-              {error && (
+              {error && !confirmOpen && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
                   {error}
                 </p>
               )}
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row">
-                <Button type="submit" disabled={loading} className="sm:min-w-[160px]">
-                  {loading ? "Creating..." : "Create School Year"}
+                <Button type="submit" className="sm:min-w-[160px]">
+                  Create School Year
                 </Button>
                 <Button asChild variant="outline">
                   <Link href="/school-years">Cancel</Link>
@@ -348,6 +401,101 @@ export default function NewSchoolYearForm({
           </section>
         </aside>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
+        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+          <div className="border-b border-blue-100 bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-900 px-6 py-5 text-white">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 ring-1 ring-blue-400/25">
+                <Calendar className="h-5 w-5 text-blue-300" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-semibold text-white">
+                  Create school year?
+                </DialogTitle>
+                <p className="mt-0.5 text-xs text-blue-200/80">
+                  Review the details before creating this academic year
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 py-5">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                <Calendar className="h-5 w-5 text-blue-700" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-gray-900">{name.trim()}</p>
+                <p className="truncate text-xs text-gray-500">{duration} duration</p>
+              </div>
+            </div>
+
+            <DialogDescription className="mt-4 text-sm leading-relaxed text-gray-600">
+              A new school year will be created for{" "}
+              <span className="font-medium text-gray-900">{name.trim()}</span>.
+              {isActive
+                ? " It will be set as the active year for enrollment and classes."
+                : " It will be saved as upcoming until you activate it."}
+            </DialogDescription>
+
+            <div className="mt-4 space-y-2 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-gray-500">Start date</span>
+                <span className="font-medium text-gray-900">{formatShortDate(startDate)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-gray-500">End date</span>
+                <span className="font-medium text-gray-900">{formatShortDate(endDate)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-gray-500">Status</span>
+                {isActive ? (
+                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>
+                ) : (
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Upcoming</Badge>
+                )}
+              </div>
+            </div>
+
+            {isActive && stats.hasActive && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-sm text-amber-900">
+                <p className="font-medium">Replacing current active year</p>
+                <p className="mt-1 text-xs leading-relaxed text-amber-800/90">
+                  The currently active school year will be archived when this one is created.
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter className="!m-0 gap-2.5 border-t border-gray-100 bg-gray-50/80 px-6 py-4 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => handleConfirmOpenChange(false)}
+              disabled={creating}
+            >
+              Go back
+            </Button>
+            <Button
+              type="button"
+              className="w-full bg-blue-700 hover:bg-blue-800 sm:w-auto"
+              onClick={handleConfirmCreate}
+              disabled={creating}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {creating ? "Creating..." : "Create school year"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

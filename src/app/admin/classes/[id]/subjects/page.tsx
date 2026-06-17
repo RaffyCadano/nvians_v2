@@ -1,9 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ClassSubjectsClient from "./client";
+
+function relationOne<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
 
 export default async function ClassSubjectsPage({
   params,
@@ -18,11 +20,12 @@ export default async function ClassSubjectsPage({
     { data: classSubjects },
     { data: subjects },
     { data: teachers },
+    { count: enrollmentCount },
   ] = await Promise.all([
     supabase
       .from("classes")
       .select(
-        "id, grade_level, section, school_year_id, school_year:school_years(id, name), advisor:teachers(user:users(full_name))"
+        "id, grade_level, section, school_year_id, status, school_year:school_years(id, name), advisor:teachers(user:users(full_name))"
       )
       .eq("id", id)
       .single(),
@@ -43,42 +46,72 @@ export default async function ClassSubjectsPage({
       .select("id, user:users(full_name)")
       .eq("status", "active")
       .order("created_at"),
+    supabase
+      .from("enrollments")
+      .select("*", { count: "exact", head: true })
+      .eq("class_id", id)
+      .eq("status", "enrolled"),
   ]);
 
   if (!cls) notFound();
 
-  // Fetch terms for this class's school year
   const { data: terms } = await supabase
     .from("terms")
     .select("id, name, status, start_date, end_date")
     .eq("school_year_id", cls.school_year_id)
     .order("start_date");
 
-  return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link href="/classes">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Classes
-          </Link>
-        </Button>
-        <span>/</span>
-        <span className="text-gray-900 font-medium">
-          {cls.grade_level} - {cls.section}
-        </span>
-        <span>/</span>
-        <span>Subjects</span>
-      </div>
+  const schoolYear = relationOne(cls.school_year);
+  const advisor = relationOne(cls.advisor);
+  const advisorUser = relationOne(advisor?.user);
 
-      <ClassSubjectsClient
-        cls={cls}
-        classSubjects={classSubjects ?? []}
-        subjects={subjects ?? []}
-        teachers={teachers ?? []}
-        terms={terms ?? []}
-      />
-    </div>
+  const normalizedClassSubjects = (classSubjects ?? []).map((cs) => {
+    const subject = relationOne(cs.subject);
+    const teacher = relationOne(cs.teacher);
+    const teacherUser = relationOne(teacher?.user);
+    return {
+      id: cs.id,
+      termId: cs.term_id,
+      schedule: cs.schedule,
+      subjectId: subject?.id ?? "",
+      subjectName: subject?.name ?? "Unknown subject",
+      subjectCode: subject?.code ?? "—",
+      teacherId: teacher?.id ?? null,
+      teacherName: teacherUser?.full_name ?? null,
+    };
+  });
+
+  const withTeacher = normalizedClassSubjects.filter((cs) => cs.teacherName).length;
+
+  return (
+    <ClassSubjectsClient
+      cls={{
+        id: cls.id,
+        gradeLevel: cls.grade_level,
+        section: cls.section,
+        status: cls.status,
+        schoolYearName: schoolYear?.name ?? "—",
+        advisorName: advisorUser?.full_name ?? null,
+      }}
+      classSubjects={normalizedClassSubjects}
+      subjects={subjects ?? []}
+      teachers={(teachers ?? []).map((t) => ({
+        id: t.id,
+        fullName: relationOne(t.user)?.full_name ?? "Unknown teacher",
+      }))}
+      terms={(terms ?? []).map((t) => ({
+        id: t.id,
+        name: t.name,
+        status: t.status,
+        startDate: t.start_date,
+        endDate: t.end_date,
+      }))}
+      stats={{
+        total: normalizedClassSubjects.length,
+        terms: (terms ?? []).length,
+        withTeacher,
+        enrollments: enrollmentCount ?? 0,
+      }}
+    />
   );
 }

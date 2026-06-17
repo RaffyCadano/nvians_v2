@@ -4,13 +4,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function addClassSubject(formData: FormData) {
   const supabase = createAdminClient();
+  const schedule = ((formData.get("schedule") as string) ?? "").trim();
 
   const { error } = await supabase.from("class_subjects").insert({
     class_id: formData.get("class_id") as string,
     subject_id: formData.get("subject_id") as string,
     teacher_id: (formData.get("teacher_id") as string) || null,
     term_id: formData.get("term_id") as string,
-    schedule: (formData.get("schedule") as string) || null,
+    schedule: schedule || null,
   });
 
   if (error) return { error: error.message };
