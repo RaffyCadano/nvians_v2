@@ -3,16 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend, buildStatusTrend } from "@/lib/trend-utils";
 import { DeleteStudentButton } from "./delete-student-button";
 import {
   ArrowRight,
-  CheckCircle2,
-  ClipboardList,
   GraduationCap,
   Plus,
   Search,
   UserRound,
-  Users,
   UserX,
 } from "lucide-react";
 
@@ -23,12 +22,14 @@ type StudentRow = {
   parent_name: string | null;
   parent_contact: string | null;
   status: "active" | "disabled";
+  created_at: string;
   user: { full_name: string; email: string } | null;
 };
 
 type EnrollmentRow = {
   student_id: string;
   status: string;
+  enrolled_at: string;
   class: { grade_level: string; section: string } | null;
 };
 
@@ -75,12 +76,13 @@ export default async function StudentsPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("enrollments")
-      .select("student_id, status, class:classes(grade_level, section)")
+      .select("student_id, status, enrolled_at, class:classes(grade_level, section)")
       .eq("status", "enrolled"),
   ]);
 
   const term = searchQuery?.trim().toLowerCase();
-  const rows = ((students ?? []) as StudentRow[]).filter((student) => {
+  const allRows = (students ?? []) as StudentRow[];
+  const rows = allRows.filter((student) => {
     if (!term) return true;
     return (
       student.user?.full_name?.toLowerCase().includes(term) ||
@@ -95,6 +97,7 @@ export default async function StudentsPage({
       const row: EnrollmentRow = {
         student_id: raw.student_id,
         status: raw.status,
+        enrolled_at: raw.enrolled_at,
         class: relationOne(raw.class),
       };
       if (!acc[row.student_id]) acc[row.student_id] = [];
@@ -104,13 +107,13 @@ export default async function StudentsPage({
     {},
   );
 
-  const activeCount = rows.filter((s) => s.status === "active").length;
-  const disabledCount = rows.filter((s) => s.status === "disabled").length;
-  const enrolledCount = rows.filter((s) => (enrollmentByStudent[s.id]?.length ?? 0) > 0).length;
-  const unenrolledCount = rows.length - enrolledCount;
+  const activeCount = allRows.filter((s) => s.status === "active").length;
+  const disabledCount = allRows.filter((s) => s.status === "disabled").length;
+  const enrolledCount = allRows.filter((s) => (enrollmentByStudent[s.id]?.length ?? 0) > 0).length;
+  const unenrolledCount = allRows.length - enrolledCount;
 
   const genderCounts = Object.entries(
-    rows.reduce<Record<string, number>>((acc, s) => {
+    allRows.reduce<Record<string, number>>((acc, s) => {
       const gender = s.gender?.trim() || "Not specified";
       acc[gender] = (acc[gender] ?? 0) + 1;
       return acc;
@@ -120,33 +123,50 @@ export default async function StudentsPage({
   const stats = [
     {
       label: "Total Students",
-      value: rows.length,
-      icon: GraduationCap,
+      value: allRows.length,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      data: buildStatusTrend(allRows),
     },
     {
       label: "Active",
       value: activeCount,
-      icon: CheckCircle2,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      data: buildStatusTrend(allRows, "active"),
     },
     {
       label: "Enrolled",
       value: enrolledCount,
-      icon: Users,
+      stroke: "#4f46e5",
       color: "text-indigo-600",
       bg: "bg-indigo-50",
+      data: buildMonthlyTrend((enrollments ?? []).map((e) => e.enrolled_at)),
     },
     {
       label: "Not Enrolled",
       value: unenrolledCount,
-      icon: ClipboardList,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      data: buildMonthlyTrend(
+        allRows
+          .filter((s) => (enrollmentByStudent[s.id]?.length ?? 0) === 0)
+          .map((s) => s.created_at),
+      ),
     },
   ];
+
+  const trendSeries = stats.map((stat) => ({
+    title: stat.label,
+    stroke: stat.stroke,
+    color: stat.color,
+    bg: stat.bg,
+    current: stat.value,
+    data: stat.data,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -176,29 +196,7 @@ export default async function StudentsPage({
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       {/* Search */}
       <form className="flex flex-col gap-2 sm:flex-row sm:items-center">

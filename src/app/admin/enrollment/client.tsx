@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatsLineChart, type TrendSeries } from "@/components/admin/stats-line-chart";
 import {
   Dialog,
   DialogContent,
@@ -21,13 +22,9 @@ import {
 } from "./actions";
 import {
   ArrowRight,
-  CheckCircle2,
-  ClipboardList,
   GraduationCap,
   Plus,
   Search,
-  Shuffle,
-  UserX,
   Users,
 } from "lucide-react";
 
@@ -49,7 +46,7 @@ function getInitials(name: string | undefined) {
 
 export default function EnrollmentClient({
   enrollments,
-  stats,
+  trendSeries = [],
   classes,
   students,
   schoolYears,
@@ -57,7 +54,7 @@ export default function EnrollmentClient({
   filterQ,
 }: {
   enrollments: any[];
-  stats: { total: number; enrolled: number; dropped: number; transferred: number };
+  trendSeries?: TrendSeries[];
   classes: any[];
   students: any[];
   schoolYears: any[];
@@ -122,13 +119,6 @@ export default function EnrollmentClient({
     if (cls) params.set("class", cls);
     router.push(`/enrollment?${params.toString()}`);
   }
-
-  const statCards = [
-    { label: "Total Records", value: stats.total, icon: ClipboardList, color: "text-indigo-600", bg: "bg-indigo-50" },
-    { label: "Enrolled", value: stats.enrolled, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Transferred", value: stats.transferred, icon: Shuffle, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Dropped", value: stats.dropped, icon: UserX, color: "text-red-600", bg: "bg-red-50" },
-  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -197,24 +187,7 @@ export default function EnrollmentClient({
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">{stat.value.toLocaleString()}</p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       <form onSubmit={handleFilter} className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-0 flex-1 sm:max-w-sm">

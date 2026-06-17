@@ -2,8 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatsLineChart } from "./stats-line-chart";
-import { buildMonthlyTrend } from "./trend-utils";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend } from "@/lib/trend-utils";
 import {
   ArrowRight,
   BarChart3,

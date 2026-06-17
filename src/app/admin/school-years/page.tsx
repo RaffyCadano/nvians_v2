@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildStatusTrend } from "@/lib/trend-utils";
 import { DeleteSchoolYearButton } from "./delete-school-year-button";
 import {
   Archive,
@@ -10,7 +12,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  Layers,
   Plus,
   Sparkles,
 } from "lucide-react";
@@ -102,32 +103,45 @@ export default async function SchoolYearsPage() {
     {
       label: "Total Years",
       value: years.length,
-      icon: Layers,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      data: buildStatusTrend(years),
     },
     {
       label: "Active",
       value: activeYear ? 1 : 0,
-      icon: CheckCircle2,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      data: buildStatusTrend(years, "active"),
     },
     {
       label: "Upcoming",
       value: upcomingCount,
-      icon: Clock,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      data: buildStatusTrend(years, "upcoming"),
     },
     {
       label: "Archived",
       value: archivedCount,
-      icon: Archive,
+      stroke: "#6b7280",
       color: "text-gray-600",
       bg: "bg-gray-100",
+      data: buildStatusTrend(years, "archived"),
     },
   ];
+
+  const trendSeries = stats.map((stat) => ({
+    title: stat.label,
+    stroke: stat.stroke,
+    color: stat.color,
+    bg: stat.bg,
+    current: stat.value,
+    data: stat.data,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -157,29 +171,7 @@ export default async function SchoolYearsPage() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         {/* Main list */}

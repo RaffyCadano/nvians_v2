@@ -3,11 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { ALLOWED_GRADE_LEVELS } from "@/lib/constants/grade-levels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend, buildStatusTrend } from "@/lib/trend-utils";
 import { DeleteClassButton } from "./delete-class-button";
 import {
   ArrowRight,
   BookOpen,
-  CheckCircle2,
   GraduationCap,
   Layers,
   Plus,
@@ -21,6 +22,7 @@ type ClassRow = {
   grade_level: string;
   section: string;
   status: "active" | "archived";
+  created_at: string;
   school_year: { name: string } | null;
   advisor: { user: { full_name: string } | null } | null;
   enrollments: { count: number }[];
@@ -56,20 +58,22 @@ function getGradeColor(gradeLevel: string) {
 export default async function ClassesPage() {
   const supabase = await createClient();
 
-  const [{ data: classes }, { data: activeSchoolYear }] = await Promise.all([
-    supabase
-      .from("classes")
-      .select(
-        "*, school_year:school_years(name), advisor:teachers(user:users(full_name)), enrollments(count), class_subjects(count)"
-      )
-      .order("grade_level")
-      .order("section"),
-    supabase
-      .from("school_years")
-      .select("id, name, start_date, end_date")
-      .eq("status", "active")
-      .maybeSingle(),
-  ]);
+  const [{ data: classes }, { data: activeSchoolYear }, { data: enrollmentDates }] =
+    await Promise.all([
+      supabase
+        .from("classes")
+        .select(
+          "*, school_year:school_years(name), advisor:teachers(user:users(full_name)), enrollments(count), class_subjects(count)",
+        )
+        .order("grade_level")
+        .order("section"),
+      supabase
+        .from("school_years")
+        .select("id, name, start_date, end_date")
+        .eq("status", "active")
+        .maybeSingle(),
+      supabase.from("enrollments").select("enrolled_at").eq("status", "enrolled"),
+    ]);
 
   const rows = (classes ?? []) as ClassRow[];
   const activeCount = rows.filter((c) => c.status === "active").length;
@@ -88,32 +92,47 @@ export default async function ClassesPage() {
     {
       label: "Total Classes",
       value: rows.length,
-      icon: School,
+      stroke: "#9333ea",
       color: "text-purple-600",
       bg: "bg-purple-50",
+      data: buildStatusTrend(rows),
     },
     {
       label: "Active",
       value: activeCount,
-      icon: CheckCircle2,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      data: buildStatusTrend(rows, "active"),
     },
     {
       label: "With Advisor",
       value: withAdvisor,
-      icon: UserCheck,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      data: buildMonthlyTrend(
+        rows.filter((c) => c.advisor?.user?.full_name).map((c) => c.created_at),
+      ),
     },
     {
       label: "Enrolled Students",
       value: totalStudents,
-      icon: Users,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      data: buildMonthlyTrend((enrollmentDates ?? []).map((e) => e.enrolled_at)),
     },
   ];
+
+  const trendSeries = stats.map((stat) => ({
+    title: stat.label,
+    stroke: stat.stroke,
+    color: stat.color,
+    bg: stat.bg,
+    current: stat.value,
+    data: stat.data,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -143,29 +162,7 @@ export default async function ClassesPage() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         {/* Main list */}

@@ -2,14 +2,13 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend } from "@/lib/trend-utils";
 import { cn } from "@/lib/utils";
 import {
   ArrowRight,
-  BookOpen,
   CalendarDays,
   Clock,
-  School,
-  UserCheck,
 } from "lucide-react";
 
 function relationOne<T>(value: T | T[] | null | undefined): T | null {
@@ -31,6 +30,7 @@ function getGradeColor(gradeLevel: string) {
 type ScheduleRow = {
   id: string;
   schedule: string | null;
+  createdAt: string;
   subjectName: string;
   subjectCode: string;
   teacherName: string | null;
@@ -48,11 +48,11 @@ export default async function AdminSchedulePage() {
     supabase
       .from("class_subjects")
       .select(
-        `id, schedule,
+        `id, schedule, created_at,
         subject:subjects(name, code),
         teacher:teachers(user:users(full_name)),
         term:terms(name),
-        class:classes(id, grade_level, section, school_year:school_years(name))`
+        class:classes(id, grade_level, section, school_year:school_years(name))`,
       )
       .order("created_at"),
     supabase.from("school_years").select("name").eq("status", "active").maybeSingle(),
@@ -69,6 +69,7 @@ export default async function AdminSchedulePage() {
     return {
       id: cs.id,
       schedule: cs.schedule,
+      createdAt: cs.created_at,
       subjectName: subject?.name ?? "Unknown subject",
       subjectCode: subject?.code ?? "—",
       teacherName: teacherUser?.full_name ?? null,
@@ -104,36 +105,53 @@ export default async function AdminSchedulePage() {
       return gradeCmp !== 0 ? gradeCmp : a.section.localeCompare(b.section);
     });
 
+  const classFirstDates = Object.values(byClass)
+    .map((items) => items.map((item) => item.createdAt).sort()[0])
+    .filter(Boolean);
+
   const stats = [
     {
       label: "Assignments",
       value: rows.length,
-      icon: BookOpen,
+      stroke: "#9333ea",
       color: "text-purple-600",
       bg: "bg-purple-50",
+      data: buildMonthlyTrend(rows.map((r) => r.createdAt)),
     },
     {
       label: "With Schedule",
       value: withSchedule,
-      icon: CalendarDays,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      data: buildMonthlyTrend(rows.filter((r) => r.schedule).map((r) => r.createdAt)),
     },
     {
       label: "With Teacher",
       value: withTeacher,
-      icon: UserCheck,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      data: buildMonthlyTrend(rows.filter((r) => r.teacherName).map((r) => r.createdAt)),
     },
     {
       label: "Classes",
       value: classIds.size,
-      icon: School,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      data: buildMonthlyTrend(classFirstDates),
     },
   ];
+
+  const trendSeries = stats.map((stat) => ({
+    title: stat.label,
+    stroke: stat.stroke,
+    color: stat.color,
+    bg: stat.bg,
+    current: stat.value,
+    data: stat.data,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -151,26 +169,7 @@ export default async function AdminSchedulePage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={cn("rounded-xl p-2.5", stat.bg)}>
-                  <Icon className={cn("h-5 w-5", stat.color)} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       {classGroups.length === 0 ? (
         <section className="overflow-hidden rounded-xl border border-gray-200 bg-white px-6 py-16 text-center">

@@ -3,13 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend, buildStatusTrend } from "@/lib/trend-utils";
 import {
   ArrowRight,
   BookOpen,
   Building2,
-  CheckCircle2,
   Plus,
-  School,
   Search,
   UserCheck,
   UserX,
@@ -21,6 +21,7 @@ type TeacherRow = {
   department: string | null;
   specialization: string | null;
   status: "active" | "disabled";
+  created_at: string;
   user: { full_name: string; email: string } | null;
 };
 
@@ -66,7 +67,8 @@ export default async function TeachersPage({
     ]);
 
   const term = searchQuery?.trim().toLowerCase();
-  const rows = ((teachers ?? []) as TeacherRow[]).filter((teacher) => {
+  const allRows = (teachers ?? []) as TeacherRow[];
+  const rows = allRows.filter((teacher) => {
     if (!term) return true;
     return (
       teacher.user?.full_name?.toLowerCase().includes(term) ||
@@ -92,13 +94,13 @@ export default async function TeachersPage({
     {}
   );
 
-  const activeCount = rows.filter((t) => t.status === "active").length;
-  const disabledCount = rows.filter((t) => t.status === "disabled").length;
-  const withAdvisory = rows.filter((t) => (advisorCountByTeacher[t.id] ?? 0) > 0).length;
-  const teachingSubjects = rows.filter((t) => (subjectCountByTeacher[t.id] ?? 0) > 0).length;
+  const activeCount = allRows.filter((t) => t.status === "active").length;
+  const disabledCount = allRows.filter((t) => t.status === "disabled").length;
+  const withAdvisory = allRows.filter((t) => (advisorCountByTeacher[t.id] ?? 0) > 0).length;
+  const teachingSubjects = allRows.filter((t) => (subjectCountByTeacher[t.id] ?? 0) > 0).length;
 
   const departmentCounts = Object.entries(
-    rows.reduce<Record<string, number>>((acc, t) => {
+    allRows.reduce<Record<string, number>>((acc, t) => {
       const dept = t.department?.trim() || "Unassigned";
       acc[dept] = (acc[dept] ?? 0) + 1;
       return acc;
@@ -108,33 +110,54 @@ export default async function TeachersPage({
   const stats = [
     {
       label: "Total Teachers",
-      value: rows.length,
-      icon: UserCheck,
+      value: allRows.length,
+      stroke: "#16a34a",
       color: "text-green-600",
       bg: "bg-green-50",
+      data: buildStatusTrend(allRows),
     },
     {
       label: "Active",
       value: activeCount,
-      icon: CheckCircle2,
+      stroke: "#059669",
       color: "text-emerald-600",
       bg: "bg-emerald-50",
+      data: buildStatusTrend(allRows, "active"),
     },
     {
       label: "Class Advisors",
       value: withAdvisory,
-      icon: School,
+      stroke: "#2563eb",
       color: "text-blue-600",
       bg: "bg-blue-50",
+      data: buildMonthlyTrend(
+        allRows
+          .filter((t) => (advisorCountByTeacher[t.id] ?? 0) > 0)
+          .map((t) => t.created_at),
+      ),
     },
     {
       label: "Teaching Subjects",
       value: teachingSubjects,
-      icon: BookOpen,
+      stroke: "#d97706",
       color: "text-amber-600",
       bg: "bg-amber-50",
+      data: buildMonthlyTrend(
+        allRows
+          .filter((t) => (subjectCountByTeacher[t.id] ?? 0) > 0)
+          .map((t) => t.created_at),
+      ),
     },
   ];
+
+  const trendSeries = stats.map((stat) => ({
+    title: stat.label,
+    stroke: stat.stroke,
+    color: stat.color,
+    bg: stat.bg,
+    current: stat.value,
+    data: stat.data,
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -163,29 +186,7 @@ export default async function TeachersPage({
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-                    {stat.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       {/* Search */}
       <form className="flex flex-col gap-2 sm:flex-row sm:items-center">

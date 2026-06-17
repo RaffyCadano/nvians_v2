@@ -2,27 +2,84 @@
 
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { GraduationCap, School, UserCheck, Users } from "lucide-react";
-
-export type TrendPoint = { label: string; value: number };
+import {
+  Archive,
+  BarChart3,
+  BookOpen,
+  CalendarDays,
+  CalendarCheck,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  GraduationCap,
+  Layers,
+  School,
+  Shuffle,
+  UserCheck,
+  UserX,
+  Users,
+} from "lucide-react";
+import type { TrendPoint } from "@/lib/trend-utils";
 
 export type TrendSeries = {
   title: string;
-  href: string;
+  href?: string;
   stroke: string;
   color: string;
   bg: string;
   current: number;
+  valueLabel?: string;
   data: TrendPoint[];
 };
 
 type StatsLineChartProps = {
-  series: TrendSeries[];
+  series?: TrendSeries[];
 };
 
 const CHART_WIDTH = 280;
 const CHART_HEIGHT = 72;
 const PADDING = { top: 8, right: 8, bottom: 18, left: 8 };
+
+const TREND_ICONS: Record<string, LucideIcon> = {
+  Students: GraduationCap,
+  Teachers: UserCheck,
+  Classes: School,
+  Enrollments: Users,
+  "Total Years": Layers,
+  "Total Classes": School,
+  "Total Subjects": BookOpen,
+  Active: CheckCircle2,
+  "With Advisor": UserCheck,
+  "Enrolled Students": Users,
+  "In Classes": School,
+  "Class Assignments": Layers,
+  Assignments: BookOpen,
+  "With Schedule": CalendarDays,
+  "With Teacher": UserCheck,
+  "Total Teachers": UserCheck,
+  "Class Advisors": School,
+  "Teaching Subjects": BookOpen,
+  "Total Students": GraduationCap,
+  Enrolled: Users,
+  "Not Enrolled": ClipboardList,
+  "Total Records": ClipboardList,
+  Transferred: Shuffle,
+  Dropped: UserX,
+  Sessions: CalendarCheck,
+  Present: CheckCircle2,
+  Absent: UserX,
+  "Class Subjects": ClipboardList,
+  "With Grades Open": BookOpen,
+  "Students Scored": GraduationCap,
+  "Grade Items": BarChart3,
+  "Active Students": Users,
+  "Active Teachers": UserCheck,
+  "Active Classes": School,
+  Subjects: BookOpen,
+  "Attendance Rate": CalendarCheck,
+  Upcoming: Clock,
+  Archived: Archive,
+};
 
 function buildPath(values: number[], max: number, count: number) {
   const innerW = CHART_WIDTH - PADDING.left - PADDING.right;
@@ -48,21 +105,18 @@ function buildAreaPath(values: number[], max: number, count: number) {
 }
 
 function StatLineChartCard({ item }: { item: TrendSeries }) {
-  const Icon = TREND_ICONS[item.title] ?? Users;
+  const Icon = TREND_ICONS[item.title] ?? Layers;
   const labels = item.data.map((p) => p.label);
   const values = item.data.map((p) => p.value);
   const max = Math.max(...values, 1);
 
-  return (
-    <Link
-      href={item.href}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-200 sm:p-5"
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium text-gray-500 sm:text-sm">{item.title}</p>
           <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">
-            {item.current.toLocaleString()}
+            {item.valueLabel ?? item.current.toLocaleString()}
           </p>
         </div>
         <div className={`rounded-xl p-2.5 ${item.bg}`}>
@@ -101,7 +155,7 @@ function StatLineChartCard({ item }: { item: TrendSeries }) {
           const x = PADDING.left + i * step;
           return (
             <text
-              key={label}
+              key={`${label}-${i}`}
               x={x}
               y={CHART_HEIGHT - 4}
               textAnchor="middle"
@@ -112,11 +166,25 @@ function StatLineChartCard({ item }: { item: TrendSeries }) {
           );
         })}
       </svg>
-    </Link>
+    </>
   );
+
+  const className =
+    "group flex flex-col rounded-xl border border-gray-200 bg-white p-4 sm:p-5" +
+    (item.href ? " transition-all hover:border-blue-200" : "");
+
+  if (item.href) {
+    return (
+      <Link href={item.href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }
 
-export function StatsLineChart({ series }: StatsLineChartProps) {
+export function StatsLineChart({ series = [] }: StatsLineChartProps) {
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {series.map((item) => (
@@ -125,11 +193,3 @@ export function StatsLineChart({ series }: StatsLineChartProps) {
     </section>
   );
 }
-
-// Server components cannot pass icon components; map titles to icons on the client.
-const TREND_ICONS: Record<string, LucideIcon> = {
-  Students: GraduationCap,
-  Teachers: UserCheck,
-  Classes: School,
-  Enrollments: Users,
-};

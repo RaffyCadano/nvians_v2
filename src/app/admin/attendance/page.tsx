@@ -1,16 +1,14 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend } from "@/lib/trend-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   CalendarCheck,
-  CheckCircle2,
-  ClipboardList,
-  UserX,
 } from "lucide-react";
 import { format } from "date-fns";
-
 export default async function AdminAttendancePage({
   searchParams,
 }: {
@@ -35,30 +33,78 @@ export default async function AdminAttendancePage({
   if (class_subject) query = query.eq("class_subject_id", class_subject);
   if (date) query = query.eq("date", date);
 
-  const [{ data: sessions }, { data: classSubjects }] = await Promise.all([
-    query,
-    supabase
-      .from("class_subjects")
-      .select("id, subject:subjects(name), class:classes(grade_level, section)")
-      .order("created_at"),
-  ]);
+  const [{ data: sessions }, { data: allSessions }, { data: classSubjects }, { data: allRecords }] =
+    await Promise.all([
+      query,
+      supabase.from("attendance_sessions").select("id, date, created_at").order("date", { ascending: false }),
+      supabase
+        .from("class_subjects")
+        .select("id, created_at, subject:subjects(name), class:classes(grade_level, section)")
+        .order("created_at"),
+      supabase.from("attendance_records").select("status, created_at"),
+    ]);
 
   const rows = sessions ?? [];
+  const sessionRows = allSessions ?? [];
+  const recordRows = allRecords ?? [];
+  const subjectRows = classSubjects ?? [];
+
   let totalPresent = 0;
   let totalAbsent = 0;
-  rows.forEach((session: any) => {
-    const records: any[] = session.attendance_records ?? [];
-    totalPresent += records.filter((r) => r.status === "present").length;
-    totalAbsent += records.filter((r) => r.status === "absent").length;
+  recordRows.forEach((record) => {
+    if (record.status === "present") totalPresent += 1;
+    if (record.status === "absent") totalAbsent += 1;
   });
 
-  const stats = [
-    { label: "Sessions", value: rows.length, icon: CalendarCheck, color: "text-teal-600", bg: "bg-teal-50" },
-    { label: "Present", value: totalPresent, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Absent", value: totalAbsent, icon: UserX, color: "text-red-600", bg: "bg-red-50" },
-    { label: "Class Subjects", value: (classSubjects ?? []).length, icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-50" },
-  ];
+  const sessionDates = sessionRows
+    .map((session) => session.created_at ?? session.date)
+    .filter(Boolean) as string[];
+  const presentDates = recordRows
+    .filter((record) => record.status === "present")
+    .map((record) => record.created_at)
+    .filter(Boolean) as string[];
+  const absentDates = recordRows
+    .filter((record) => record.status === "absent")
+    .map((record) => record.created_at)
+    .filter(Boolean) as string[];
+  const classSubjectDates = subjectRows
+    .map((subject) => subject.created_at)
+    .filter(Boolean) as string[];
 
+  const trendSeries = [
+    {
+      title: "Sessions",
+      stroke: "#0d9488",
+      color: "text-teal-600",
+      bg: "bg-teal-50",
+      current: sessionRows.length,
+      data: buildMonthlyTrend(sessionDates),
+    },
+    {
+      title: "Present",
+      stroke: "#16a34a",
+      color: "text-green-600",
+      bg: "bg-green-50",
+      current: totalPresent,
+      data: buildMonthlyTrend(presentDates),
+    },
+    {
+      title: "Absent",
+      stroke: "#dc2626",
+      color: "text-red-600",
+      bg: "bg-red-50",
+      current: totalAbsent,
+      data: buildMonthlyTrend(absentDates),
+    },
+    {
+      title: "Class Subjects",
+      stroke: "#2563eb",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      current: subjectRows.length,
+      data: buildMonthlyTrend(classSubjectDates),
+    },
+  ];
   return (
     <div className="flex flex-col gap-6">
       <section className="overflow-hidden rounded-2xl bg-gradient-to-r from-teal-900 to-cyan-800 px-6 py-6 text-white sm:px-8 sm:py-7">
@@ -72,30 +118,11 @@ export default async function AdminAttendancePage({
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">{stat.value.toLocaleString()}</p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
-
+      <StatsLineChart series={trendSeries} />
       <form method="GET" className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <select name="class_subject" defaultValue={class_subject ?? ""} className="flex h-9 min-w-[220px] rounded-lg border border-input bg-white px-2.5 text-sm text-gray-900">
           <option value="">All class subjects</option>
-          {(classSubjects ?? []).map((cs: any) => (
-            <option key={cs.id} value={cs.id}>{cs.subject?.name} — {cs.class?.grade_level} {cs.class?.section}</option>
+          {(classSubjects ?? []).map((cs: any) => (            <option key={cs.id} value={cs.id}>{cs.subject?.name} — {cs.class?.grade_level} {cs.class?.section}</option>
           ))}
         </select>
         <input type="date" name="date" defaultValue={date ?? ""} className="flex h-9 rounded-lg border border-input bg-white px-2.5 text-sm text-gray-900" />

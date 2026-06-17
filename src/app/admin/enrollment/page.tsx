@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildMonthlyTrend, buildStatusTrend } from "@/lib/trend-utils";
 import EnrollmentClient from "./client";
 
 export default async function EnrollmentPage({
@@ -38,6 +39,14 @@ export default async function EnrollmentPage({
   ]);
 
   const all = enrollments ?? [];
+  const enrollmentTrendItems = all
+    .filter((e) => e.enrolled_at)
+    .map((e) => ({
+      status: e.status as string,
+      created_at: e.enrolled_at as string,
+    }));
+
+  const enrollmentDates = all.map((e) => e.enrolled_at).filter(Boolean) as string[];
   const stats = {
     total: all.length,
     enrolled: all.filter((e) => e.status === "enrolled").length,
@@ -45,6 +54,39 @@ export default async function EnrollmentPage({
     transferred: all.filter((e) => e.status === "transferred").length,
   };
 
+  const trendSeries = [
+    {
+      title: "Total Records",
+      stroke: "#4f46e5",
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+      current: stats.total,
+      data: buildMonthlyTrend(enrollmentDates),
+    },    {
+      title: "Enrolled",
+      stroke: "#16a34a",
+      color: "text-green-600",
+      bg: "bg-green-50",
+      current: stats.enrolled,
+      data: buildStatusTrend(enrollmentTrendItems, "enrolled"),
+    },
+    {
+      title: "Transferred",
+      stroke: "#d97706",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      current: stats.transferred,
+      data: buildStatusTrend(enrollmentTrendItems, "transferred"),
+    },
+    {
+      title: "Dropped",
+      stroke: "#dc2626",
+      color: "text-red-600",
+      bg: "bg-red-50",
+      current: stats.dropped,
+      data: buildStatusTrend(enrollmentTrendItems, "dropped"),
+    },
+  ];
   let filtered = all;
   if (classId) filtered = filtered.filter((e) => e.class_id === classId);
   if (q) {
@@ -59,7 +101,7 @@ export default async function EnrollmentPage({
   return (
     <EnrollmentClient
       enrollments={filtered}
-      stats={stats}
+      trendSeries={trendSeries}
       classes={classes ?? []}
       students={students ?? []}
       schoolYears={schoolYears ?? []}
