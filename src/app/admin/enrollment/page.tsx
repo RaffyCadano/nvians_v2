@@ -23,7 +23,7 @@ export default async function EnrollmentPage({
       .order("enrolled_at", { ascending: false }),
     supabase
       .from("classes")
-      .select("id, grade_level, section, school_year:school_years(name)")
+      .select("id, grade_level, section, school_year:school_years(id, name)")
       .eq("status", "active")
       .order("grade_level"),
     supabase
@@ -37,13 +37,20 @@ export default async function EnrollmentPage({
       .order("start_date", { ascending: false }),
   ]);
 
-  // Filter by class or search query client-side
-  let filtered = enrollments ?? [];
-  if (classId) filtered = filtered.filter((e: any) => e.class_id === classId);
+  const all = enrollments ?? [];
+  const stats = {
+    total: all.length,
+    enrolled: all.filter((e) => e.status === "enrolled").length,
+    dropped: all.filter((e) => e.status === "dropped").length,
+    transferred: all.filter((e) => e.status === "transferred").length,
+  };
+
+  let filtered = all;
+  if (classId) filtered = filtered.filter((e) => e.class_id === classId);
   if (q) {
     const lower = q.toLowerCase();
     filtered = filtered.filter(
-      (e: any) =>
+      (e) =>
         e.student?.user?.full_name?.toLowerCase().includes(lower) ||
         e.student?.student_number?.toLowerCase().includes(lower)
     );
@@ -52,6 +59,7 @@ export default async function EnrollmentPage({
   return (
     <EnrollmentClient
       enrollments={filtered}
+      stats={stats}
       classes={classes ?? []}
       students={students ?? []}
       schoolYears={schoolYears ?? []}

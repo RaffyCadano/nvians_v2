@@ -47,7 +47,7 @@ export function LoginForm() {
         </p>
       </div>
 
-      <div className="px-6 py-6 sm:px-8">
+      <div className="px-6 py-6 text-gray-900 sm:px-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -59,7 +59,7 @@ export function LoginForm() {
             <Label htmlFor="email" className="text-gray-700">
               Email
             </Label>
-            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-white px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
               <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
               <Input
                 id="email"
@@ -68,7 +68,7 @@ export function LoginForm() {
                 placeholder="you@school.edu"
                 required
                 autoComplete="email"
-                className="h-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                className="h-full border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
               />
             </div>
           </div>
@@ -85,7 +85,7 @@ export function LoginForm() {
                 Forgot password?
               </Link>
             </div>
-            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-white px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
               <Input
                 id="password"
@@ -94,7 +94,7 @@ export function LoginForm() {
                 placeholder="Enter your password"
                 required
                 autoComplete="current-password"
-                className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
               />
               <button
                 type="button"

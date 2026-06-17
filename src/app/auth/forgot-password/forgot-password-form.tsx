@@ -65,7 +65,7 @@ export function ForgotPasswordForm() {
               <Label htmlFor="email" className="text-gray-700">
                 Email
               </Label>
-              <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+              <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-white px-3 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
                 <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <Input
                   id="email"

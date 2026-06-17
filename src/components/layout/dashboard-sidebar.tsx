@@ -39,50 +39,170 @@ import {
   UserCheck,
   School,
   LogOut,
-  ChevronRight,
   Megaphone,
   Menu,
+  CalendarCheck,
+  PieChart,
+  ChevronDown,
+  ExternalLink,
+  type LucideIcon,
 } from "lucide-react";
 import type { User } from "@/types";
+import { getPublicAppUrl } from "@/lib/site-urls";
 
-const NAV_ITEMS = {
-  admin: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/school-years", label: "School Years", icon: Calendar },
-    { href: "/classes", label: "Classes", icon: School },
-    { href: "/subjects", label: "Subjects", icon: BookOpen },
-    { href: "/teachers", label: "Teachers", icon: UserCheck },
-    { href: "/students", label: "Students", icon: GraduationCap },
-    { href: "/enrollment", label: "Enrollment", icon: ClipboardList },
-    { href: "/attendance", label: "Attendance", icon: Users },
-    { href: "/grades", label: "Grades", icon: BarChart3 },
-    { href: "/reports", label: "Reports", icon: BarChart3 },
-    { href: "/cms", label: "Website CMS", icon: Newspaper },
-    { href: "/settings", label: "Settings", icon: Settings },
-  ],
-  teacher: [
-    { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/teacher/advisory", label: "Advisory Class", icon: School },
-    { href: "/teacher/subjects", label: "My Subjects", icon: BookOpen },
-    { href: "/teacher/attendance", label: "Attendance", icon: UserCheck },
-    { href: "/teacher/grades", label: "Grades", icon: BarChart3 },
-    { href: "/teacher/assignments", label: "Assignments", icon: ClipboardList },
-    { href: "/teacher/announcements", label: "Announcements", icon: Megaphone },
-  ],
-  student: [
-    { href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/student/grades", label: "Grades", icon: BarChart3 },
-    { href: "/student/attendance", label: "Attendance", icon: UserCheck },
-    { href: "/student/assignments", label: "Assignments", icon: ClipboardList },
-    { href: "/student/schedule", label: "Schedule", icon: BookOpen },
-    { href: "/student/announcements", label: "Announcements", icon: Megaphone },
-  ],
-};
+type NavItem = { href: string; label: string; icon: LucideIcon };
+type NavGroup = { label: string; items: NavItem[] };
+
+const ADMIN_NAV: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "Academics",
+    items: [
+      { href: "/school-years", label: "School Years", icon: Calendar },
+      { href: "/classes", label: "Classes", icon: School },
+      { href: "/subjects", label: "Subjects", icon: BookOpen },
+      { href: "/teachers", label: "Teachers", icon: UserCheck },
+      { href: "/students", label: "Students", icon: GraduationCap },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/enrollment", label: "Enrollment", icon: ClipboardList },
+      { href: "/attendance", label: "Attendance", icon: CalendarCheck },
+      { href: "/grades", label: "Grades", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Insights & Content",
+    items: [
+      { href: "/reports", label: "Reports", icon: PieChart },
+      { href: "/cms", label: "Website CMS", icon: Newspaper },
+    ],
+  },
+  {
+    label: "System",
+    items: [{ href: "/settings", label: "Settings", icon: Settings }],
+  },
+];
+
+const TEACHER_NAV: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ href: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "Teaching",
+    items: [
+      { href: "/teacher/advisory", label: "Advisory Class", icon: School },
+      { href: "/teacher/subjects", label: "My Subjects", icon: BookOpen },
+      { href: "/teacher/attendance", label: "Attendance", icon: CalendarCheck },
+      { href: "/teacher/grades", label: "Grades", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { href: "/teacher/assignments", label: "Assignments", icon: ClipboardList },
+      { href: "/teacher/announcements", label: "Announcements", icon: Megaphone },
+    ],
+  },
+];
+
+const STUDENT_NAV: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "Academic",
+    items: [
+      { href: "/student/grades", label: "Grades", icon: BarChart3 },
+      { href: "/student/attendance", label: "Attendance", icon: CalendarCheck },
+      { href: "/student/schedule", label: "Schedule", icon: BookOpen },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { href: "/student/assignments", label: "Assignments", icon: ClipboardList },
+      { href: "/student/announcements", label: "Announcements", icon: Megaphone },
+    ],
+  },
+];
+
+const PORTAL_NAV = {
+  admin: ADMIN_NAV,
+  teacher: TEACHER_NAV,
+  student: STUDENT_NAV,
+} as const;
+
+const PORTAL_LABELS = {
+  admin: "Admin Portal",
+  teacher: "Teacher Portal",
+  student: "Student Portal",
+} as const;
 
 interface DashboardShellProps {
   user: User;
   portal: "admin" | "teacher" | "student";
   children: React.ReactNode;
+}
+
+function isNavActive(
+  pathname: string,
+  href: string,
+  portal: "admin" | "teacher" | "student",
+  host: string | null
+) {
+  if (portal === "admin") {
+    return adminNavActive(pathname, href, host);
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function NavLink({
+  item,
+  active,
+  href,
+  onNavigate,
+}: {
+  item: NavItem;
+  active: boolean;
+  href: string;
+  onNavigate?: () => void;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={cn(
+        "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
+        active
+          ? "bg-blue-500/15 text-white shadow-sm"
+          : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-100"
+      )}
+    >
+      {active && (
+        <span className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-blue-400" />
+      )}
+      <span
+        className={cn(
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors",
+          active
+            ? "bg-blue-500/20 text-blue-300"
+            : "bg-white/[0.04] text-slate-500 group-hover:bg-white/[0.08] group-hover:text-slate-300"
+        )}
+      >
+        <Icon className="h-3.5 w-3.5" />
+      </span>
+      <span className="truncate">{item.label}</span>
+    </Link>
+  );
 }
 
 function DashboardSidebarContent({
@@ -95,61 +215,98 @@ function DashboardSidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const navItems = NAV_ITEMS[portal];
+  const navGroups = PORTAL_NAV[portal];
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const host = typeof window !== "undefined" ? window.location.hostname : null;
 
   return (
-    <div className="flex h-full w-full flex-col bg-white">
-      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b px-4">
-        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={32} height={32} className="h-8 w-auto shrink-0" />
-        <span className="truncate text-sm font-semibold leading-tight text-gray-900">Nueva Vizcaya Institute</span>
+    <div className="flex h-full w-full flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
+      {/* Brand header */}
+      <div className="shrink-0 border-b border-white/[0.06] px-4 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+            <Image
+              src="/school-logo.png"
+              alt="Nueva Vizcaya Institute Logo"
+              width={28}
+              height={28}
+              className="h-7 w-auto"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold leading-tight text-white">
+              Nueva Vizcaya Institute
+            </p>
+            <p className="mt-0.5 truncate text-[11px] font-medium tracking-wide text-blue-300/80 uppercase">
+              {PORTAL_LABELS[portal]}
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const href = portal === "admin" ? adminNavHref(item.href, host) : item.href;
-            const active =
-              portal === "admin"
-                ? adminNavActive(pathname, item.href, host)
-                : pathname === href || pathname.startsWith(`${href}/`);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={href}
-                  onClick={onNavigate}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {item.label}
-                  {active && <ChevronRight className="ml-auto h-4 w-4" />}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="space-y-5">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <p className="mb-1.5 px-3 text-[10px] font-semibold tracking-widest text-slate-500 uppercase">
+                {group.label}
+              </p>
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const href =
+                    portal === "admin" ? adminNavHref(item.href, host) : item.href;
+                  const active = isNavActive(pathname, item.href, portal, host);
+                  return (
+                    <li key={item.href}>
+                      <NavLink
+                        item={item}
+                        active={active}
+                        href={href}
+                        onNavigate={onNavigate}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {portal === "admin" && (
+          <div className="mt-6 border-t border-white/[0.06] pt-4">
+            <a
+              href={getPublicAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-slate-100"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04]">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </span>
+              View Public Site
+            </a>
+          </div>
+        )}
       </nav>
 
-      <div className="shrink-0 border-t px-3 py-4">
+      {/* User footer */}
+      <div className="shrink-0 border-t border-white/[0.06] p-3">
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-gray-100">
-            <Avatar className="h-8 w-8">
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl bg-white/[0.04] px-3 py-2.5 text-left ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.08] focus:outline-none">
+            <Avatar className="h-9 w-9 ring-2 ring-white/10">
               <AvatarImage src={user.avatar_url} />
-              <AvatarFallback>{user.full_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="bg-blue-600 text-xs font-semibold text-white">
+                {user.full_name?.charAt(0)?.toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-sm font-medium text-gray-900">{user.full_name}</p>
-              <p className="text-xs capitalize text-gray-500">{user.role}</p>
+              <p className="truncate text-sm font-medium text-white">{user.full_name}</p>
+              <p className="truncate text-xs capitalize text-slate-400">{user.role}</p>
             </div>
+            <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-48">
+          <DropdownMenuContent align="end" side="top" className="w-52">
             <DropdownMenuGroup>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -159,7 +316,7 @@ function DashboardSidebarContent({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-red-600"
+              className="cursor-pointer text-red-600 focus:text-red-600"
               onClick={() => setIsSignOutOpen(true)}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -202,21 +359,32 @@ export function DashboardShell({ user, portal, children }: DashboardShellProps) 
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gray-50 lg:flex-row">
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-white px-4 lg:hidden">
+      {/* Mobile header */}
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-slate-800 bg-slate-950 px-4 lg:hidden">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
+          className="text-slate-300 hover:bg-white/10 hover:text-white"
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <Image src="/school-logo.png" alt="Nueva Vizcaya Institute Logo" width={28} height={28} className="h-7 w-auto" />
-        <span className="truncate font-semibold text-gray-900">Nueva Vizcaya Institute</span>
+        <Image
+          src="/school-logo.png"
+          alt="Nueva Vizcaya Institute Logo"
+          width={28}
+          height={28}
+          className="h-7 w-auto"
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-white">NVIANS</p>
+          <p className="truncate text-[10px] text-slate-400 uppercase">{PORTAL_LABELS[portal]}</p>
+        </div>
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 p-0">
+        <SheetContent side="left" className="w-72 max-w-[85vw] gap-0 border-slate-800 bg-slate-950 p-0">
           <DashboardSidebarContent
             user={user}
             portal={portal}
@@ -225,23 +393,27 @@ export function DashboardShell({ user, portal, children }: DashboardShellProps) 
         </SheetContent>
       </Sheet>
 
-      <aside className="hidden h-screen w-64 shrink-0 border-r bg-white lg:flex">
+      <aside className="hidden h-screen w-[272px] shrink-0 lg:flex">
         <DashboardSidebarContent user={user} portal={portal} />
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto">
-        <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
-          {children}
-        </div>
+        <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7">{children}</div>
       </main>
     </div>
   );
 }
 
 /** @deprecated Use DashboardShell instead */
-export function DashboardSidebar({ user, portal }: { user: User; portal: "admin" | "teacher" | "student" }) {
+export function DashboardSidebar({
+  user,
+  portal,
+}: {
+  user: User;
+  portal: "admin" | "teacher" | "student";
+}) {
   return (
-    <aside className="hidden h-screen w-64 flex-col border-r bg-white lg:flex">
+    <aside className="hidden h-screen w-[272px] shrink-0 lg:flex">
       <DashboardSidebarContent user={user} portal={portal} />
     </aside>
   );

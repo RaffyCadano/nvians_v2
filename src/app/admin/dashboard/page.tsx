@@ -190,7 +190,7 @@ export default async function AdminDashboardPage() {
             <Link
               key={stat.title}
               href={stat.href}
-              className="group rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-blue-200 hover:shadow-md sm:p-5"
+              className="group rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-blue-200 sm:p-5"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -212,7 +212,7 @@ export default async function AdminDashboardPage() {
         {/* Main column */}
         <div className="flex min-w-0 flex-col gap-6">
           {/* Quick actions */}
-          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
               <h2 className="font-semibold text-gray-900">Quick Actions</h2>
               <p className="mt-0.5 text-sm text-gray-500">Frequently used admin tasks</p>
@@ -224,7 +224,7 @@ export default async function AdminDashboardPage() {
                   <Link
                     key={action.href}
                     href={action.href}
-                    className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-gray-200 hover:shadow-sm"
+                    className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-gray-200"
                   >
                     <div className={`rounded-lg p-2.5 ${action.bg}`}>
                       <Icon className={`h-5 w-5 ${action.color}`} />
@@ -238,7 +238,7 @@ export default async function AdminDashboardPage() {
           </section>
 
           {/* Management */}
-          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
               <h2 className="font-semibold text-gray-900">Manage</h2>
               <p className="mt-0.5 text-sm text-gray-500">Browse all admin sections</p>
@@ -276,7 +276,7 @@ export default async function AdminDashboardPage() {
         {/* Sidebar */}
         <aside className="flex w-full min-w-0 flex-col gap-5 lg:sticky lg:top-7">
           {/* School year */}
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-gray-200 bg-white p-5">
             <div className="mb-4 flex items-center gap-2.5">
               <div className="rounded-lg bg-blue-50 p-2">
                 <Calendar className="h-4 w-4 text-blue-600" />
@@ -318,7 +318,7 @@ export default async function AdminDashboardPage() {
           </section>
 
           {/* At a glance */}
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="text-base font-bold text-gray-900">At a Glance</h2>
             <ul className="mt-4 divide-y divide-gray-100">
               <li className="flex items-center justify-between gap-4 py-3 text-sm first:pt-0">
@@ -347,7 +347,7 @@ export default async function AdminDashboardPage() {
           </section>
 
           {/* Recent enrollments */}
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-gray-200 bg-white p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="text-base font-bold text-gray-900">Recent Enrollments</h2>
               <Link

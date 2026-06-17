@@ -33,11 +33,11 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <section className="relative flex flex-1 items-center overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
+    <section className="relative flex flex-1 items-center overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
       <div className="container relative mx-auto max-w-7xl px-4 py-10 sm:py-16 lg:py-24">
         <div className="grid w-full items-center gap-8 lg:grid-cols-2 lg:gap-12">
-          <div className="order-2 max-w-lg space-y-5 lg:order-1">
+          <div className="order-2 max-w-lg space-y-5 text-white lg:order-1">
             <div className="inline-block h-1 w-12 rounded-full bg-yellow-400" aria-hidden />
             <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
               Set a new{" "}
@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
                 </div>
               </div>
 
-              <div className="px-8 py-8">
+              <div className="px-8 py-8 text-gray-900">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {error && (
                     <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
                     <Label htmlFor="password" className="text-gray-700">
                       New password
                     </Label>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
                         <Lock className="h-4 w-4 text-blue-600" />
                       </div>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
                         required
                         minLength={8}
                         placeholder="At least 8 characters"
-                        className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                        className="h-11 border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
                       />
                     </div>
                   </div>
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
                     <Label htmlFor="confirm_password" className="text-gray-700">
                       Confirm password
                     </Label>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]">
+                    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 transition-all focus-within:border-blue-400 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
                         <KeyRound className="h-4 w-4 text-blue-600" />
                       </div>
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
                         required
                         minLength={8}
                         placeholder="Re-enter password"
-                        className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                        className="h-11 border-0 bg-transparent px-0 text-gray-900 shadow-none placeholder:text-gray-400 focus-visible:ring-0"
                       />
                     </div>
                   </div>

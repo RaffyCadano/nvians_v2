@@ -128,6 +128,13 @@
     @apply scroll-smooth font-sans;
   }
 
+  input,
+  textarea,
+  select {
+    color: var(--foreground);
+    -webkit-text-fill-color: currentColor;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

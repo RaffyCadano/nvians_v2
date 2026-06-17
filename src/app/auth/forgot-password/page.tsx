@@ -3,7 +3,7 @@ import { ForgotPasswordForm } from "./forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <section className="relative flex flex-1 items-center overflow-hidden text-white">
+    <section className="relative flex flex-1 items-center overflow-hidden">
       <Image
         src="/login-cover.png"
         alt=""
@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
       <div className="absolute inset-0 bg-blue-900/75" />
 
       <div className="container relative mx-auto max-w-md px-4 py-12 sm:py-16">
-        <div className="mb-8 rounded-xl border border-white/20 bg-white/10 px-6 py-6 text-center backdrop-blur-sm sm:px-8">
+        <div className="mb-8 rounded-xl border border-white/20 bg-white/10 px-6 py-6 text-center text-white backdrop-blur-sm sm:px-8">
           <Image
             src="/school-logo.png"
             alt="Nueva Vizcaya Institute"
