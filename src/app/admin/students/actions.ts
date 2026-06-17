@@ -49,7 +49,7 @@ export async function createStudent(formData: FormData) {
 
   if (studentError) return { error: studentError.message };
 
-  redirect("/admin/students");
+  redirect("/students");
 }
 
 export async function updateStudent(id: string, formData: FormData) {
@@ -72,5 +72,5 @@ export async function updateStudent(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-  redirect("/admin/students");
+  redirect("/students");
 }

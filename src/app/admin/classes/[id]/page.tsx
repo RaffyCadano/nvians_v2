@@ -20,7 +20,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-red-600">Class not found.</p>
-        <Link href="/admin/classes" className="text-sm text-blue-600 hover:underline">
+        <Link href="/classes" className="text-sm text-blue-600 hover:underline">
           ← Back to Classes
         </Link>
       </div>
@@ -31,7 +31,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-red-600">Failed to load class data.</p>
-        <Link href="/admin/classes" className="text-sm text-blue-600 hover:underline">
+        <Link href="/classes" className="text-sm text-blue-600 hover:underline">
           ← Back to Classes
         </Link>
       </div>

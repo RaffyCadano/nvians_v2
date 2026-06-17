@@ -21,7 +21,7 @@ export default async function SubjectsPage() {
           <p className="text-sm text-gray-500 mt-1">Manage school subjects and subject codes.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/subjects/new">
+          <Link href="/subjects/new">
             <Plus className="mr-2 h-4 w-4" /> New Subject
           </Link>
         </Button>
@@ -63,7 +63,7 @@ export default async function SubjectsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <Button asChild variant="ghost" size="sm">
-                          <Link href={`/admin/subjects/${subject.id}`}>Edit</Link>
+                          <Link href={`/subjects/${subject.id}`}>Edit</Link>
                         </Button>
                       </td>
                     </tr>
@@ -74,7 +74,7 @@ export default async function SubjectsPage() {
                       <BookOpen className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No subjects yet.</p>
                       <Button asChild className="mt-3" size="sm">
-                        <Link href="/admin/subjects/new">Add First Subject</Link>
+                        <Link href="/subjects/new">Add First Subject</Link>
                       </Button>
                     </td>
                   </tr>

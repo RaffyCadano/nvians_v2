@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { adminNavActive, adminNavHref } from "@/lib/admin-routes";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -46,18 +47,18 @@ import type { User } from "@/types";
 
 const NAV_ITEMS = {
   admin: [
-    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/school-years", label: "School Years", icon: Calendar },
-    { href: "/admin/classes", label: "Classes", icon: School },
-    { href: "/admin/subjects", label: "Subjects", icon: BookOpen },
-    { href: "/admin/teachers", label: "Teachers", icon: UserCheck },
-    { href: "/admin/students", label: "Students", icon: GraduationCap },
-    { href: "/admin/enrollment", label: "Enrollment", icon: ClipboardList },
-    { href: "/admin/attendance", label: "Attendance", icon: Users },
-    { href: "/admin/grades", label: "Grades", icon: BarChart3 },
-    { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-    { href: "/admin/cms", label: "Website CMS", icon: Newspaper },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/school-years", label: "School Years", icon: Calendar },
+    { href: "/classes", label: "Classes", icon: School },
+    { href: "/subjects", label: "Subjects", icon: BookOpen },
+    { href: "/teachers", label: "Teachers", icon: UserCheck },
+    { href: "/students", label: "Students", icon: GraduationCap },
+    { href: "/enrollment", label: "Enrollment", icon: ClipboardList },
+    { href: "/attendance", label: "Attendance", icon: Users },
+    { href: "/grades", label: "Grades", icon: BarChart3 },
+    { href: "/reports", label: "Reports", icon: BarChart3 },
+    { href: "/cms", label: "Website CMS", icon: Newspaper },
+    { href: "/settings", label: "Settings", icon: Settings },
   ],
   teacher: [
     { href: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -96,6 +97,7 @@ function DashboardSidebarContent({
   const pathname = usePathname();
   const navItems = NAV_ITEMS[portal];
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
+  const host = typeof window !== "undefined" ? window.location.hostname : null;
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
@@ -108,11 +110,15 @@ function DashboardSidebarContent({
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const href = portal === "admin" ? adminNavHref(item.href, host) : item.href;
+            const active =
+              portal === "admin"
+                ? adminNavActive(pathname, item.href, host)
+                : pathname === href || pathname.startsWith(`${href}/`);
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={href}
                   onClick={onNavigate}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",

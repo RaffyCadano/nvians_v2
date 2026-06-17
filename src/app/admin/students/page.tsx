@@ -29,7 +29,7 @@ export default async function StudentsPage({
           <p className="text-sm text-gray-500 mt-1">Manage student accounts and information.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/students/new">
+          <Link href="/students/new">
             <Plus className="mr-2 h-4 w-4" /> Add Student
           </Link>
         </Button>
@@ -97,10 +97,10 @@ export default async function StudentsPage({
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/students/${student.id}`}>View</Link>
+                            <Link href={`/students/${student.id}`}>View</Link>
                           </Button>
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/enrollment/new?student=${student.id}`}>Enroll</Link>
+                            <Link href={`/enrollment/new?student=${student.id}`}>Enroll</Link>
                           </Button>
                         </div>
                       </td>
@@ -112,7 +112,7 @@ export default async function StudentsPage({
                       <GraduationCap className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No students found.</p>
                       <Button asChild className="mt-3" size="sm">
-                        <Link href="/admin/students/new">Add First Student</Link>
+                        <Link href="/students/new">Add First Student</Link>
                       </Button>
                     </td>
                   </tr>

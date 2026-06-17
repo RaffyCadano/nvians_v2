@@ -42,14 +42,14 @@ export default function EnrollmentForm({
       setLoading(false);
       return;
     }
-    router.push("/admin/enrollment");
+    router.push("/enrollment");
   }
 
   return (
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/enrollment"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/enrollment"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Enroll Student</h1>
@@ -127,7 +127,7 @@ export default function EnrollmentForm({
                 {loading ? "Enrolling..." : "Enroll Student"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/enrollment">Cancel</Link>
+                <Link href="/enrollment">Cancel</Link>
               </Button>
             </div>
           </form>

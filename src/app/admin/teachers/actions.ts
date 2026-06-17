@@ -58,7 +58,7 @@ export async function createTeacher(formData: FormData) {
     return { error: teacherError.message };
   }
 
-  redirect("/admin/teachers");
+  redirect("/teachers");
 }
 
 export async function updateTeacher(id: string, formData: FormData) {

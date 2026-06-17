@@ -22,7 +22,7 @@ export default async function ClassesPage() {
           <p className="text-sm text-gray-500 mt-1">Manage class sections and advisors.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/classes/new">
+          <Link href="/classes/new">
             <Plus className="mr-2 h-4 w-4" /> New Class
           </Link>
         </Button>
@@ -76,13 +76,13 @@ export default async function ClassesPage() {
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/classes/${cls.id}`}>Edit</Link>
+                            <Link href={`/classes/${cls.id}`}>Edit</Link>
                           </Button>
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/classes/${cls.id}/subjects`}>Subjects</Link>
+                            <Link href={`/classes/${cls.id}/subjects`}>Subjects</Link>
                           </Button>
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/enrollment?class=${cls.id}`}>Students</Link>
+                            <Link href={`/enrollment?class=${cls.id}`}>Students</Link>
                           </Button>
                         </div>
                       </td>
@@ -94,7 +94,7 @@ export default async function ClassesPage() {
                       <School className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No classes yet.</p>
                       <Button asChild className="mt-3" size="sm">
-                        <Link href="/admin/classes/new">Create First Class</Link>
+                        <Link href="/classes/new">Create First Class</Link>
                       </Button>
                     </td>
                   </tr>

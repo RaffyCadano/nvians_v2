@@ -59,7 +59,7 @@ export default function EnrollmentClient({
       setError(result.error);
     } else {
       setOpen(false);
-      router.push("/admin/enrollment");
+      router.push("/enrollment");
     }
   }
 
@@ -83,7 +83,7 @@ export default function EnrollmentClient({
       setSelectedTransferEnrollment(null);
       setTransferClassId("");
       setTransferSchoolYearId("");
-      router.push("/admin/enrollment");
+      router.push("/enrollment");
     }
   }
 
@@ -95,7 +95,7 @@ export default function EnrollmentClient({
     const cls = fd.get("class") as string;
     if (q) params.set("q", q);
     if (cls) params.set("class", cls);
-    router.push(`/admin/enrollment?${params.toString()}`);
+    router.push(`/enrollment?${params.toString()}`);
   }
 
   return (
@@ -206,7 +206,7 @@ export default function EnrollmentClient({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => router.push("/admin/enrollment")}
+          onClick={() => router.push("/enrollment")}
         >
           Clear
         </Button>

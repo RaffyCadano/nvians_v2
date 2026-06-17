@@ -33,7 +33,7 @@ export default async function TeachersPage({
           <p className="text-sm text-gray-500 mt-1">Manage teacher accounts and assignments.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/teachers/new">
+          <Link href="/teachers/new">
             <Plus className="mr-2 h-4 w-4" /> Add Teacher
           </Link>
         </Button>
@@ -99,7 +99,7 @@ export default async function TeachersPage({
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/teachers/${teacher.id}`}>Edit</Link>
+                            <Link href={`/teachers/${teacher.id}`}>Edit</Link>
                           </Button>
                         </div>
                       </td>
@@ -111,7 +111,7 @@ export default async function TeachersPage({
                       <UserCheck className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No teachers found.</p>
                       <Button asChild className="mt-3" size="sm">
-                        <Link href="/admin/teachers/new">Add First Teacher</Link>
+                        <Link href="/teachers/new">Add First Teacher</Link>
                       </Button>
                     </td>
                   </tr>

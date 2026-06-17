@@ -21,7 +21,7 @@ export async function createClass(formData: FormData) {
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/classes");
+  redirect("/classes");
 }
 
 export async function updateClass(id: string, formData: FormData) {

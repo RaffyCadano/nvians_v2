@@ -38,7 +38,7 @@ export default async function AdminCMSPage() {
         <TabsContent value="news" className="mt-4">
           <div className="flex justify-end mb-4">
             <Button asChild>
-              <Link href="/admin/cms/news/new">
+              <Link href="/cms/news/new">
                 <Plus className="mr-2 h-4 w-4" /> New Article
               </Link>
             </Button>
@@ -69,7 +69,7 @@ export default async function AdminCMSPage() {
                         </td>
                         <td className="px-4 py-3">
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/cms/news/${n.id}`}>
+                            <Link href={`/cms/news/${n.id}`}>
                               <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                             </Link>
                           </Button>
@@ -93,7 +93,7 @@ export default async function AdminCMSPage() {
         <TabsContent value="events" className="mt-4">
           <div className="flex justify-end mb-4">
             <Button asChild>
-              <Link href="/admin/cms/events/new">
+              <Link href="/cms/events/new">
                 <Plus className="mr-2 h-4 w-4" /> New Event
               </Link>
             </Button>
@@ -120,7 +120,7 @@ export default async function AdminCMSPage() {
                         <td className="px-4 py-3 text-gray-600">{ev.location ?? "—"}</td>
                         <td className="px-4 py-3">
                           <Button asChild variant="ghost" size="sm">
-                            <Link href={`/admin/cms/events/${ev.id}`}>
+                            <Link href={`/cms/events/${ev.id}`}>
                               <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                             </Link>
                           </Button>

@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getDashboardUrl } from "@/lib/site-urls";
 
 export default async function AuthCallbackPage({
   searchParams,
@@ -13,5 +16,24 @@ export default async function AuthCallbackPage({
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  redirect(next ?? "/admin/dashboard");
+  if (next) {
+    redirect(next);
+  }
+
+  const host = (await headers()).get("host");
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    const adminClient = createAdminClient();
+    const { data: profile } = await adminClient
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    const role = profile?.role ?? (user.user_metadata?.role as string | undefined);
+    redirect(getDashboardUrl(role ?? "student", host));
+  }
+
+  redirect(getDashboardUrl("student", host));
 }

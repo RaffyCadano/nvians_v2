@@ -47,7 +47,7 @@ export default function SchoolYearDetailPage() {
       setError(result.error);
       setSaving(false);
     } else {
-      router.push("/admin/school-years");
+      router.push("/school-years");
     }
   }
 
@@ -63,7 +63,7 @@ export default function SchoolYearDetailPage() {
     return (
       <div className="max-w-lg space-y-4">
         <p className="text-red-600">{error || "School year not found."}</p>
-        <Link href="/admin/school-years" className="text-sm text-blue-600 hover:underline">
+        <Link href="/school-years" className="text-sm text-blue-600 hover:underline">
           ← Back to School Years
         </Link>
       </div>
@@ -73,7 +73,7 @@ export default function SchoolYearDetailPage() {
   return (
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/admin/school-years" className="text-gray-500 hover:text-gray-700">
+        <Link href="/school-years" className="text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -144,7 +144,7 @@ export default function SchoolYearDetailPage() {
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/admin/school-years")}>
+              <Button type="button" variant="outline" onClick={() => router.push("/school-years")}>
                 Cancel
               </Button>
             </div>

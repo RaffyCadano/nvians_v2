@@ -26,7 +26,7 @@ export default function NewEventPage() {
   return (
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="sm"><Link href="/admin/cms"><ArrowLeft className="h-4 w-4" /></Link></Button>
+        <Button asChild variant="ghost" size="sm"><Link href="/cms"><ArrowLeft className="h-4 w-4" /></Link></Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">New Event</h1>
           <p className="text-sm text-gray-500">Add an event to the public website.</p>
@@ -61,7 +61,7 @@ export default function NewEventPage() {
             {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</p>}
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save Event"}</Button>
-              <Button asChild variant="outline"><Link href="/admin/cms">Cancel</Link></Button>
+              <Button asChild variant="outline"><Link href="/cms">Cancel</Link></Button>
             </div>
           </form>
         </CardContent>

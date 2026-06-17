@@ -29,7 +29,7 @@ export default function NewSchoolYearPage() {
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/school-years"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/school-years"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">New School Year</h1>
@@ -69,7 +69,7 @@ export default function NewSchoolYearPage() {
                 {loading ? "Creating..." : "Create School Year"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/school-years">Cancel</Link>
+                <Link href="/school-years">Cancel</Link>
               </Button>
             </div>
           </form>

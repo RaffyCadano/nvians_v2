@@ -15,7 +15,7 @@ export async function createSchoolYear(formData: FormData) {
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/school-years");
+  redirect("/school-years");
 }
 
 export async function updateSchoolYear(id: string, formData: FormData) {

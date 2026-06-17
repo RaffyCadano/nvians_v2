@@ -43,28 +43,28 @@ function formatShortDate(value: string) {
 const QUICK_ACTIONS = [
   {
     label: "Enroll Student",
-    href: "/admin/enrollment/new",
+    href: "/enrollment/new",
     icon: ClipboardList,
     color: "text-blue-600",
     bg: "bg-blue-50",
   },
   {
     label: "Add Teacher",
-    href: "/admin/teachers/new",
+    href: "/teachers/new",
     icon: UserCheck,
     color: "text-green-600",
     bg: "bg-green-50",
   },
   {
     label: "Create Class",
-    href: "/admin/classes/new",
+    href: "/classes/new",
     icon: School,
     color: "text-purple-600",
     bg: "bg-purple-50",
   },
   {
     label: "Post News",
-    href: "/admin/cms/news/new",
+    href: "/cms/news/new",
     icon: Newspaper,
     color: "text-amber-600",
     bg: "bg-amber-50",
@@ -72,12 +72,12 @@ const QUICK_ACTIONS = [
 ];
 
 const MANAGEMENT_LINKS = [
-  { label: "Students", href: "/admin/students", icon: GraduationCap, countKey: "students" as const },
-  { label: "Teachers", href: "/admin/teachers", icon: UserCheck, countKey: "teachers" as const },
-  { label: "Classes", href: "/admin/classes", icon: School, countKey: "classes" as const },
-  { label: "Subjects", href: "/admin/subjects", icon: BookOpen, countKey: "subjects" as const },
-  { label: "Enrollment", href: "/admin/enrollment", icon: ClipboardList, countKey: "enrollments" as const },
-  { label: "Reports", href: "/admin/reports", icon: BarChart3, countKey: null },
+  { label: "Students", href: "/students", icon: GraduationCap, countKey: "students" as const },
+  { label: "Teachers", href: "/teachers", icon: UserCheck, countKey: "teachers" as const },
+  { label: "Classes", href: "/classes", icon: School, countKey: "classes" as const },
+  { label: "Subjects", href: "/subjects", icon: BookOpen, countKey: "subjects" as const },
+  { label: "Enrollment", href: "/enrollment", icon: ClipboardList, countKey: "enrollments" as const },
+  { label: "Reports", href: "/reports", icon: BarChart3, countKey: null },
 ];
 
 export default async function AdminDashboardPage() {
@@ -135,7 +135,7 @@ export default async function AdminDashboardPage() {
     {
       title: "Students",
       value: counts.students,
-      href: "/admin/students",
+      href: "/students",
       icon: GraduationCap,
       color: "text-blue-600",
       bg: "bg-blue-50",
@@ -143,7 +143,7 @@ export default async function AdminDashboardPage() {
     {
       title: "Teachers",
       value: counts.teachers,
-      href: "/admin/teachers",
+      href: "/teachers",
       icon: UserCheck,
       color: "text-green-600",
       bg: "bg-green-50",
@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
     {
       title: "Classes",
       value: counts.classes,
-      href: "/admin/classes",
+      href: "/classes",
       icon: School,
       color: "text-purple-600",
       bg: "bg-purple-50",
@@ -159,7 +159,7 @@ export default async function AdminDashboardPage() {
     {
       title: "Enrollments",
       value: counts.enrollments,
-      href: "/admin/enrollment",
+      href: "/enrollment",
       icon: Users,
       color: "text-amber-600",
       bg: "bg-amber-50",
@@ -294,7 +294,7 @@ export default async function AdminDashboardPage() {
                 </div>
                 <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>
                 <Link
-                  href={`/admin/school-years/${activeSchoolYear.id}`}
+                  href={`/school-years/${activeSchoolYear.id}`}
                   className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                 >
                   Manage school year
@@ -308,7 +308,7 @@ export default async function AdminDashboardPage() {
                   Set up a school year to start enrollment and classes.
                 </p>
                 <Button asChild size="sm" className="mt-4 bg-yellow-500 text-gray-900 hover:bg-yellow-400">
-                  <Link href="/admin/school-years/new">
+                  <Link href="/school-years/new">
                     <Plus className="mr-2 h-4 w-4" />
                     Create School Year
                   </Link>
@@ -339,7 +339,7 @@ export default async function AdminDashboardPage() {
               </li>
             </ul>
             <Button asChild variant="outline" size="sm" className="mt-4 h-10 w-full">
-              <Link href="/admin/reports">
+              <Link href="/reports">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 View full reports
               </Link>
@@ -351,7 +351,7 @@ export default async function AdminDashboardPage() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="text-base font-bold text-gray-900">Recent Enrollments</h2>
               <Link
-                href="/admin/enrollment"
+                href="/enrollment"
                 className="shrink-0 text-xs font-medium text-blue-600 hover:text-blue-700"
               >
                 View all
@@ -390,7 +390,7 @@ export default async function AdminDashboardPage() {
                 <ClipboardList className="mx-auto h-8 w-8 text-gray-300" />
                 <p className="mt-2 text-sm text-gray-500">No enrollments yet</p>
                 <Button asChild size="sm" variant="link" className="mt-1 text-blue-600">
-                  <Link href="/admin/enrollment/new">Enroll a student</Link>
+                  <Link href="/enrollment/new">Enroll a student</Link>
                 </Button>
               </div>
             )}

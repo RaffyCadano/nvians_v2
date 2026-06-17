@@ -28,6 +28,18 @@ export function isLocalHost(host: string | null) {
   return normalized === "localhost" || normalized === "127.0.0.1";
 }
 
+import { getAdminDashboardUrl } from "@/lib/admin-routes";
+
+/** Dashboard URL for a role; admins go to the admin subdomain /dashboard in production. */
+export function getDashboardUrl(role: string, host: string | null) {
+  if (role === "admin" || role === "staff") {
+    return getAdminDashboardUrl(host);
+  }
+
+  if (role === "teacher") return "/teacher/dashboard";
+  return "/student/dashboard";
+}
+
 /** Base URL for auth emails/callbacks when the request originates from the admin host. */
 export function getAuthBaseUrl(host: string | null) {
   if (isAdminHost(host) || isLocalHost(host)) {

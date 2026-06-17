@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAuthBaseUrl } from "@/lib/site-urls";
+import { getAuthBaseUrl, getDashboardUrl } from "@/lib/site-urls";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -34,17 +34,8 @@ export async function login(formData: FormData) {
 
   revalidatePath("/", "layout");
 
-  switch (role) {
-    case "admin":
-    case "staff":
-      redirect("/admin/dashboard");
-    case "teacher":
-      redirect("/teacher/dashboard");
-    case "student":
-      redirect("/student/dashboard");
-    default:
-      redirect("/student/dashboard");
-  }
+  const host = (await headers()).get("host");
+  redirect(getDashboardUrl(role ?? "student", host));
 }
 
 export async function signup(formData: FormData) {

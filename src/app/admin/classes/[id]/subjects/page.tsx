@@ -59,7 +59,7 @@ export default async function ClassSubjectsPage({
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link href="/admin/classes">
+          <Link href="/classes">
             <ArrowLeft className="h-4 w-4 mr-1" />
             Classes
           </Link>

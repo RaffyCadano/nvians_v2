@@ -29,7 +29,7 @@ export default function NewStudentPage() {
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/students"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/students"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Add Student</h1>
@@ -97,7 +97,7 @@ export default function NewStudentPage() {
                 {loading ? "Creating..." : "Create Student"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/students">Cancel</Link>
+                <Link href="/students">Cancel</Link>
               </Button>
             </div>
           </form>

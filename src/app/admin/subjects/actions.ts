@@ -13,7 +13,7 @@ export async function createSubject(formData: FormData) {
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/subjects");
+  redirect("/subjects");
 }
 
 export async function updateSubject(id: string, formData: FormData) {

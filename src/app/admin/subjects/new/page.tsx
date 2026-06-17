@@ -30,7 +30,7 @@ export default function NewSubjectPage() {
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/subjects"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/subjects"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">New Subject</h1>
@@ -66,7 +66,7 @@ export default function NewSubjectPage() {
                 {loading ? "Creating..." : "Create Subject"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/subjects">Cancel</Link>
+                <Link href="/subjects">Cancel</Link>
               </Button>
             </div>
           </form>

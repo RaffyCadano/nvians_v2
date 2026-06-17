@@ -47,7 +47,7 @@ export default function TeacherDetailPage() {
       setError(result.error);
       setSaving(false);
     } else {
-      router.push("/admin/teachers");
+      router.push("/teachers");
     }
   }
 
@@ -63,7 +63,7 @@ export default function TeacherDetailPage() {
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-red-600">{error || "Teacher not found."}</p>
-        <Link href="/admin/teachers" className="text-sm text-blue-600 hover:underline">
+        <Link href="/teachers" className="text-sm text-blue-600 hover:underline">
           ← Back to Teachers
         </Link>
       </div>
@@ -73,7 +73,7 @@ export default function TeacherDetailPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/admin/teachers" className="text-gray-500 hover:text-gray-700">
+        <Link href="/teachers" className="text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -161,7 +161,7 @@ export default function TeacherDetailPage() {
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/admin/teachers")}>
+              <Button type="button" variant="outline" onClick={() => router.push("/teachers")}>
                 Cancel
               </Button>
             </div>

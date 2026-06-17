@@ -1,6 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  getAdminDashboardPath,
+  isAdminAreaPath,
+  isAdminPortalPublicPath,
+  toAdminInternalPath,
+  toAdminPublicPath,
+} from "@/lib/admin-routes";
+import {
   getAdminAppUrl,
   getPublicAppUrl,
   isAdminHost,
@@ -25,19 +32,42 @@ function redirectWithCookies(url: string, cookieSource?: NextResponse) {
   return response;
 }
 
+function applyCookies(from: NextResponse, to: NextResponse) {
+  from.cookies.getAll().forEach((cookie) => {
+    to.cookies.set(cookie);
+  });
+  return to;
+}
+
 function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
   const host = request.headers.get("host");
   const { pathname, search } = request.nextUrl;
   const onAdminHost = isAdminHost(host);
   const onLocal = isLocalHost(host);
 
-  if (onLocal) return null;
+  if (onLocal) {
+    if (pathname.startsWith("/admin/") || pathname === "/admin") {
+      return redirectWithCookies(
+        `${request.nextUrl.origin}${toAdminPublicPath(pathname)}${search}`,
+        cookieSource
+      );
+    }
+    return null;
+  }
 
   if (onAdminHost) {
-    if (pathname === "/") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin/dashboard";
-      return redirectWithCookies(url.toString(), cookieSource);
+    if (pathname === "/" || pathname === "/admin" || pathname === "/admin/") {
+      return redirectWithCookies(
+        `${request.nextUrl.origin}/dashboard${search}`,
+        cookieSource
+      );
+    }
+
+    if (pathname.startsWith("/admin/") || pathname === "/admin") {
+      return redirectWithCookies(
+        `${request.nextUrl.origin}${toAdminPublicPath(pathname)}${search}`,
+        cookieSource
+      );
     }
 
     if (
@@ -56,13 +86,24 @@ function applyHostRouting(request: NextRequest, cookieSource?: NextResponse) {
   }
 
   if (pathname.startsWith("/admin")) {
-    return redirectWithCookies(`${getAdminAppUrl()}${pathname}${search}`, cookieSource);
+    return redirectWithCookies(
+      `${getAdminAppUrl()}${toAdminPublicPath(pathname)}${search}`,
+      cookieSource
+    );
+  }
+
+  if (isAdminPortalPublicPath(pathname)) {
+    return redirectWithCookies(
+      `${getAdminAppUrl()}${pathname}${search}`,
+      cookieSource
+    );
   }
 
   return null;
 }
 
 export async function updateSession(request: NextRequest) {
+  const host = request.headers.get("host");
   const hostRedirect = applyHostRouting(request);
   if (hostRedirect) return hostRedirect;
 
@@ -123,18 +164,21 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/auth/login";
       return NextResponse.redirect(url);
     }
-    return supabaseResponse;
+    return finalizeAdminRewrite(request, supabaseResponse, host);
   }
 
-  // Not logged in — redirect to login
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
-  // Logged in — enforce role-based access for portal routes
-  if (user && (pathname.startsWith("/admin") || pathname.startsWith("/teacher") || pathname.startsWith("/student"))) {
+  const inPortal =
+    isAdminAreaPath(pathname, host) ||
+    pathname.startsWith("/teacher") ||
+    pathname.startsWith("/student");
+
+  if (user && inPortal) {
     const { data: profile } = await supabase
       .from("users")
       .select("role")
@@ -143,28 +187,42 @@ export async function updateSession(request: NextRequest) {
 
     const role = profile?.role as string | undefined;
 
-    // If we can't determine the role (DB error, missing row), allow through
-    if (!role) return supabaseResponse;
+    if (!role) return finalizeAdminRewrite(request, supabaseResponse, host);
 
-    // Helper to build redirect response (preserving cookies)
     const redirectTo = (path: string) => {
       const url = request.nextUrl.clone();
       url.pathname = path;
       return redirectWithCookies(url.toString(), supabaseResponse);
     };
 
-    // Admin/staff → only /admin
     if (role === "admin" || role === "staff") {
-      if (!pathname.startsWith("/admin")) return redirectTo("/admin/dashboard");
-    }
-    // Teacher → only /teacher
-    else if (role === "teacher") {
+      if (!isAdminAreaPath(pathname, host)) {
+        return redirectTo(getAdminDashboardPath(host));
+      }
+    } else if (role === "teacher") {
       if (!pathname.startsWith("/teacher")) return redirectTo("/teacher/dashboard");
-    }
-    // Student → only /student
-    else if (role === "student") {
+    } else if (role === "student") {
       if (!pathname.startsWith("/student")) return redirectTo("/student/dashboard");
     }
+  }
+
+  return finalizeAdminRewrite(request, supabaseResponse, host);
+}
+
+function finalizeAdminRewrite(
+  request: NextRequest,
+  supabaseResponse: NextResponse,
+  host: string | null
+) {
+  const { pathname } = request.nextUrl;
+
+  if (
+    (isAdminHost(host) || isLocalHost(host)) &&
+    isAdminPortalPublicPath(pathname)
+  ) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = toAdminInternalPath(pathname);
+    return applyCookies(supabaseResponse, NextResponse.rewrite(rewriteUrl, { request }));
   }
 
   return supabaseResponse;

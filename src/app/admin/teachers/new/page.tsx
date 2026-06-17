@@ -31,7 +31,7 @@ export default function NewTeacherPage() {
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/teachers"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/teachers"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Add Teacher</h1>
@@ -81,7 +81,7 @@ export default function NewTeacherPage() {
                 {loading ? "Creating..." : "Create Teacher"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/teachers">Cancel</Link>
+                <Link href="/teachers">Cancel</Link>
               </Button>
             </div>
           </form>

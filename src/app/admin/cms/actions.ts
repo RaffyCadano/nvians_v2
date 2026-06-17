@@ -19,7 +19,7 @@ export async function createNews(formData: FormData) {
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/cms");
+  redirect("/cms");
 }
 
 export async function updateNews(id: string, formData: FormData) {
@@ -35,7 +35,7 @@ export async function updateNews(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-  redirect("/admin/cms");
+  redirect("/cms");
 }
 
 export async function createEvent(formData: FormData) {
@@ -50,7 +50,7 @@ export async function createEvent(formData: FormData) {
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/cms");
+  redirect("/cms");
 }
 
 export async function updateEvent(id: string, formData: FormData) {
@@ -65,5 +65,5 @@ export async function updateEvent(id: string, formData: FormData) {
   }).eq("id", id);
 
   if (error) return { error: error.message };
-  redirect("/admin/cms");
+  redirect("/cms");
 }

@@ -69,7 +69,7 @@ export default async function AdminAttendancePage({
         />
         <Button type="submit" variant="outline" size="sm">Filter</Button>
         <Button type="button" variant="ghost" size="sm" asChild>
-          <Link href="/admin/attendance">Clear</Link>
+          <Link href="/attendance">Clear</Link>
         </Button>
       </form>
 
@@ -120,7 +120,7 @@ export default async function AdminAttendancePage({
                       </td>
                       <td className="px-4 py-3">
                         <Button asChild variant="ghost" size="sm">
-                          <Link href={`/admin/attendance/${session.id}`}>
+                          <Link href={`/attendance/${session.id}`}>
                             View <ChevronRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>

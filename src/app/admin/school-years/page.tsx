@@ -21,7 +21,7 @@ export default async function SchoolYearsPage() {
           <p className="text-sm text-gray-500 mt-1">Manage academic school years and terms.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/school-years/new">
+          <Link href="/school-years/new">
             <Plus className="mr-2 h-4 w-4" /> New School Year
           </Link>
         </Button>
@@ -57,10 +57,10 @@ export default async function SchoolYearsPage() {
                     {sy.status}
                   </Badge>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/admin/school-years/${sy.id}`}>Edit</Link>
+                    <Link href={`/school-years/${sy.id}`}>Edit</Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm">
-                    <Link href={`/admin/school-years/${sy.id}/terms`}>Terms</Link>
+                    <Link href={`/school-years/${sy.id}/terms`}>Terms</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -74,7 +74,7 @@ export default async function SchoolYearsPage() {
             <p className="text-gray-500 font-medium">No school years yet</p>
             <p className="text-sm text-gray-400 mt-1">Create your first school year to get started.</p>
             <Button asChild className="mt-4">
-              <Link href="/admin/school-years/new">
+              <Link href="/school-years/new">
                 <Plus className="mr-2 h-4 w-4" /> Create School Year
               </Link>
             </Button>

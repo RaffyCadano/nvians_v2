@@ -48,7 +48,7 @@ export default function SubjectDetailPage() {
       setError(result.error);
       setSaving(false);
     } else {
-      router.push("/admin/subjects");
+      router.push("/subjects");
     }
   }
 
@@ -64,7 +64,7 @@ export default function SubjectDetailPage() {
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-red-600">{error || "Subject not found."}</p>
-        <Link href="/admin/subjects" className="text-sm text-blue-600 hover:underline">
+        <Link href="/subjects" className="text-sm text-blue-600 hover:underline">
           ← Back to Subjects
         </Link>
       </div>
@@ -74,7 +74,7 @@ export default function SubjectDetailPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/admin/subjects" className="text-gray-500 hover:text-gray-700">
+        <Link href="/subjects" className="text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -147,7 +147,7 @@ export default function SubjectDetailPage() {
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/admin/subjects")}>
+              <Button type="button" variant="outline" onClick={() => router.push("/subjects")}>
                 Cancel
               </Button>
             </div>

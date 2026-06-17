@@ -79,7 +79,7 @@ export default async function AdminGradesPage({
                 <p className="text-xs text-gray-400 mt-0.5">{term?.name} · {teacherUser?.full_name}</p>
               </div>
               <Button asChild variant="ghost" size="sm">
-                <Link href={`/admin/grades?class_subject=${cs.id}`}>
+                <Link href={`/grades?class_subject=${cs.id}`}>
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>

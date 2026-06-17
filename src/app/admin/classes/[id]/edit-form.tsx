@@ -40,13 +40,13 @@ export default function ClassEditForm({
       return;
     }
 
-    router.push("/admin/classes");
+    router.push("/classes");
   }
 
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/admin/classes" className="text-gray-500 hover:text-gray-700">
+        <Link href="/classes" className="text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
@@ -148,7 +148,7 @@ export default function ClassEditForm({
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/admin/classes")}> 
+              <Button type="button" variant="outline" onClick={() => router.push("/classes")}> 
                 Cancel
               </Button>
             </div>

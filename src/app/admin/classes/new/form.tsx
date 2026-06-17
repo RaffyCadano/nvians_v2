@@ -38,7 +38,7 @@ export default function NewClassForm({
     <div className="max-w-lg space-y-6">
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="sm">
-          <Link href="/admin/classes"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link href="/classes"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">New Class</h1>
@@ -96,7 +96,7 @@ export default function NewClassForm({
                 {loading ? "Creating..." : "Create Class"}
               </Button>
               <Button asChild variant="outline">
-                <Link href="/admin/classes">Cancel</Link>
+                <Link href="/classes">Cancel</Link>
               </Button>
             </div>
           </form>
