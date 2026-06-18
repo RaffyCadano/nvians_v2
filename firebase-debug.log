@@ -1,0 +1,472 @@
+[debug] [2026-06-18T06:52:55.461Z] ----------------------------------------------------------------------
+[debug] [2026-06-18T06:52:55.463Z] Command:       E:\node.exe C:\Users\raffy\AppData\Local\Temp\cursor-sandbox-cache\2200903fbcc875c400ec1f12c398e90f\npm\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-06-18T06:52:55.464Z] CLI Version:   15.21.0
+[debug] [2026-06-18T06:52:55.464Z] Platform:      win32
+[debug] [2026-06-18T06:52:55.464Z] Node Version:  v24.13.0
+[debug] [2026-06-18T06:52:55.464Z] Detected Agent: cursor
+[debug] [2026-06-18T06:52:55.464Z] Time:          Thu Jun 18 2026 02:52:55 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-06-18T06:52:55.464Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-18T06:53:54.487Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-18T06:53:54.488Z] > authorizing via signed-in user (raffyespiritu.cadano@gmail.com)
+[debug] [2026-06-18T06:53:54.488Z] [iam] checking project nvians for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-06-18T06:53:54.489Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:53:54.489Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:53:54.490Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions [none]
+[debug] [2026-06-18T06:53:54.490Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions  x-goog-user-project=nvians
+[debug] [2026-06-18T06:53:54.490Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T06:53:54.932Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions 200
+[debug] [2026-06-18T06:53:54.932Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T06:53:54.933Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:53:54.933Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:53:54.933Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/nvians [none]
+[debug] [2026-06-18T06:53:55.319Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/nvians 200
+[debug] [2026-06-18T06:53:55.320Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/nvians {"projectId":"nvians","projectNumber":"81362347883","displayName":"nvians","name":"projects/nvians","resources":{"hostingSite":"nvians","realtimeDatabaseInstance":"nvians-default-rtdb"},"state":"ACTIVE","etag":"1_d50a17f8-a07b-479c-bfaa-f84b9ede32b1"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 16.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2026-06-18T06:54:04.965Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:54:04.966Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T06:54:04.966Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians [none]
+[debug] [2026-06-18T06:54:05.618Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians 200
+[debug] [2026-06-18T06:54:05.618Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians {"name":"projects/nvians/sites/nvians","defaultUrl":"https://nvians.web.app","type":"DEFAULT_SITE"}
+[info] ▲ Next.js 16.2.7 (Turbopack)
+
+[info] - Environments: .env.local
+
+
+[info] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[info]   Creating an optimized production build ...
+
+[info] ✓ Compiled successfully in 73s
+
+[info]   Running TypeScript ...
+
+[info] Failed to type check.
+
+
+[info] ./src/app/admin/classes/new/page.tsx:41:16
+Type error: Conversion of type '{ id: any; grade_level: any; section: any; status: any; school_year: { name: any; }[]; enrollments: { count: number; }[]; }[]' to type 'ClassRow[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: any; grade_level: any; section: any; status: any; school_year: { name: any; }[]; enrollments: { count: number; }[]; }' is not comparable to type 'ClassRow'.
+    Types of property 'school_year' are incompatible.
+      Property 'name' is missing in type '{ name: any; }[]' but required in type '{ name: string; }'.
+
+  39 |   ]);
+  40 |
+> 41 |   const rows = (recentClasses ?? []) as ClassRow[];
+     |                ^
+  42 |
+  43 |   return (
+  44 |     <NewClassForm
+
+[info] Next.js build worker exited with code: 1 and signal: null
+
+[debug] [2026-06-18T06:56:46.128Z] Error: ENOENT: no such file or directory, open 'E:\projects\nvians_v2\.next\export-marker.json'
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-06-18T07:01:06.917Z] ----------------------------------------------------------------------
+[debug] [2026-06-18T07:01:06.920Z] Command:       E:\node.exe C:\Users\raffy\AppData\Local\Temp\cursor-sandbox-cache\2200903fbcc875c400ec1f12c398e90f\npm\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-06-18T07:01:06.920Z] CLI Version:   15.21.0
+[debug] [2026-06-18T07:01:06.921Z] Platform:      win32
+[debug] [2026-06-18T07:01:06.921Z] Node Version:  v24.13.0
+[debug] [2026-06-18T07:01:06.921Z] Detected Agent: cursor
+[debug] [2026-06-18T07:01:06.921Z] Time:          Thu Jun 18 2026 03:01:06 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-06-18T07:01:06.921Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-18T07:01:11.187Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-18T07:01:11.187Z] > authorizing via signed-in user (raffyespiritu.cadano@gmail.com)
+[debug] [2026-06-18T07:01:11.188Z] [iam] checking project nvians for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-06-18T07:01:11.189Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:11.189Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:11.190Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions [none]
+[debug] [2026-06-18T07:01:11.190Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions  x-goog-user-project=nvians
+[debug] [2026-06-18T07:01:11.190Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T07:01:11.425Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions 200
+[debug] [2026-06-18T07:01:11.425Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T07:01:11.426Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:11.426Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:11.427Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/nvians [none]
+[debug] [2026-06-18T07:01:11.736Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/nvians 200
+[debug] [2026-06-18T07:01:11.736Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/nvians {"projectId":"nvians","projectNumber":"81362347883","displayName":"nvians","name":"projects/nvians","resources":{"hostingSite":"nvians","realtimeDatabaseInstance":"nvians-default-rtdb"},"state":"ACTIVE","etag":"1_d50a17f8-a07b-479c-bfaa-f84b9ede32b1"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 16.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2026-06-18T07:01:23.080Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:23.080Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:01:23.080Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians [none]
+[debug] [2026-06-18T07:01:23.673Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians 200
+[debug] [2026-06-18T07:01:23.673Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians {"name":"projects/nvians/sites/nvians","defaultUrl":"https://nvians.web.app","type":"DEFAULT_SITE"}
+[info] ▲ Next.js 16.2.7 (Turbopack)
+
+[info] - Environments: .env.local
+
+
+[info] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[info]   Creating an optimized production build ...
+
+[info] ✓ Compiled successfully in 13.0s
+
+[info]   Running TypeScript ...
+
+[info]   Finished TypeScript in 14.2s ...
+
+[info]   Collecting page data using 7 workers ...
+
+[info]   Generating static pages using 7 workers (0/113) ...
+
+[info]   Generating static pages using 7 workers (28/113) 
+
+[info]   Generating static pages using 7 workers (56/113) 
+
+[info]   Generating static pages using 7 workers (84/113) 
+
+[info] ✓ Generating static pages using 7 workers (113/113) in 4.0s
+
+[info]   Finalizing page optimization ...
+
+[info] 
+
+[info] Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ƒ /admin/attendance
+├ ƒ /admin/attendance/[id]
+├ ƒ /admin/classes
+├ ƒ /admin/classes/[id]
+├ ƒ /admin/classes/[id]/subjects
+├ ƒ /admin/classes/new
+├ ƒ /admin/cms
+├ ƒ /admin/cms/events/[id]
+├ ƒ /admin/cms/events/new
+├ ƒ /admin/cms/news/[id]
+├ ƒ /admin/cms/news/new
+├ ƒ /admin/dashboard
+├ ƒ /admin/enrollment
+├ ƒ /admin/enrollment/new
+├ ƒ /admin/grades
+├ ƒ /admin/reports
+├ ƒ /admin/schedule
+├ ƒ /admin/school-years
+├ ƒ /admin/school-years/[id]
+├ ƒ /admin/school-years/new
+├ ƒ /admin/settings
+├ ƒ /admin/students
+├ ƒ /admin/students/[id]
+├ ƒ /admin/students/new
+├ ƒ /admin/subjects
+├ ƒ /admin/subjects/[id]
+├ ƒ /admin/subjects/new
+├ ƒ /admin/teachers
+├ ƒ /admin/teachers/[id]
+├ ƒ /admin/teachers/new
+├ ○ /admissions
+├ ƒ /api/cms/upload
+├ ƒ /auth/callback
+├ ○ /auth/forgot-password
+├ ○ /auth/login
+├ ○ /auth/reset-password
+├ ƒ /auth/signout
+├ ○ /contact
+├ ○ /facilities
+├ ● /facilities/[slug]
+│ ├ /facilities/computer-laboratories
+│ ├ /facilities/science-laboratories
+│ ├ /facilities/library
+│ └ [+3 more paths]
+├ ƒ /news
+├ ƒ /news/[id]
+├ ƒ /profile
+├ ○ /programs
+├ ● /programs/junior-high/[slug]
+│ ├ /programs/junior-high/english
+│ ├ /programs/junior-high/filipino
+│ ├ /programs/junior-high/mathematics
+│ └ [+5 more paths]
+├ ● /programs/senior-high/core/[slug]
+│ ├ /programs/senior-high/core/oral-communication
+│ ├ /programs/senior-high/core/reading-writing-skills
+│ ├ /programs/senior-high/core/komunikasyon-at-pananaliksik
+│ └ [+8 more paths]
+├ ● /programs/senior-high/tracks/[trackSlug]/[subjectSlug]
+│ ├ /programs/senior-high/tracks/stem/pre-calculus-basic-calculus
+│ ├ /programs/senior-high/tracks/stem/general-biology
+│ ├ /programs/senior-high/tracks/stem/general-chemistry
+│ └ [+25 more paths]
+├ ○ /student-life
+├ ● /student-life/[slug]
+│ ├ /student-life/academic-clubs
+│ ├ /student-life/arts-culture
+│ ├ /student-life/sports-organizations
+│ └ [+3 more paths]
+├ ƒ /student/announcements
+├ ƒ /student/assignments
+├ ƒ /student/attendance
+├ ƒ /student/dashboard
+├ ƒ /student/grades
+├ ƒ /student/schedule
+├ ƒ /teacher/advisory
+├ ƒ /teacher/announcements
+├ ƒ /teacher/assignments
+├ ƒ /teacher/assignments/new
+├ ƒ /teacher/attendance
+├ ƒ /teacher/attendance/[id]
+├ ƒ /teacher/attendance/new
+├ ƒ /teacher/dashboard
+├ ƒ /teacher/grades
+├ ƒ /teacher/grades/[classSubjectId]/categories
+├ ƒ /teacher/grades/[classSubjectId]/scores
+└ ƒ /teacher/subjects
+
+
+ƒ Proxy (Middleware)
+
+[info] 
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+[info] Building a Cloud Function to run this application. This is needed due to:
+[info]  • middleware
+[info]  • use of fallback /facilities/[slug]
+[info]  • use of fallback /programs/junior-high/[slug]
+[info]  • use of fallback /programs/senior-high/core/[slug]
+[info]  • use of fallback /programs/senior-high/tracks/[trackSlug]/[subjectSlug]
+[debug] [2026-06-18T07:02:03.325Z]  • use of fallback /student-life/[slug]
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /(public)/news/[id]/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /(public)/news/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/attendance/[id]/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/attendance/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/classes/[id]/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/classes/[id]/subjects/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/classes/new/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/classes/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/cms/events/[id]/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/cms/events/new/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/cms/news/[id]/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/cms/news/new/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/cms/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/dashboard/page
+[debug] [2026-06-18T07:02:03.325Z]  • non-static component /admin/enrollment/new/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/enrollment/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/grades/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/reports/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/schedule/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/school-years/[id]/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/school-years/new/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/school-years/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/settings/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/students/[id]/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/students/new/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/students/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/subjects/[id]/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/subjects/new/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/subjects/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/teachers/[id]/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/teachers/new/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /admin/teachers/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /api/cms/upload/route
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /auth/callback/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /auth/signout/route
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /profile/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/announcements/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/assignments/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/attendance/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/dashboard/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/grades/page
+[debug] [2026-06-18T07:02:03.326Z]  • non-static component /student/schedule/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/advisory/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/announcements/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/assignments/new/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/assignments/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/attendance/[id]/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/attendance/new/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/attendance/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/dashboard/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/grades/[classSubjectId]/categories/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/grades/[classSubjectId]/scores/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/grades/page
+[debug] [2026-06-18T07:02:03.327Z]  • non-static component /teacher/subjects/page
+[info]  • and 55 other reasons, use --debug to see more
+[info] 
+[debug] [2026-06-18T07:02:09.496Z] skipping / due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /_global-error due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /_not-found due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /about due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /admissions due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /auth/forgot-password due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /auth/login due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /auth/reset-password due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /contact due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/campus-wifi due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/classrooms due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/computer-laboratories due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/library due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/science-laboratories due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.496Z] skipping /facilities/sports-facilities due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/araling-panlipunan due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/edukasyon-sa-pagpapakatao due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/english due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/filipino due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/mapeh due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/mathematics due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/science due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/junior-high/technology-livelihood-education due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/contemporary-philippine-arts due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/earth-life-science due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/general-mathematics due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/komunikasyon-at-pananaliksik due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/media-information-literacy due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/oral-communication due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/personal-development due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/physical-education-health due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.497Z] skipping /programs/senior-high/core/physical-science due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/core/reading-writing-skills due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/core/understanding-culture-society-politics due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/abm/applied-economics due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/abm/business-ethics-social-responsibility due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/abm/business-math due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/abm/fundamentals-abm due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/abm/organization-management due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/arts-design/creative-industries due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/arts-design/media-arts-photography-film due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/arts-design/performing-arts-dance-theater due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/arts-design/visual-arts due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/humss/community-engagement-social-research due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/humss/creative-writing due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/humss/disciplines-ideas-social-sciences due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/humss/introduction-world-religions due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/humss/philippine-politics-governance due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/sports/fitness-sports-science due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/sports/individual-dual-sports due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/sports/sports-officiating-coaching due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/sports/team-sports due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/stem/general-biology due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/stem/general-chemistry due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/stem/general-physics due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/stem/pre-calculus-basic-calculus due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/stem/research-capstone-project due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/tvl/agri-fishery-arts due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/tvl/entrepreneurship due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/tvl/home-economics-cookery due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/tvl/ict-computer-systems-servicing due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /programs/senior-high/tracks/tvl/industrial-arts-electrical-welding due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /student-life due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /student-life/academic-clubs due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.498Z] skipping /student-life/arts-culture due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /student-life/campus-press-media due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /student-life/community-service due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /student-life/sports-organizations due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /student-life/student-government due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /404 due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:09.499Z] skipping /500 due to it matching an unsupported rewrite/redirect/header or middlware
+[debug] [2026-06-18T07:02:36.218Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:02:36.218Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:02:36.219Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians [none]
+[debug] [2026-06-18T07:02:36.782Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians 200
+[debug] [2026-06-18T07:02:36.783Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians {"name":"projects/nvians/sites/nvians","defaultUrl":"https://nvians.web.app","type":"DEFAULT_SITE"}
+[debug] [2026-06-18T07:04:40.116Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\raffy\AppData\Local\Temp\cursor-sandbox-cache\2200903fbcc875c400ec1f12c398e90f\npm\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\utils.js:313:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[debug] [2026-06-18T07:08:39.265Z] ----------------------------------------------------------------------
+[debug] [2026-06-18T07:08:39.268Z] Command:       E:\node.exe C:\Users\raffy\AppData\Local\Temp\cursor-sandbox-cache\2200903fbcc875c400ec1f12c398e90f\npm\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js deploy --debug
+[debug] [2026-06-18T07:08:39.268Z] CLI Version:   15.21.0
+[debug] [2026-06-18T07:08:39.269Z] Platform:      win32
+[debug] [2026-06-18T07:08:39.269Z] Node Version:  v24.13.0
+[debug] [2026-06-18T07:08:39.269Z] Detected Agent: cursor
+[debug] [2026-06-18T07:08:39.269Z] Time:          Thu Jun 18 2026 03:08:39 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-06-18T07:08:39.269Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-18T07:08:41.286Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-18T07:08:41.287Z] > authorizing via signed-in user (raffyespiritu.cadano@gmail.com)
+[debug] [2026-06-18T07:08:41.287Z] [iam] checking project nvians for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-06-18T07:08:41.288Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:41.288Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:41.289Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions [none]
+[debug] [2026-06-18T07:08:41.289Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions  x-goog-user-project=nvians
+[debug] [2026-06-18T07:08:41.289Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T07:08:41.549Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions 200
+[debug] [2026-06-18T07:08:41.549Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nvians:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-18T07:08:41.550Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:41.550Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:41.550Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/nvians [none]
+[debug] [2026-06-18T07:08:41.867Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/nvians 200
+[debug] [2026-06-18T07:08:41.867Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/nvians {"projectId":"nvians","projectNumber":"81362347883","displayName":"nvians","name":"projects/nvians","resources":{"hostingSite":"nvians","realtimeDatabaseInstance":"nvians-default-rtdb"},"state":"ACTIVE","etag":"1_d50a17f8-a07b-479c-bfaa-f84b9ede32b1"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 16.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2026-06-18T07:08:50.199Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:50.199Z] Checked if tokens are valid: true, expires at: 1781769160091
+[debug] [2026-06-18T07:08:50.199Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians [none]
+[debug] [2026-06-18T07:08:50.788Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians 200
+[debug] [2026-06-18T07:08:50.788Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/nvians/sites/nvians {"name":"projects/nvians/sites/nvians","defaultUrl":"https://nvians.web.app","type":"DEFAULT_SITE"}
+[info] ▲ Next.js 16.2.7 (Turbopack)
+
+[info] - Environments: .env.local
+
+
+[info] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[info]   Creating an optimized production build ...
+
+[info] 
+
+[info] [242.45ms] [@tailwindcss/postcss] src\app\globals.css
+[  0.09ms]   ↳ Quick bail check
+[ 42.83ms]   ↳ Setup compiler
+[  0.54ms]     ↳ PostCSS AST -> Tailwind CSS AST
+[ 42.26ms]     ↳ Create compiler
+[  0.41ms]   ↳ Register full rebuild paths
+[  1.74ms]   ↳ Setup scanner
+[ 40.92ms]   ↳ Scan for candidates
+[ 32.18ms]   ↳ Register dependency messages
+[ 66.13ms]   ↳ Build utilities
+[ 52.30ms]   ↳ Optimization
+
+[info] [  1.80ms]     ↳ AST -> CSS
+[ 31.03ms]     ↳ Lightning CSS
+[ 19.43ms]     ↳ CSS -> PostCSS AST
+
+[info] [  5.40ms]   ↳ Update PostCSS AST
+
+
+[info] 
+
+[info] [0.03ms] [@tailwindcss/postcss] src\app\auth\auth-forms.css
+[0.03ms]   ↳ Quick bail check
+
+
+[info] ✓ Compiled successfully in 9.9s
+
+[info]   Running TypeScript ...
+

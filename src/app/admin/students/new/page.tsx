@@ -10,7 +10,7 @@ type StudentRow = {
   id: string;
   student_number: string | null;
   status: string;
-  user: { full_name: string; email: string } | null;
+  user: { full_name: string; email: string } | { full_name: string; email: string }[] | null;
 };
 
 export default async function NewStudentPage() {

@@ -11,7 +11,7 @@ type TeacherRow = {
   employee_number: string | null;
   department: string | null;
   status: string;
-  user: { full_name: string; email: string } | null;
+  user: { full_name: string; email: string } | { full_name: string; email: string }[] | null;
 };
 
 export default async function NewTeacherPage() {

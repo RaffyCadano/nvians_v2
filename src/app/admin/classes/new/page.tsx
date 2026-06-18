@@ -11,8 +11,8 @@ type ClassRow = {
   grade_level: string;
   section: string;
   status: string;
-  school_year: { name: string } | null;
-  enrollments: { count: number }[];
+  school_year: { name: string } | { name: string }[] | null;
+  enrollments: { count: number }[] | { count: number };
 };
 
 export default async function NewClassPage() {
@@ -62,7 +62,7 @@ export default async function NewClassPage() {
         gradeLevel: cls.grade_level,
         section: cls.section,
         schoolYearName: relationOne(cls.school_year)?.name ?? "—",
-        studentCount: cls.enrollments?.[0]?.count ?? 0,
+        studentCount: relationOne(cls.enrollments)?.count ?? 0,
       }))}
     />
   );
