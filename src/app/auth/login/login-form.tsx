@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { login } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ const fieldClassName =
   "auth-field-input h-full min-w-0 flex-1 border-0 bg-white px-0 text-base outline-none placeholder:text-gray-400 md:text-sm";
 
 export function LoginForm() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,14 +28,28 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.set("email", email);
-    formData.set("password", password);
+    try {
+      const formData = new FormData();
+      formData.set("email", email);
+      formData.set("password", password);
 
-    const result = await login(formData);
+      const result = await login(formData);
 
-    if (result?.error) {
-      setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      if (result?.redirectTo) {
+        router.push(result.redirectTo);
+        router.refresh();
+        return;
+      }
+
+      setError("Sign in failed. Please try again.");
+    } catch {
+      setError("Sign in failed. Please try again.");
+    } finally {
       setLoading(false);
     }
   }

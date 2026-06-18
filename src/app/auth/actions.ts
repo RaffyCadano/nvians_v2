@@ -36,7 +36,7 @@ export async function login(formData: FormData) {
   revalidatePath("/", "layout");
 
   const host = getRequestHost(await headers());
-  redirect(getDashboardUrl(role ?? "student", host));
+  return { success: true, redirectTo: getDashboardUrl(role ?? "student", host) };
 }
 
 export async function signup(formData: FormData) {
