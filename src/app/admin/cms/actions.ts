@@ -128,16 +128,28 @@ export async function createEvent(formData: FormData) {
 
   const admin = createAdminClient();
   const coverImage = (formData.get("cover_image") as string) || null;
-  const { error } = await admin.from("events").insert({
+  const row: Record<string, unknown> = {
     title: formData.get("title") as string,
     description: (formData.get("description") as string) || null,
     start_date: formData.get("start_date") as string,
     end_date: (formData.get("end_date") as string) || null,
     location: (formData.get("location") as string) || null,
-    cover_image: coverImage,
-  });
+  };
+  if (coverImage) {
+    row.cover_image = coverImage;
+  }
 
-  if (error) return { error: error.message };
+  const { error } = await admin.from("events").insert(row);
+
+  if (error) {
+    if (error.message.includes("cover_image") && coverImage) {
+      return {
+        error:
+          "Event cover images are not set up yet. Run the events cover_image migration in Supabase, or publish without a cover image.",
+      };
+    }
+    return { error: error.message };
+  }
   return { success: true };
 }
 
@@ -170,6 +182,14 @@ export async function updateEvent(id: string, formData: FormData) {
 
   const { error } = await admin.from("events").update(updates).eq("id", id);
 
-  if (error) return { error: error.message };
+  if (error) {
+    if (error.message.includes("cover_image") && (coverImage || removeCover)) {
+      return {
+        error:
+          "Event cover images are not set up yet. Run the events cover_image migration in Supabase.",
+      };
+    }
+    return { error: error.message };
+  }
   return { success: true };
 }

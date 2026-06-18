@@ -9,7 +9,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const databaseUrl = process.env.DATABASE_URL ?? process.env.SUPABASE_DB_URL;
+const databaseUrl =
+  process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? process.env.SUPABASE_DB_URL;
 
 const CMS_MIGRATIONS = [
   "20260616_events_cover_image.sql",
@@ -18,8 +19,9 @@ const CMS_MIGRATIONS = [
 
 if (!databaseUrl) {
   console.error(
-    "Missing DATABASE_URL or SUPABASE_DB_URL in .env.local.\n" +
-      "Run the SQL files in supabase/migrations/ via the Supabase SQL editor instead.",
+    "Missing DATABASE_URL or SUPABASE_DB_URL in .env.local.\n\n" +
+      "Run this file in Supabase SQL Editor instead:\n" +
+      "  scripts/cms-db-setup.sql\n",
   );
   process.exit(1);
 }
@@ -46,7 +48,20 @@ const migrationsDir = join(
 const available = new Set(readdirSync(migrationsDir));
 const client = new pg.Client({ connectionString: databaseUrl });
 
-await client.connect();
+try {
+  await client.connect();
+} catch (error) {
+  if (error instanceof Error && "code" in error && error.code === "28P01") {
+    console.error(
+      "Database password in .env.local is incorrect.\n\n" +
+        "Fix DATABASE_URL, or run this in Supabase SQL Editor:\n" +
+        "  scripts/cms-db-setup.sql\n",
+    );
+    process.exit(1);
+  }
+  throw error;
+}
+
 try {
   for (const file of CMS_MIGRATIONS) {
     if (!available.has(file)) {

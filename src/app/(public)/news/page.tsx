@@ -124,44 +124,56 @@ export default async function NewsPage() {
           {events && events.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event: any) => (
-                <Card key={event.id} className={`overflow-hidden ${event.cover_image ? "pt-0" : ""}`}>
-                  {event.cover_image && (
-                    <div className="relative h-40 bg-gray-100">
-                      <img
-                        src={event.cover_image}
-                        alt={event.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2 text-xs text-blue-600 font-medium">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {format(new Date(event.start_date), "MMM d, yyyy")}
+                <Link key={event.id} href={`/news/events/${event.id}`} className="group block">
+                  <Card className={`h-full overflow-hidden transition-colors group-hover:border-blue-200 group-hover:shadow-md ${event.cover_image ? "pt-0" : ""}`}>
+                    {event.cover_image ? (
+                      <div className="relative h-40 overflow-hidden bg-gray-100">
+                        <img
+                          src={event.cover_image}
+                          alt={event.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
                       </div>
-                      <Badge
-                        variant="secondary"
-                        className={
-                          event.status === "upcoming"
-                            ? "bg-green-100 text-green-700"
-                            : event.status === "ongoing"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-600"
-                        }
-                      >
-                        {event.status}
-                      </Badge>
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mt-2">{event.title}</h3>
-                    {event.description && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{event.description}</p>
+                    ) : (
+                      <div className="flex h-40 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                        <Calendar className="h-10 w-10 text-blue-200" />
+                      </div>
                     )}
-                    {event.location && (
-                      <p className="text-xs text-gray-400 mt-2">📍 {event.location}</p>
-                    )}
-                  </CardContent>
-                </Card>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 text-xs font-medium text-blue-600">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {format(new Date(event.start_date), "MMM d, yyyy")}
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className={
+                            event.status === "upcoming"
+                              ? "bg-green-100 text-green-700"
+                              : event.status === "ongoing"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-600"
+                          }
+                        >
+                          {event.status}
+                        </Badge>
+                      </div>
+                      <h3 className="mt-2 font-semibold text-gray-900 transition-colors group-hover:text-blue-700">
+                        {event.title}
+                      </h3>
+                      {event.description && (
+                        <p className="mt-1 line-clamp-2 text-sm text-gray-600">{event.description}</p>
+                      )}
+                      {event.location && (
+                        <p className="mt-2 text-xs text-gray-400">📍 {event.location}</p>
+                      )}
+                      <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                        View event
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (
