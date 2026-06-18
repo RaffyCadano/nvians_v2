@@ -72,29 +72,43 @@ export default async function NewsPage() {
           {news && news.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {news.map((article: any) => (
-                <Card key={article.id} className="overflow-hidden transition-colors">
-                  {article.cover_image && (
-                    <div className="h-48 bg-gray-100">
-                      <img
-                        src={article.cover_image}
-                        alt={article.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="pt-4">
-                    <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {article.published_at
-                        ? format(new Date(article.published_at), "MMM d, yyyy")
-                        : ""}
-                    </p>
-                    <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{article.title}</h3>
-                    {article.excerpt && (
-                      <p className="text-sm text-gray-600 line-clamp-3">{article.excerpt}</p>
+                <Link key={article.id} href={`/news/${article.id}`} className="group block">
+                  <Card className="h-full overflow-hidden pt-0 transition-colors group-hover:border-blue-200 group-hover:shadow-md">
+                    {article.cover_image ? (
+                      <div className="h-48 overflow-hidden bg-gray-100">
+                        <img
+                          src={article.cover_image}
+                          alt={article.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-48 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                        <Clock className="h-10 w-10 text-blue-200" />
+                      </div>
                     )}
-                  </CardContent>
-                </Card>
+                    <CardContent className="pt-4">
+                      <p className="mb-2 flex items-center gap-1 text-xs text-gray-400">
+                        <Clock className="h-3 w-3" />
+                        {article.published_at
+                          ? format(new Date(article.published_at), "MMM d, yyyy")
+                          : ""}
+                      </p>
+                      <h3 className="mb-2 line-clamp-2 font-semibold text-gray-900 transition-colors group-hover:text-blue-700">
+                        {article.title}
+                      </h3>
+                      {article.excerpt ? (
+                        <p className="line-clamp-3 text-sm text-gray-600">{article.excerpt}</p>
+                      ) : (
+                        <p className="line-clamp-3 text-sm text-gray-600">{article.content}</p>
+                      )}
+                      <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                        Read article
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (
@@ -110,7 +124,16 @@ export default async function NewsPage() {
           {events && events.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event: any) => (
-                <Card key={event.id}>
+                <Card key={event.id} className={`overflow-hidden ${event.cover_image ? "pt-0" : ""}`}>
+                  {event.cover_image && (
+                    <div className="relative h-40 bg-gray-100">
+                      <img
+                        src={event.cover_image}
+                        alt={event.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 text-xs text-blue-600 font-medium">

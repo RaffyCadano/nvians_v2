@@ -238,6 +238,7 @@ CREATE TABLE IF NOT EXISTS public.news (
   author_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   is_published BOOLEAN DEFAULT FALSE,
   published_at TIMESTAMPTZ,
+  published_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -249,6 +250,7 @@ CREATE TABLE IF NOT EXISTS public.events (
   start_date DATE NOT NULL,
   end_date DATE,
   location TEXT,
+  cover_image TEXT,
   status TEXT DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'past')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

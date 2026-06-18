@@ -9,33 +9,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { createEvent } from "../../actions";
+import { updateEvent } from "../../actions";
 import {
   ALLOWED_IMAGE_TYPES,
   validateCoverImageFile,
 } from "@/lib/cms-storage";
 import {
-  AlertTriangle,
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
-  Clock,
-  Globe,
   ImagePlus,
   MapPin,
-  Plus,
+  Pencil,
   Sparkles,
   Trash2,
   Upload,
 } from "lucide-react";
+
+type EventRecord = {
+  id: string;
+  title: string;
+  description: string | null;
+  start_date: string;
+  end_date: string | null;
+  location: string | null;
+  cover_image: string | null;
+};
+
+function toDateInputValue(value: string | null) {
+  if (!value) return "";
+  return value.slice(0, 10);
+}
 
 function formatShortDate(value: string) {
   if (!value) return "—";
@@ -55,6 +59,7 @@ function buildFormData(
   location: string,
   description: string,
   coverImageUrl: string | null,
+  removeCover: boolean,
 ) {
   const formData = new FormData();
   formData.set("title", title.trim());
@@ -62,6 +67,7 @@ function buildFormData(
   if (endDate) formData.set("end_date", endDate);
   if (location.trim()) formData.set("location", location.trim());
   if (description.trim()) formData.set("description", description.trim());
+  if (removeCover) formData.set("remove_cover_image", "true");
   if (coverImageUrl) formData.set("cover_image", coverImageUrl);
   return formData;
 }
@@ -89,18 +95,19 @@ async function uploadCoverImage(file: File) {
   return { url: payload.url };
 }
 
-export default function NewEventPage() {
+export default function EditEventForm({ event }: { event: EventRecord }) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(event.title);
+  const [startDate, setStartDate] = useState(toDateInputValue(event.start_date));
+  const [endDate, setEndDate] = useState(toDateInputValue(event.end_date));
+  const [location, setLocation] = useState(event.location ?? "");
+  const [description, setDescription] = useState(event.description ?? "");
+  const [existingCoverUrl, setExistingCoverUrl] = useState(event.cover_image);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(event.cover_image);
   const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -112,7 +119,9 @@ export default function NewEventPage() {
 
   useEffect(() => {
     return () => {
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (coverPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(coverPreview);
+      }
     };
   }, [coverPreview]);
 
@@ -128,7 +137,7 @@ export default function NewEventPage() {
     setImageError("");
     setCoverImage(file);
     setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
+      if (current?.startsWith("blob:")) URL.revokeObjectURL(current);
       return URL.createObjectURL(file);
     });
   }
@@ -140,34 +149,19 @@ export default function NewEventPage() {
 
   function removeCoverImage() {
     setCoverImage(null);
+    setExistingCoverUrl(null);
     setImageError("");
     setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
+      if (current?.startsWith("blob:")) URL.revokeObjectURL(current);
       return null;
     });
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function resetForm() {
-    setTitle("");
-    setStartDate("");
-    setEndDate("");
-    setLocation("");
-    setDescription("");
-    setCoverImage(null);
-    setImageError("");
-    setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return null;
-    });
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    setError("");
-    setConfirmOpen(false);
-  }
-
-  async function saveEvent() {
+  async function saveChanges() {
     setSaving(true);
     setError("");
+    setSaved(false);
 
     try {
       let coverImageUrl: string | null = null;
@@ -179,10 +173,22 @@ export default function NewEventPage() {
           return;
         }
         coverImageUrl = upload.url ?? null;
+      } else if (existingCoverUrl) {
+        coverImageUrl = existingCoverUrl;
       }
 
-      const result = await createEvent(
-        buildFormData(title, startDate, endDate, location, description, coverImageUrl),
+      const removeCover = !coverImageUrl && !coverPreview;
+      const result = await updateEvent(
+        event.id,
+        buildFormData(
+          title,
+          startDate,
+          endDate,
+          location,
+          description,
+          coverImageUrl,
+          removeCover,
+        ),
       );
 
       if (result?.error) {
@@ -191,14 +197,22 @@ export default function NewEventPage() {
       }
 
       if (!result || !("success" in result)) {
-        setError("Failed to create event. Please try again.");
+        setError("Failed to save event. Please try again.");
         return;
       }
 
-      resetForm();
+      if (coverImageUrl) {
+        setExistingCoverUrl(coverImageUrl);
+        setCoverPreview(coverImageUrl);
+        setCoverImage(null);
+      } else if (removeCover) {
+        setExistingCoverUrl(null);
+      }
+
+      setSaved(true);
       router.refresh();
     } catch {
-      setError("Failed to create event. Please try again.");
+      setError("Failed to save event. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -222,14 +236,8 @@ export default function NewEventPage() {
       setError(imageError);
       return;
     }
-    setError("");
-    setConfirmOpen(true);
-  }
 
-  function handleConfirmOpenChange(open: boolean) {
-    if (saving) return;
-    setConfirmOpen(open);
-    if (!open) setError("");
+    await saveChanges();
   }
 
   return (
@@ -251,14 +259,13 @@ export default function NewEventPage() {
             <p className="text-xs font-medium tracking-wider text-yellow-400 uppercase sm:text-sm">
               Public Website
             </p>
-            <h1 className="mt-2 text-2xl font-bold sm:text-3xl">New Event</h1>
+            <h1 className="mt-2 text-2xl font-bold sm:text-3xl">Edit Event</h1>
             <p className="mt-2 max-w-xl text-sm text-blue-100">
-              Add a school event with dates and location. It will appear on the public news and
-              events page.
+              Update event details shown on the public news and events page.
             </p>
           </div>
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-            <Plus className="h-6 w-6 text-yellow-400" />
+            <Pencil className="h-6 w-6 text-yellow-400" />
           </div>
         </div>
       </section>
@@ -268,8 +275,7 @@ export default function NewEventPage() {
           <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
             <h2 className="font-semibold text-gray-900">Event Details</h2>
             <p className="mt-0.5 text-sm text-gray-500">
-              Title and start date are required. Add an optional cover image, location, and
-              description.
+              Title and start date are required.
             </p>
           </div>
 
@@ -284,14 +290,10 @@ export default function NewEventPage() {
                   <Input
                     id="title"
                     name="title"
-                    placeholder="Foundation Day Celebration"
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
-                  <p className="text-xs text-gray-500">
-                    Use a clear event name visitors will recognize.
-                  </p>
                 </div>
               </div>
 
@@ -327,11 +329,6 @@ export default function NewEventPage() {
                           <p className="truncate text-sm font-medium text-gray-900">
                             {coverImage?.name ?? "Cover image"}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {coverImage
-                              ? `${(coverImage.size / 1024 / 1024).toFixed(2)} MB`
-                              : "Ready to upload"}
-                          </p>
                         </div>
                         <Button type="button" variant="outline" size="sm" onClick={removeCoverImage}>
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
@@ -364,9 +361,6 @@ export default function NewEventPage() {
                       {imageError}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500">
-                    Optional image shown on the event card on the public site.
-                  </p>
                 </div>
               </div>
 
@@ -397,9 +391,6 @@ export default function NewEventPage() {
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 sm:col-span-2">
-                    Leave end date blank for single-day events.
-                  </p>
                 </div>
               </div>
 
@@ -412,7 +403,6 @@ export default function NewEventPage() {
                   <Input
                     id="location"
                     name="location"
-                    placeholder="School Gymnasium"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                   />
@@ -429,7 +419,6 @@ export default function NewEventPage() {
                     id="description"
                     name="description"
                     rows={5}
-                    placeholder="What is this event about?"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="min-h-[120px] resize-y"
@@ -437,7 +426,13 @@ export default function NewEventPage() {
                 </div>
               </div>
 
-              {error && !confirmOpen && (
+              {saved && !error && (
+                <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700">
+                  Changes saved successfully.
+                </p>
+              )}
+
+              {error && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
                   {error}
                 </p>
@@ -445,7 +440,7 @@ export default function NewEventPage() {
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row">
                 <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
-                  {saving ? "Publishing…" : "Publish Event"}
+                  {saving ? "Saving…" : "Save Changes"}
                 </Button>
                 <Button asChild variant="outline">
                   <Link href="/cms">Cancel</Link>
@@ -463,211 +458,72 @@ export default function NewEventPage() {
             </div>
             <div className="p-5">
               {previewReady ? (
-                <div className="space-y-4">
-                  <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-                    {coverPreview ? (
-                      <div className="relative h-24 bg-gray-100">
-                        <Image
-                          src={coverPreview}
-                          alt="Event cover preview"
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-24 items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-50">
-                        <CalendarDays className="h-10 w-10 text-blue-300" />
-                      </div>
-                    )}
-                    <div className="space-y-3 p-4">
-                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                        Upcoming Event
-                      </Badge>
-                      <p className="line-clamp-2 font-semibold text-gray-900">{title.trim()}</p>
-                      <div className="space-y-1.5 text-sm text-gray-600">
-                        <p className="flex items-center gap-2">
-                          <Clock className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                          {dateRange}
-                        </p>
-                        {location.trim() && (
-                          <p className="flex items-center gap-2">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                            {location.trim()}
-                          </p>
-                        )}
-                      </div>
-                      {description.trim() && (
-                        <p className="line-clamp-3 text-sm leading-relaxed text-gray-600">
-                          {description.trim()}
-                        </p>
-                      )}
+                <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                  {coverPreview ? (
+                    <div className="relative h-24 bg-gray-100">
+                      <Image
+                        src={coverPreview}
+                        alt="Event cover preview"
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
                     </div>
+                  ) : (
+                    <div className="flex h-24 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                      <CalendarDays className="h-8 w-8 text-blue-200" />
+                    </div>
+                  )}
+                  <div className="space-y-2 p-4">
+                    <p className="text-xs font-medium text-blue-600">{dateRange}</p>
+                    <p className="line-clamp-2 font-semibold text-gray-900">{title.trim()}</p>
+                    {description.trim() && (
+                      <p className="line-clamp-3 text-sm text-gray-600">{description.trim()}</p>
+                    )}
+                    {location.trim() && (
+                      <p className="flex items-center gap-1 text-xs text-gray-500">
+                        <MapPin className="h-3 w-3" />
+                        {location.trim()}
+                      </p>
+                    )}
                   </div>
-
-                  <p className="flex items-center gap-1.5 text-xs text-green-700">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Ready to publish
-                  </p>
                 </div>
               ) : (
                 <div className="py-6 text-center">
                   <CalendarDays className="mx-auto h-9 w-9 text-gray-300" />
                   <p className="mt-3 text-sm font-medium text-gray-600">No preview yet</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Enter a title and start date to see a preview.
-                  </p>
                 </div>
               )}
             </div>
           </section>
 
           <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="mb-4 flex items-center gap-2.5">
-              <div className="rounded-lg bg-blue-50 p-2">
-                <Sparkles className="h-4 w-4 text-blue-600" />
-              </div>
-              <h2 className="text-base font-bold text-gray-900">Quick Guide</h2>
-            </div>
-            <ul className="space-y-3 text-sm text-gray-600">
+            <h2 className="text-base font-bold text-gray-900">Quick Guide</h2>
+            <ul className="mt-4 space-y-3 text-sm text-gray-600">
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                   1
                 </span>
-                <span>Name the event clearly so families know what to expect.</span>
+                <span>Update the title, dates, or location as needed.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                   2
                 </span>
-                <span>Add a cover image so the event stands out on the public page.</span>
+                <span>Click Save Changes to update the public event.</span>
               </li>
               <li className="flex gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
-                  3
-                </span>
-                <span>Set the start date and an end date for multi-day events.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
-                  4
-                </span>
-                <span>Add the venue and a short description for the public page.</span>
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+                <span>Changes appear on the public site right away.</span>
               </li>
             </ul>
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-green-700">
+              <Sparkles className="h-3.5 w-3.5" />
+              {saved ? "Saved" : "Ready to save"}
+            </p>
           </section>
         </aside>
       </div>
-
-      <Dialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
-        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
-          <div className="border-b border-green-100 bg-gradient-to-r from-green-950 via-emerald-900 to-teal-900 px-6 py-5 text-white">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-500/15 ring-1 ring-green-400/25">
-                <Globe className="h-5 w-5 text-green-300" />
-              </div>
-              <div>
-                <DialogTitle className="text-base font-semibold text-white">
-                  Publish event?
-                </DialogTitle>
-                <p className="mt-0.5 text-xs text-green-200/80">
-                  Confirm before making this event live on the public website
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-6 py-5">
-            {coverPreview && (
-              <div className="relative mb-4 h-24 w-full max-w-xs overflow-hidden rounded-xl border border-gray-100 bg-gray-100">
-                <Image
-                  src={coverPreview}
-                  alt="Event cover"
-                  fill
-                  unoptimized
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                <CalendarDays className="h-5 w-5 text-blue-700" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">{title.trim()}</p>
-                <p className="truncate text-xs text-gray-500">
-                  {dateRange}
-                  {coverImage ? " · Cover image attached" : ""}
-                </p>
-              </div>
-            </div>
-
-            <DialogDescription className="mt-4 text-sm leading-relaxed text-gray-600">
-              <span className="font-medium text-gray-900">{title.trim()}</span> will appear on the
-              public news and events page immediately after you confirm.
-            </DialogDescription>
-
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-sm text-amber-900">
-              <p className="flex items-center gap-2 font-medium">
-                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
-                This event will be visible to everyone
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-amber-800/90">
-                Visitors can see it on the public website right away. Double-check the dates,
-                location, and cover image before publishing.
-              </p>
-            </div>
-
-            <div className="mt-4 space-y-2 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-gray-500">Status</span>
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                  <Globe className="mr-1 h-3 w-3" />
-                  Going live
-                </Badge>
-              </div>
-              {location.trim() && (
-                <div className="flex items-center justify-between gap-3 border-t border-gray-100 pt-2">
-                  <span className="text-gray-500">Location</span>
-                  <span className="font-medium text-gray-900">{location.trim()}</span>
-                </div>
-              )}
-              {description.trim() && (
-                <div className="border-t border-gray-100 pt-2">
-                  <p className="text-xs text-gray-500">Description</p>
-                  <p className="mt-1 line-clamp-3 text-sm text-gray-700">{description.trim()}</p>
-                </div>
-              )}
-            </div>
-
-            {error && (
-              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
-                {error}
-              </p>
-            )}
-          </div>
-
-          <DialogFooter className="!m-0 gap-2.5 border-t border-gray-100 bg-gray-50/80 px-6 py-4 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleConfirmOpenChange(false)}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={saveEvent}
-              disabled={saving}
-              className="bg-green-600 text-white hover:bg-green-700"
-            >
-              {saving ? "Publishing…" : "Publish Now"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

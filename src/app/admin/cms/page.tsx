@@ -2,15 +2,21 @@ import { createClient } from "@/lib/supabase/server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteNewsButton } from "./delete-news-button";
 import Link from "next/link";
-import { CalendarDays, Globe, Newspaper, Pencil, Plus } from "lucide-react";
+import Image from "next/image";
+import { CalendarDays, Globe, Newspaper, Pencil, Plus, User } from "lucide-react";
 import { format } from "date-fns";
+import { getNewsPublisherName } from "@/lib/cms-news";
 
 export default async function AdminCMSPage() {
   const supabase = await createClient();
 
   const [{ data: news }, { data: events }] = await Promise.all([
-    supabase.from("news").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("news")
+      .select("*, author:author_id(full_name), publisher:published_by(full_name)")
+      .order("created_at", { ascending: false }),
     supabase.from("events").select("*").order("start_date", { ascending: false }),
   ]);
 
@@ -84,17 +90,55 @@ export default async function AdminCMSPage() {
               {newsRows.length > 0 ? (
                 <div className="divide-y divide-gray-100">
                   {newsRows.map((n: any) => (
-                    <div key={n.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900">{n.title}</p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {n.published_at ? format(new Date(n.published_at), "MMM d, yyyy") : "Not published"}
-                        </p>
+                    <div
+                      key={n.id}
+                      className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex min-w-0 flex-1 items-center gap-4">
+                        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100 sm:h-20 sm:w-32">
+                          {n.cover_image ? (
+                            <Image
+                              src={n.cover_image}
+                              alt={n.title}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
+                              <Newspaper className="h-6 w-6 text-rose-300" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-2 font-semibold text-gray-900">{n.title}</p>
+                          {n.excerpt && (
+                            <p className="mt-1 line-clamp-2 text-sm text-gray-600">{n.excerpt}</p>
+                          )}
+                          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500">
+                            <span>
+                              {n.published_at
+                                ? format(new Date(n.published_at), "MMM d, yyyy")
+                                : "Not published"}
+                            </span>
+                            {n.is_published && getNewsPublisherName(n) && (
+                              <>
+                                <span aria-hidden>·</span>
+                                <span className="inline-flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {getNewsPublisherName(n)}
+                                </span>
+                              </>
+                            )}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 sm:shrink-0">
                         <Badge
                           variant="secondary"
-                          className={n.is_published ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}
+                          className={
+                            n.is_published ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                          }
                         >
                           {n.is_published ? "Published" : "Draft"}
                         </Badge>
@@ -103,6 +147,11 @@ export default async function AdminCMSPage() {
                             <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
                           </Link>
                         </Button>
+                        <DeleteNewsButton
+                          articleId={n.id}
+                          articleTitle={n.title}
+                          isPublished={n.is_published}
+                        />
                       </div>
                     </div>
                   ))}

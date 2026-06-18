@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,49 +16,61 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createNews } from "../../actions";
+import { updateNews } from "../../actions";
+import { DeleteNewsButton } from "../../delete-news-button";
 import {
   ALLOWED_IMAGE_TYPES,
   validateCoverImageFile,
 } from "@/lib/cms-storage";
 import {
+  AlertTriangle,
   ArrowLeft,
-  CheckCircle2,
   FileText,
   Globe,
   ImagePlus,
   Newspaper,
-  Plus,
+  Pencil,
   Sparkles,
   Trash2,
   Upload,
-  AlertTriangle,
+  User,
 } from "lucide-react";
 
 const EXCERPT_MAX = 160;
+
+type NewsArticle = {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string | null;
+  cover_image: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  publisher_name: string | null;
+};
 
 function buildFormData(
   title: string,
   excerpt: string,
   content: string,
   isPublished: boolean,
+  wasPublished: boolean,
   coverImageUrl: string | null,
+  removeCover: boolean,
 ) {
   const formData = new FormData();
   formData.set("title", title.trim());
   formData.set("excerpt", excerpt.trim());
   formData.set("content", content.trim());
   if (isPublished) formData.set("is_published", "true");
+  if (wasPublished) formData.set("was_published", "true");
+  if (removeCover) formData.set("remove_cover_image", "true");
   if (coverImageUrl) formData.set("cover_image", coverImageUrl);
   return formData;
 }
 
-function validateCoverImage(file: File) {
-  return validateCoverImageFile(file);
-}
-
 async function uploadCoverImage(file: File) {
-  const validationError = validateCoverImage(file);
+  const validationError = validateCoverImageFile(file);
   if (validationError) {
     return { error: validationError };
   }
@@ -80,17 +91,26 @@ async function uploadCoverImage(file: File) {
   return { url: payload.url };
 }
 
-export default function NewNewsPage() {
-  const router = useRouter();
+export default function EditNewsForm({
+  article,
+  currentUserName,
+}: {
+  article: NewsArticle;
+  currentUserName: string | null;
+}) {
+  const [wasPublished, setWasPublished] = useState(article.is_published);
+  const [publisherName, setPublisherName] = useState(article.publisher_name);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
-  const [isPublished, setIsPublished] = useState(false);
+  const [title, setTitle] = useState(article.title);
+  const [excerpt, setExcerpt] = useState(article.excerpt ?? "");
+  const [content, setContent] = useState(article.content);
+  const [isPublished, setIsPublished] = useState(article.is_published);
+  const [existingCoverUrl, setExistingCoverUrl] = useState(article.cover_image);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(article.cover_image);
   const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -100,17 +120,29 @@ export default function NewNewsPage() {
     [content],
   );
   const excerptCount = excerpt.length;
+  const isNewlyPublishing = isPublished && !wasPublished;
+  const submitLabel = saving
+    ? isNewlyPublishing
+      ? "Publishing…"
+      : "Saving…"
+    : isPublished
+      ? wasPublished
+        ? "Save Changes"
+        : "Publish Article"
+      : "Save Draft";
 
   useEffect(() => {
     return () => {
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (coverPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(coverPreview);
+      }
     };
   }, [coverPreview]);
 
   function handleImageSelect(file: File | null) {
     if (!file) return;
 
-    const validationError = validateCoverImage(file);
+    const validationError = validateCoverImageFile(file);
     if (validationError) {
       setImageError(validationError);
       return;
@@ -119,7 +151,7 @@ export default function NewNewsPage() {
     setImageError("");
     setCoverImage(file);
     setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
+      if (current?.startsWith("blob:")) URL.revokeObjectURL(current);
       return URL.createObjectURL(file);
     });
   }
@@ -131,25 +163,10 @@ export default function NewNewsPage() {
 
   function removeCoverImage() {
     setCoverImage(null);
+    setExistingCoverUrl(null);
     setImageError("");
     setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return null;
-    });
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
-
-  function resetForm() {
-    setTitle("");
-    setExcerpt("");
-    setContent("");
-    setIsPublished(false);
-    setCoverImage(null);
-    setImageError("");
-    setError("");
-    setConfirmOpen(false);
-    setCoverPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
+      if (current?.startsWith("blob:")) URL.revokeObjectURL(current);
       return null;
     });
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -158,6 +175,7 @@ export default function NewNewsPage() {
   async function saveArticle(publish: boolean) {
     setSaving(true);
     setError("");
+    setSaved(false);
 
     try {
       let coverImageUrl: string | null = null;
@@ -169,10 +187,22 @@ export default function NewNewsPage() {
           return;
         }
         coverImageUrl = upload.url ?? null;
+      } else if (existingCoverUrl) {
+        coverImageUrl = existingCoverUrl;
       }
 
-      const result = await createNews(
-        buildFormData(title, excerpt, content, publish, coverImageUrl),
+      const removeCover = !coverImageUrl && !coverPreview;
+      const result = await updateNews(
+        article.id,
+        buildFormData(
+          title,
+          excerpt,
+          content,
+          publish,
+          wasPublished,
+          coverImageUrl,
+          removeCover,
+        ),
       );
 
       if (result?.error) {
@@ -180,20 +210,27 @@ export default function NewNewsPage() {
         return;
       }
 
-      if (!result || !("success" in result)) {
-        setError(
-          publish
-            ? "Failed to publish article. Please try again."
-            : "Failed to save article. Please try again.",
-        );
-        return;
+      setConfirmOpen(false);
+      if (coverImageUrl) {
+        setExistingCoverUrl(coverImageUrl);
+        setCoverPreview(coverImageUrl);
+        setCoverImage(null);
+      } else if (removeCover) {
+        setExistingCoverUrl(null);
       }
-
-      resetForm();
-      router.refresh();
+      if (publish) {
+        setWasPublished(true);
+        if (currentUserName) {
+          setPublisherName(currentUserName);
+        }
+      } else {
+        setWasPublished(false);
+        setPublisherName(null);
+      }
+      setSaved(true);
     } catch {
       setError(
-        publish
+        publish && isNewlyPublishing
           ? "Failed to publish article. Please try again."
           : "Failed to save article. Please try again.",
       );
@@ -218,12 +255,12 @@ export default function NewNewsPage() {
     }
     setError("");
 
-    if (isPublished) {
+    if (isNewlyPublishing) {
       setConfirmOpen(true);
       return;
     }
 
-    await saveArticle(false);
+    await saveArticle(isPublished);
   }
 
   async function handleConfirmPublish() {
@@ -255,14 +292,13 @@ export default function NewNewsPage() {
             <p className="text-xs font-medium tracking-wider text-yellow-400 uppercase sm:text-sm">
               Public Website
             </p>
-            <h1 className="mt-2 text-2xl font-bold sm:text-3xl">New Article</h1>
+            <h1 className="mt-2 text-2xl font-bold sm:text-3xl">Edit Article</h1>
             <p className="mt-2 max-w-xl text-sm text-rose-100">
-              Write a news article for the public site. Save as a draft or publish it immediately
-              when ready.
+              Update this news article, change its cover image, or publish it when ready.
             </p>
           </div>
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-            <Plus className="h-6 w-6 text-yellow-400" />
+            <Pencil className="h-6 w-6 text-yellow-400" />
           </div>
         </div>
       </section>
@@ -287,14 +323,10 @@ export default function NewNewsPage() {
                   <Input
                     id="title"
                     name="title"
-                    placeholder="NVI Students Win Regional Science Fair"
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
-                  <p className="text-xs text-gray-500">
-                    Keep it clear and specific — this is the headline visitors see first.
-                  </p>
                 </div>
               </div>
 
@@ -325,21 +357,31 @@ export default function NewNewsPage() {
                           className="object-cover"
                         />
                       </div>
-                      <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-gray-900">
-                            {coverImage?.name ?? "Cover image"}
+                            {coverImage?.name ?? "Current cover image"}
                           </p>
                           <p className="text-xs text-gray-500">
                             {coverImage
                               ? `${(coverImage.size / 1024 / 1024).toFixed(2)} MB`
-                              : "Ready to upload"}
+                              : "Uploaded image"}
                           </p>
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={removeCoverImage}>
-                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                          Remove
-                        </Button>
+                        <div className="flex shrink-0 gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            Replace
+                          </Button>
+                          <Button type="button" variant="outline" size="sm" onClick={removeCoverImage}>
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -367,9 +409,6 @@ export default function NewNewsPage() {
                       {imageError}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500">
-                    Optional hero image shown at the top of the article card on the news page.
-                  </p>
                 </div>
               </div>
 
@@ -391,15 +430,10 @@ export default function NewNewsPage() {
                   <Input
                     id="excerpt"
                     name="excerpt"
-                    placeholder="Short summary shown in listings..."
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
                     maxLength={EXCERPT_MAX + 40}
                   />
-                  <p className="text-xs text-gray-500">
-                    Optional teaser for the news grid. Leave blank to use the opening lines of
-                    your content.
-                  </p>
                 </div>
               </div>
 
@@ -419,7 +453,6 @@ export default function NewNewsPage() {
                     name="content"
                     rows={12}
                     required
-                    placeholder="Write the full article here..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     className="min-h-[240px] resize-y"
@@ -444,11 +477,15 @@ export default function NewNewsPage() {
                         className="mt-0.5 h-4 w-4 rounded border-gray-300"
                       />
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">Publish immediately</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {wasPublished ? "Published on website" : "Publish on website"}
+                        </p>
                         <p className="mt-1 text-xs leading-relaxed text-gray-600">
                           {isPublished
-                            ? "This article will go live on the public news page right after saving."
-                            : "Leave unchecked to save as a draft. You can publish it later from the CMS."}
+                            ? wasPublished
+                              ? "This article is live on the public news page."
+                              : "This article will go live on the public news page after saving."
+                            : "Keep as draft until you are ready to publish."}
                         </p>
                       </div>
                     </label>
@@ -456,25 +493,32 @@ export default function NewNewsPage() {
                 </div>
               </div>
 
+              {saved && !error && (
+                <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700">
+                  Changes saved successfully.
+                </p>
+              )}
+
               {error && !confirmOpen && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
                   {error}
                 </p>
               )}
 
-              <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row">
-                <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
-                  {saving
-                    ? isPublished
-                      ? "Publishing…"
-                      : "Saving…"
-                    : isPublished
-                      ? "Publish Article"
-                      : "Save Draft"}
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/cms">Cancel</Link>
-                </Button>
+              <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
+                    {submitLabel}
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/cms">Cancel</Link>
+                  </Button>
+                </div>
+                <DeleteNewsButton
+                  articleId={article.id}
+                  articleTitle={title.trim() || article.title}
+                  isPublished={wasPublished}
+                />
               </div>
             </form>
           </div>
@@ -517,8 +561,16 @@ export default function NewNewsPage() {
                           </Badge>
                         )}
                         <span className="text-xs text-gray-500">
-                          {format(new Date(), "MMM d, yyyy")}
+                          {article.published_at
+                            ? format(new Date(article.published_at), "MMM d, yyyy")
+                            : format(new Date(), "MMM d, yyyy")}
                         </span>
+                        {isPublished && publisherName && (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <User className="h-3 w-3" />
+                            {publisherName}
+                          </span>
+                        )}
                       </div>
                       <p className="line-clamp-2 font-semibold text-gray-900">{title.trim()}</p>
                       <p className="line-clamp-3 text-sm leading-relaxed text-gray-600">
@@ -527,46 +579,11 @@ export default function NewNewsPage() {
                       </p>
                     </div>
                   </div>
-
-                  <div className="space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-gray-500">Status</span>
-                      {isPublished ? (
-                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                          Live on site
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100">
-                          Draft only
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-gray-500">Length</span>
-                      <span className="font-medium text-gray-900">
-                        {wordCount} word{wordCount === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-gray-500">Cover image</span>
-                      <span className="font-medium text-gray-900">
-                        {coverImage ? "Attached" : "None"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="flex items-center gap-1.5 text-xs text-green-700">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Ready to {isPublished ? "publish" : "save"}
-                  </p>
                 </div>
               ) : (
                 <div className="py-6 text-center">
                   <FileText className="mx-auto h-9 w-9 text-gray-300" />
                   <p className="mt-3 text-sm font-medium text-gray-600">No preview yet</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Enter a title and content to see how the article will look.
-                  </p>
                 </div>
               )}
             </div>
@@ -579,30 +596,35 @@ export default function NewNewsPage() {
               </div>
               <h2 className="text-base font-bold text-gray-900">Quick Guide</h2>
             </div>
+            {wasPublished && publisherName && (
+              <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50/80 px-3.5 py-3 text-sm">
+                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+                  Published by
+                </p>
+                <p className="mt-1 inline-flex items-center gap-1.5 font-medium text-gray-900">
+                  <User className="h-3.5 w-3.5 text-rose-600" />
+                  {publisherName}
+                </p>
+              </div>
+            )}
             <ul className="space-y-3 text-sm text-gray-600">
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">
                   1
                 </span>
-                <span>Write a clear headline that summarizes the story.</span>
+                <span>Update the headline and content as needed.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">
                   2
                 </span>
-                <span>Add a cover image to make article cards stand out on the news page.</span>
+                <span>Replace or remove the cover image from the upload area.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">
                   3
                 </span>
-                <span>Add an excerpt so listings look polished on the news page.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-700">
-                  4
-                </span>
-                <span>Save as draft to review first, or publish when you are ready.</span>
+                <span>Check publish when you want the article live on the public site.</span>
               </li>
             </ul>
           </section>
@@ -640,20 +662,7 @@ export default function NewNewsPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-100">
-                <Newspaper className="h-5 w-5 text-rose-700" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">{title.trim()}</p>
-                <p className="truncate text-xs text-gray-500">
-                  {wordCount} word{wordCount === 1 ? "" : "s"}
-                  {coverImage ? " · Cover image attached" : ""}
-                </p>
-              </div>
-            </div>
-
-            <DialogDescription className="mt-4 text-sm leading-relaxed text-gray-600">
+            <DialogDescription className="text-sm leading-relaxed text-gray-600">
               <span className="font-medium text-gray-900">{title.trim()}</span> will appear on the
               public news page immediately after you confirm.
             </DialogDescription>
@@ -663,26 +672,6 @@ export default function NewNewsPage() {
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                 This article will be visible to everyone
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-amber-800/90">
-                Visitors can read it on the public website right away. Double-check the title,
-                content, and cover image before publishing.
-              </p>
-            </div>
-
-            <div className="mt-4 space-y-2 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-gray-500">Status</span>
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                  <Globe className="mr-1 h-3 w-3" />
-                  Going live
-                </Badge>
-              </div>
-              {excerpt.trim() && (
-                <div className="border-t border-gray-100 pt-2">
-                  <p className="text-xs text-gray-500">Excerpt</p>
-                  <p className="mt-1 text-sm text-gray-700">{excerpt.trim()}</p>
-                </div>
-              )}
             </div>
 
             {error && (
