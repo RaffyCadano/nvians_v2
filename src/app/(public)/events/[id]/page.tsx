@@ -1,15 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import { loadPublicEventById } from "@/lib/cms-events";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
+import { formatCalendarDateRange } from "@/lib/format-date";
 import { ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 function formatEventDateRange(startDate: string, endDate: string | null) {
-  const start = format(new Date(startDate), "MMMM d, yyyy");
-  if (!endDate || endDate === startDate) return start;
-  return `${format(new Date(startDate), "MMM d")} – ${format(new Date(endDate), "MMMM d, yyyy")}`;
+  return formatCalendarDateRange(startDate, endDate);
 }
 
 const STATUS_STYLES = {
@@ -26,17 +25,15 @@ export default async function EventDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: event } = await supabase
-    .from("events")
-    .select("id, title, description, start_date, end_date, location, cover_image, status")
-    .eq("id", id)
-    .single();
+  const event = await loadPublicEventById(supabase, id);
 
   if (!event) {
     notFound();
   }
 
-  const dateLabel = formatEventDateRange(event.start_date, event.end_date);
+  const dateLabel = event.start_date
+    ? formatEventDateRange(event.start_date, event.end_date)
+    : "Date to be announced";
   const status = (event.status ?? "upcoming") as keyof typeof STATUS_STYLES;
 
   return (

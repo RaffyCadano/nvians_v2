@@ -15,6 +15,7 @@ const databaseUrl =
 const CMS_MIGRATIONS = [
   "20260616_events_cover_image.sql",
   "20260616_news_published_by.sql",
+  "20260619_events_is_published.sql",
 ];
 
 if (!databaseUrl) {

@@ -247,11 +247,12 @@ CREATE TABLE IF NOT EXISTS public.events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   description TEXT,
-  start_date DATE NOT NULL,
+  start_date DATE,
   end_date DATE,
   location TEXT,
   cover_image TEXT,
   status TEXT DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'past')),
+  is_published BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -727,8 +728,8 @@ CREATE POLICY "News: admin full" ON public.news
     EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('admin', 'staff'))
   );
 
-CREATE POLICY "Events: public read" ON public.events
-  FOR SELECT USING (TRUE);
+CREATE POLICY "Events: public read published" ON public.events
+  FOR SELECT USING (is_published = TRUE);
 
 CREATE POLICY "Events: admin write" ON public.events
   FOR ALL USING (

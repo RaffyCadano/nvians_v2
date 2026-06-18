@@ -126,14 +126,24 @@ export async function createEvent(formData: FormData) {
     return { error: "You must be signed in." };
   }
 
+  const isPublished = formData.get("is_published") === "true";
+  const titleInput = ((formData.get("title") as string) ?? "").trim();
+  const startDate = ((formData.get("start_date") as string) ?? "").trim() || null;
+
+  if (isPublished) {
+    if (!titleInput) return { error: "Title is required to publish an event." };
+    if (!startDate) return { error: "Start date is required to publish an event." };
+  }
+
   const admin = createAdminClient();
   const coverImage = (formData.get("cover_image") as string) || null;
   const row: Record<string, unknown> = {
-    title: formData.get("title") as string,
+    title: titleInput || "Untitled event",
     description: (formData.get("description") as string) || null,
-    start_date: formData.get("start_date") as string,
-    end_date: (formData.get("end_date") as string) || null,
+    start_date: startDate,
+    end_date: ((formData.get("end_date") as string) ?? "").trim() || null,
     location: (formData.get("location") as string) || null,
+    is_published: isPublished,
   };
   if (coverImage) {
     row.cover_image = coverImage;
@@ -146,6 +156,12 @@ export async function createEvent(formData: FormData) {
       return {
         error:
           "Event cover images are not set up yet. Run the events cover_image migration in Supabase, or publish without a cover image.",
+      };
+    }
+    if (error.message.includes("is_published")) {
+      return {
+        error:
+          "Event drafts are not set up yet. Run scripts/cms-db-setup.sql in the Supabase SQL Editor.",
       };
     }
     return { error: error.message };
@@ -163,15 +179,27 @@ export async function updateEvent(id: string, formData: FormData) {
     return { error: "You must be signed in." };
   }
 
+  const isPublished = formData.get("is_published") === "true";
+  const wasPublished = formData.get("was_published") === "true";
+  const titleInput = ((formData.get("title") as string) ?? "").trim();
+  const startDate = ((formData.get("start_date") as string) ?? "").trim() || null;
+
+  if (isPublished) {
+    if (!titleInput) return { error: "Title is required to publish an event." };
+    if (!startDate) return { error: "Start date is required to publish an event." };
+  }
+
   const admin = createAdminClient();
   const coverImage = (formData.get("cover_image") as string) || null;
   const removeCover = formData.get("remove_cover_image") === "true";
   const updates: Record<string, unknown> = {
-    title: formData.get("title") as string,
+    title: titleInput || "Untitled event",
     description: (formData.get("description") as string) || null,
-    start_date: formData.get("start_date") as string,
-    end_date: (formData.get("end_date") as string) || null,
+    start_date: startDate,
+    end_date: ((formData.get("end_date") as string) ?? "").trim() || null,
     location: (formData.get("location") as string) || null,
+    is_published: isPublished,
+    updated_at: new Date().toISOString(),
   };
 
   if (removeCover) {
@@ -189,7 +217,46 @@ export async function updateEvent(id: string, formData: FormData) {
           "Event cover images are not set up yet. Run the events cover_image migration in Supabase.",
       };
     }
+    if (error.message.includes("is_published")) {
+      return {
+        error:
+          "Event drafts are not set up yet. Run scripts/cms-db-setup.sql in the Supabase SQL Editor.",
+      };
+    }
     return { error: error.message };
   }
+  return { success: true };
+}
+
+export async function deleteEvent(id: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be signed in." };
+  }
+
+  const admin = createAdminClient();
+  const { data: event, error: fetchError } = await admin
+    .from("events")
+    .select("id, cover_image")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchError) return { error: fetchError.message };
+  if (!event) return { error: "Event not found." };
+
+  const { error } = await admin.from("events").delete().eq("id", id);
+  if (error) return { error: error.message };
+
+  if (event.cover_image) {
+    const path = extractCmsStoragePath(event.cover_image);
+    if (path) {
+      await admin.storage.from("cms").remove([path]);
+    }
+  }
+
   return { success: true };
 }

@@ -54,16 +54,36 @@ function buildFormData(
   endDate: string,
   location: string,
   description: string,
+  isPublished: boolean,
   coverImageUrl: string | null,
 ) {
   const formData = new FormData();
   formData.set("title", title.trim());
-  formData.set("start_date", startDate);
+  if (startDate) formData.set("start_date", startDate);
   if (endDate) formData.set("end_date", endDate);
   if (location.trim()) formData.set("location", location.trim());
   if (description.trim()) formData.set("description", description.trim());
+  if (isPublished) formData.set("is_published", "true");
   if (coverImageUrl) formData.set("cover_image", coverImageUrl);
   return formData;
+}
+
+function hasDraftContent(
+  title: string,
+  startDate: string,
+  endDate: string,
+  location: string,
+  description: string,
+  coverImage: File | null,
+) {
+  return Boolean(
+    title.trim() ||
+      startDate ||
+      endDate ||
+      location.trim() ||
+      description.trim() ||
+      coverImage,
+  );
 }
 
 async function uploadCoverImage(file: File) {
@@ -99,12 +119,15 @@ export default function NewEventPage() {
   const [endDate, setEndDate] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [isPublished, setIsPublished] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const previewReady = Boolean(title.trim() && startDate);
+  const previewReady = Boolean(
+    title.trim() || startDate || location.trim() || description.trim() || coverPreview,
+  );
   const dateRange = useMemo(
     () => formatDateRange(startDate, endDate),
     [startDate, endDate],
@@ -154,6 +177,7 @@ export default function NewEventPage() {
     setEndDate("");
     setLocation("");
     setDescription("");
+    setIsPublished(false);
     setCoverImage(null);
     setImageError("");
     setCoverPreview((current) => {
@@ -165,7 +189,7 @@ export default function NewEventPage() {
     setConfirmOpen(false);
   }
 
-  async function saveEvent() {
+  async function saveEvent(publish: boolean) {
     setSaving(true);
     setError("");
 
@@ -182,7 +206,15 @@ export default function NewEventPage() {
       }
 
       const result = await createEvent(
-        buildFormData(title, startDate, endDate, location, description, coverImageUrl),
+        buildFormData(
+          title,
+          startDate,
+          endDate,
+          location,
+          description,
+          publish,
+          coverImageUrl,
+        ),
       );
 
       if (result?.error) {
@@ -191,14 +223,22 @@ export default function NewEventPage() {
       }
 
       if (!result || !("success" in result)) {
-        setError("Failed to create event. Please try again.");
+        setError(
+          publish
+            ? "Failed to publish event. Please try again."
+            : "Failed to save event. Please try again.",
+        );
         return;
       }
 
       resetForm();
       router.refresh();
     } catch {
-      setError("Failed to create event. Please try again.");
+      setError(
+        publish
+          ? "Failed to publish event. Please try again."
+          : "Failed to save event. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
@@ -206,24 +246,35 @@ export default function NewEventPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!e.currentTarget.checkValidity()) {
-      e.currentTarget.reportValidity();
-      return;
-    }
-    if (!title.trim() || !startDate) {
-      setError("Title and start date are required.");
-      return;
-    }
-    if (endDate && new Date(endDate) < new Date(startDate)) {
-      setError("End date must be on or after the start date.");
-      return;
-    }
     if (imageError) {
       setError(imageError);
       return;
     }
+    if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+      setError("End date must be on or after the start date.");
+      return;
+    }
     setError("");
-    setConfirmOpen(true);
+
+    if (isPublished) {
+      if (!title.trim() || !startDate) {
+        setError("Title and start date are required to publish.");
+        return;
+      }
+      setConfirmOpen(true);
+      return;
+    }
+
+    if (!hasDraftContent(title, startDate, endDate, location, description, coverImage)) {
+      setError("Add at least one event detail before saving a draft.");
+      return;
+    }
+
+    await saveEvent(false);
+  }
+
+  async function handleConfirmPublish() {
+    await saveEvent(true);
   }
 
   function handleConfirmOpenChange(open: boolean) {
@@ -253,8 +304,7 @@ export default function NewEventPage() {
             </p>
             <h1 className="mt-2 text-2xl font-bold sm:text-3xl">New Event</h1>
             <p className="mt-2 max-w-xl text-sm text-blue-100">
-              Add a school event with dates and location. It will appear on the public news and
-              events page.
+              Add a school event with dates and location. Save as a draft or publish when ready.
             </p>
           </div>
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
@@ -268,8 +318,8 @@ export default function NewEventPage() {
           <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
             <h2 className="font-semibold text-gray-900">Event Details</h2>
             <p className="mt-0.5 text-sm text-gray-500">
-              Title and start date are required. Add an optional cover image, location, and
-              description.
+              Fill in what you have now and save a draft, or publish when title and start date are
+              set.
             </p>
           </div>
 
@@ -285,7 +335,6 @@ export default function NewEventPage() {
                     id="title"
                     name="title"
                     placeholder="Foundation Day Celebration"
-                    required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -381,7 +430,6 @@ export default function NewEventPage() {
                       id="start_date"
                       name="start_date"
                       type="date"
-                      required
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
@@ -437,6 +485,35 @@ export default function NewEventPage() {
                 </div>
               </div>
 
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                  6
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4">
+                    <label htmlFor="is_published" className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="is_published"
+                        name="is_published"
+                        value="true"
+                        checked={isPublished}
+                        onChange={(e) => setIsPublished(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-gray-300"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Publish immediately</p>
+                        <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                          {isPublished
+                            ? "This event will go live on the public site after you confirm. Title and start date are required."
+                            : "Leave unchecked to save as a draft. You can publish it later from the CMS."}
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               {error && !confirmOpen && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
                   {error}
@@ -445,7 +522,13 @@ export default function NewEventPage() {
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row">
                 <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
-                  {saving ? "Publishing…" : "Publish Event"}
+                  {saving
+                    ? isPublished
+                      ? "Publishing…"
+                      : "Saving…"
+                    : isPublished
+                      ? "Publish Event"
+                      : "Save Draft"}
                 </Button>
                 <Button asChild variant="outline">
                   <Link href="/cms">Cancel</Link>
@@ -481,15 +564,27 @@ export default function NewEventPage() {
                       </div>
                     )}
                     <div className="space-y-3 p-4">
-                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                        Upcoming Event
-                      </Badge>
-                      <p className="line-clamp-2 font-semibold text-gray-900">{title.trim()}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {isPublished ? (
+                          <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                            Published
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100">
+                            Draft
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="line-clamp-2 font-semibold text-gray-900">
+                        {title.trim() || "Untitled event"}
+                      </p>
                       <div className="space-y-1.5 text-sm text-gray-600">
-                        <p className="flex items-center gap-2">
-                          <Clock className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                          {dateRange}
-                        </p>
+                        {startDate && (
+                          <p className="flex items-center gap-2">
+                            <Clock className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                            {dateRange}
+                          </p>
+                        )}
                         {location.trim() && (
                           <p className="flex items-center gap-2">
                             <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
@@ -507,7 +602,7 @@ export default function NewEventPage() {
 
                   <p className="flex items-center gap-1.5 text-xs text-green-700">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Ready to publish
+                    Ready to {isPublished ? "publish" : "save"}
                   </p>
                 </div>
               ) : (
@@ -515,7 +610,7 @@ export default function NewEventPage() {
                   <CalendarDays className="mx-auto h-9 w-9 text-gray-300" />
                   <p className="mt-3 text-sm font-medium text-gray-600">No preview yet</p>
                   <p className="mt-1 text-xs text-gray-500">
-                    Enter a title and start date to see a preview.
+                    Start filling in event details to see a preview.
                   </p>
                 </div>
               )}
@@ -659,7 +754,7 @@ export default function NewEventPage() {
             </Button>
             <Button
               type="button"
-              onClick={saveEvent}
+              onClick={handleConfirmPublish}
               disabled={saving}
               className="bg-green-600 text-white hover:bg-green-700"
             >

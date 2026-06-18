@@ -1,27 +1,35 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight } from "lucide-react";
-import { format } from "date-fns";
+import { countPublicEvents, loadPublicEvents } from "@/lib/cms-events";
+import { NewsArticleCard } from "@/components/public/news-article-card";
+import { EventCard } from "@/components/public/event-card";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const PREVIEW_NEWS_LIMIT = 9;
+const PREVIEW_EVENTS_LIMIT = 6;
 
 export default async function NewsPage() {
   const supabase = await createClient();
 
-  const [{ data: news }, { data: events }] = await Promise.all([
+  const [{ data: news }, { count: newsCount }, events, totalEvents] = await Promise.all([
     supabase
       .from("news")
-      .select("*")
+      .select("id, title, excerpt, content, cover_image, published_at")
       .eq("is_published", true)
       .order("published_at", { ascending: false })
-      .limit(9),
+      .limit(PREVIEW_NEWS_LIMIT),
     supabase
-      .from("events")
-      .select("*")
-      .order("start_date", { ascending: true })
-      .limit(6),
+      .from("news")
+      .select("*", { count: "exact", head: true })
+      .eq("is_published", true),
+    loadPublicEvents(supabase, PREVIEW_EVENTS_LIMIT),
+    countPublicEvents(supabase),
   ]);
+
+  const totalNews = newsCount ?? 0;
+  const hasMoreNews = totalNews > PREVIEW_NEWS_LIMIT;
+  const hasMoreEvents = totalEvents > PREVIEW_EVENTS_LIMIT;
 
   return (
     <div>
@@ -68,49 +76,44 @@ export default async function NewsPage() {
       {/* News */}
       <section id="latest-news" className="scroll-mt-20 bg-white py-16">
         <div className="container mx-auto max-w-7xl px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Latest News</h2>
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Latest News</h2>
+              {hasMoreNews && (
+                <p className="mt-1 text-sm text-gray-500">
+                  Showing the {PREVIEW_NEWS_LIMIT} most recent of {totalNews} articles
+                </p>
+              )}
+            </div>
+            {hasMoreNews && (
+              <Link
+                href="/news/articles"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800"
+              >
+                View all news
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
           {news && news.length > 0 ? (
+            <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {news.map((article: any) => (
-                <Link key={article.id} href={`/news/${article.id}`} className="group block">
-                  <Card className="h-full overflow-hidden pt-0 transition-colors group-hover:border-blue-200 group-hover:shadow-md">
-                    {article.cover_image ? (
-                      <div className="h-48 overflow-hidden bg-gray-100">
-                        <img
-                          src={article.cover_image}
-                          alt={article.title}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-48 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-                        <Clock className="h-10 w-10 text-blue-200" />
-                      </div>
-                    )}
-                    <CardContent className="pt-4">
-                      <p className="mb-2 flex items-center gap-1 text-xs text-gray-400">
-                        <Clock className="h-3 w-3" />
-                        {article.published_at
-                          ? format(new Date(article.published_at), "MMM d, yyyy")
-                          : ""}
-                      </p>
-                      <h3 className="mb-2 line-clamp-2 font-semibold text-gray-900 transition-colors group-hover:text-blue-700">
-                        {article.title}
-                      </h3>
-                      {article.excerpt ? (
-                        <p className="line-clamp-3 text-sm text-gray-600">{article.excerpt}</p>
-                      ) : (
-                        <p className="line-clamp-3 text-sm text-gray-600">{article.content}</p>
-                      )}
-                      <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
-                        Read article
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
+              {news.map((article) => (
+                <NewsArticleCard key={article.id} article={article} />
               ))}
             </div>
+            {hasMoreNews && (
+              <div className="mt-10 text-center">
+                <Link
+                  href="/news/articles"
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-8 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100"
+                >
+                  View all {totalNews} articles
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </div>
+            )}
+            </>
           ) : (
             <p className="text-gray-500 text-sm">No news articles published yet.</p>
           )}
@@ -120,62 +123,44 @@ export default async function NewsPage() {
       {/* Events */}
       <section id="upcoming-events" className="scroll-mt-20 bg-gray-50 py-16">
         <div className="container mx-auto max-w-7xl px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Upcoming Events</h2>
-          {events && events.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {events.map((event: any) => (
-                <Link key={event.id} href={`/events/${event.id}`} className="group block">
-                  <Card className={`h-full overflow-hidden transition-colors group-hover:border-blue-200 group-hover:shadow-md ${event.cover_image ? "pt-0" : ""}`}>
-                    {event.cover_image ? (
-                      <div className="relative h-40 overflow-hidden bg-gray-100">
-                        <img
-                          src={event.cover_image}
-                          alt={event.title}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-40 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-                        <Calendar className="h-10 w-10 text-blue-200" />
-                      </div>
-                    )}
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2 text-xs font-medium text-blue-600">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {format(new Date(event.start_date), "MMM d, yyyy")}
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className={
-                            event.status === "upcoming"
-                              ? "bg-green-100 text-green-700"
-                              : event.status === "ongoing"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-gray-100 text-gray-600"
-                          }
-                        >
-                          {event.status}
-                        </Badge>
-                      </div>
-                      <h3 className="mt-2 font-semibold text-gray-900 transition-colors group-hover:text-blue-700">
-                        {event.title}
-                      </h3>
-                      {event.description && (
-                        <p className="mt-1 line-clamp-2 text-sm text-gray-600">{event.description}</p>
-                      )}
-                      {event.location && (
-                        <p className="mt-2 text-xs text-gray-400">📍 {event.location}</p>
-                      )}
-                      <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
-                        View event
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Upcoming Events</h2>
+              {hasMoreEvents && (
+                <p className="mt-1 text-sm text-gray-500">
+                  Showing the next {PREVIEW_EVENTS_LIMIT} of {totalEvents} events
+                </p>
+              )}
             </div>
+            {hasMoreEvents && (
+              <Link
+                href="/news/events"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800"
+              >
+                View all events
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+          {events && events.length > 0 ? (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+              {hasMoreEvents && (
+                <div className="mt-10 text-center">
+                  <Link
+                    href="/news/events"
+                    className="inline-flex h-11 items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-8 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100"
+                  >
+                    View all {totalEvents} events
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-gray-500 text-sm">No upcoming events.</p>
           )}

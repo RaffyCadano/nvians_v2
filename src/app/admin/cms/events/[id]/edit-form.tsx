@@ -9,15 +9,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { updateEvent } from "../../actions";
+import { DeleteEventButton } from "../../delete-event-button";
 import {
   ALLOWED_IMAGE_TYPES,
   validateCoverImageFile,
 } from "@/lib/cms-storage";
 import {
   ArrowLeft,
+  AlertTriangle,
   CalendarDays,
   CheckCircle2,
+  Globe,
   ImagePlus,
   MapPin,
   Pencil,
@@ -30,11 +41,32 @@ type EventRecord = {
   id: string;
   title: string;
   description: string | null;
-  start_date: string;
+  start_date: string | null;
   end_date: string | null;
   location: string | null;
   cover_image: string | null;
+  is_published: boolean;
 };
+
+function hasDraftContent(
+  title: string,
+  startDate: string,
+  endDate: string,
+  location: string,
+  description: string,
+  coverImage: File | null,
+  coverPreview: string | null,
+) {
+  return Boolean(
+    title.trim() ||
+      startDate ||
+      endDate ||
+      location.trim() ||
+      description.trim() ||
+      coverImage ||
+      coverPreview,
+  );
+}
 
 function toDateInputValue(value: string | null) {
   if (!value) return "";
@@ -58,15 +90,19 @@ function buildFormData(
   endDate: string,
   location: string,
   description: string,
+  isPublished: boolean,
+  wasPublished: boolean,
   coverImageUrl: string | null,
   removeCover: boolean,
 ) {
   const formData = new FormData();
   formData.set("title", title.trim());
-  formData.set("start_date", startDate);
+  if (startDate) formData.set("start_date", startDate);
   if (endDate) formData.set("end_date", endDate);
   if (location.trim()) formData.set("location", location.trim());
   if (description.trim()) formData.set("description", description.trim());
+  if (isPublished) formData.set("is_published", "true");
+  if (wasPublished) formData.set("was_published", "true");
   if (removeCover) formData.set("remove_cover_image", "true");
   if (coverImageUrl) formData.set("cover_image", coverImageUrl);
   return formData;
@@ -100,18 +136,33 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [title, setTitle] = useState(event.title);
   const [startDate, setStartDate] = useState(toDateInputValue(event.start_date));
   const [endDate, setEndDate] = useState(toDateInputValue(event.end_date));
   const [location, setLocation] = useState(event.location ?? "");
   const [description, setDescription] = useState(event.description ?? "");
+  const [isPublished, setIsPublished] = useState(event.is_published ?? true);
+  const [wasPublished, setWasPublished] = useState(event.is_published ?? true);
   const [existingCoverUrl, setExistingCoverUrl] = useState(event.cover_image);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(event.cover_image);
   const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const previewReady = Boolean(title.trim() && startDate);
+  const previewReady = Boolean(
+    title.trim() || startDate || location.trim() || description.trim() || coverPreview,
+  );
+  const isNewlyPublishing = isPublished && !wasPublished;
+  const submitLabel = saving
+    ? isNewlyPublishing
+      ? "Publishing…"
+      : "Saving…"
+    : isPublished
+      ? wasPublished
+        ? "Save Changes"
+        : "Publish Event"
+      : "Save Draft";
   const dateRange = useMemo(
     () => formatDateRange(startDate, endDate),
     [startDate, endDate],
@@ -158,7 +209,7 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  async function saveChanges() {
+  async function saveChanges(publish: boolean) {
     setSaving(true);
     setError("");
     setSaved(false);
@@ -186,6 +237,8 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
           endDate,
           location,
           description,
+          publish,
+          wasPublished,
           coverImageUrl,
           removeCover,
         ),
@@ -201,6 +254,7 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
         return;
       }
 
+      setConfirmOpen(false);
       if (coverImageUrl) {
         setExistingCoverUrl(coverImageUrl);
         setCoverPreview(coverImageUrl);
@@ -209,10 +263,20 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
         setExistingCoverUrl(null);
       }
 
+      if (publish) {
+        setWasPublished(true);
+      } else {
+        setWasPublished(false);
+      }
+
       setSaved(true);
       router.refresh();
     } catch {
-      setError("Failed to save event. Please try again.");
+      setError(
+        publish && isNewlyPublishing
+          ? "Failed to publish event. Please try again."
+          : "Failed to save event. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
@@ -220,24 +284,43 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!e.currentTarget.checkValidity()) {
-      e.currentTarget.reportValidity();
-      return;
-    }
-    if (!title.trim() || !startDate) {
-      setError("Title and start date are required.");
-      return;
-    }
-    if (endDate && new Date(endDate) < new Date(startDate)) {
-      setError("End date must be on or after the start date.");
-      return;
-    }
     if (imageError) {
       setError(imageError);
       return;
     }
+    if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+      setError("End date must be on or after the start date.");
+      return;
+    }
+    setError("");
 
-    await saveChanges();
+    if (isPublished) {
+      if (!title.trim() || !startDate) {
+        setError("Title and start date are required to publish.");
+        return;
+      }
+      if (isNewlyPublishing) {
+        setConfirmOpen(true);
+        return;
+      }
+    } else if (
+      !hasDraftContent(title, startDate, endDate, location, description, coverImage, coverPreview)
+    ) {
+      setError("Add at least one event detail before saving.");
+      return;
+    }
+
+    await saveChanges(isPublished);
+  }
+
+  async function handleConfirmPublish() {
+    await saveChanges(true);
+  }
+
+  function handleConfirmOpenChange(open: boolean) {
+    if (saving) return;
+    setConfirmOpen(open);
+    if (!open) setError("");
   }
 
   return (
@@ -275,7 +358,7 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
           <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
             <h2 className="font-semibold text-gray-900">Event Details</h2>
             <p className="mt-0.5 text-sm text-gray-500">
-              Title and start date are required.
+              Save as a draft or publish when title and start date are complete.
             </p>
           </div>
 
@@ -290,7 +373,6 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
                   <Input
                     id="title"
                     name="title"
-                    required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -375,7 +457,6 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
                       id="start_date"
                       name="start_date"
                       type="date"
-                      required
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
@@ -426,25 +507,65 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
                 </div>
               </div>
 
-              {saved && !error && (
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                  6
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4">
+                    <label htmlFor="is_published" className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="is_published"
+                        name="is_published"
+                        value="true"
+                        checked={isPublished}
+                        onChange={(e) => setIsPublished(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-gray-300"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {wasPublished ? "Published on website" : "Publish on website"}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                          {isPublished
+                            ? wasPublished
+                              ? "This event is live on the public news and events page."
+                              : "This event will go live after you save. Title and start date are required."
+                            : "Keep as draft until you are ready to publish."}
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {saved && !error && !confirmOpen && (
                 <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-700">
                   Changes saved successfully.
                 </p>
               )}
 
-              {error && (
+              {error && !confirmOpen && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
                   {error}
                 </p>
               )}
 
-              <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row">
-                <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
-                  {saving ? "Saving…" : "Save Changes"}
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/cms">Cancel</Link>
-                </Button>
+              <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button type="submit" className="sm:min-w-[160px]" disabled={saving}>
+                    {submitLabel}
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/cms">Cancel</Link>
+                  </Button>
+                </div>
+                <DeleteEventButton
+                  eventId={event.id}
+                  eventTitle={title.trim() || event.title}
+                  isPublished={wasPublished}
+                />
               </div>
             </form>
           </div>
@@ -475,8 +596,23 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
                     </div>
                   )}
                   <div className="space-y-2 p-4">
-                    <p className="text-xs font-medium text-blue-600">{dateRange}</p>
-                    <p className="line-clamp-2 font-semibold text-gray-900">{title.trim()}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {isPublished ? (
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                          Published
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-100">
+                          Draft
+                        </Badge>
+                      )}
+                      {startDate && (
+                        <span className="text-xs text-gray-500">{dateRange}</span>
+                      )}
+                    </div>
+                    <p className="line-clamp-2 font-semibold text-gray-900">
+                      {title.trim() || "Untitled event"}
+                    </p>
                     {description.trim() && (
                       <p className="line-clamp-3 text-sm text-gray-600">{description.trim()}</p>
                     )}
@@ -524,6 +660,77 @@ export default function EditEventForm({ event }: { event: EventRecord }) {
           </section>
         </aside>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
+        <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+          <div className="border-b border-green-100 bg-gradient-to-r from-green-950 via-emerald-900 to-teal-900 px-6 py-5 text-white">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-500/15 ring-1 ring-green-400/25">
+                <Globe className="h-5 w-5 text-green-300" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-semibold text-white">
+                  Publish event?
+                </DialogTitle>
+                <p className="mt-0.5 text-xs text-green-200/80">
+                  Confirm before making this event live on the public website
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 py-5">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/80 p-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                <CalendarDays className="h-5 w-5 text-blue-700" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-gray-900">{title.trim()}</p>
+                <p className="truncate text-xs text-gray-500">{dateRange}</p>
+              </div>
+            </div>
+
+            <DialogDescription className="mt-4 text-sm leading-relaxed text-gray-600">
+              <span className="font-medium text-gray-900">{title.trim()}</span> will appear on the
+              public news and events page immediately after you confirm.
+            </DialogDescription>
+
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5">
+              <div className="flex gap-2.5">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                <p className="text-xs leading-relaxed text-amber-800/90">
+                  Double-check the dates, location, and cover image before publishing.
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter className="!m-0 gap-2.5 border-t border-gray-100 bg-gray-50/80 px-6 py-4 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleConfirmOpenChange(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmPublish}
+              disabled={saving}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              {saving ? "Publishing…" : "Publish Now"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

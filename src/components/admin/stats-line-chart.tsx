@@ -11,8 +11,11 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
+  Globe,
   GraduationCap,
   Layers,
+  Newspaper,
+  Pencil,
   School,
   Shuffle,
   UserCheck,
@@ -79,6 +82,10 @@ const TREND_ICONS: Record<string, LucideIcon> = {
   "Attendance Rate": CalendarCheck,
   Upcoming: Clock,
   Archived: Archive,
+  "News Articles": Newspaper,
+  Published: Globe,
+  Drafts: Pencil,
+  "Upcoming Events": CalendarDays,
 };
 
 function buildPath(values: number[], max: number, count: number) {

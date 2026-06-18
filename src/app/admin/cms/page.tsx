@@ -1,13 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DeleteNewsButton } from "./delete-news-button";
-import Link from "next/link";
-import Image from "next/image";
-import { CalendarDays, Globe, Newspaper, Pencil, Plus, User, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
-import { getNewsPublisherName } from "@/lib/cms-news";
+import { CmsLists } from "./cms-lists";
+import { StatsLineChart } from "@/components/admin/stats-line-chart";
+import { buildMonthlyTrend } from "@/lib/trend-utils";
 
 export default async function AdminCMSPage() {
   const supabase = await createClient();
@@ -22,15 +16,67 @@ export default async function AdminCMSPage() {
 
   const newsRows = news ?? [];
   const eventRows = events ?? [];
-  const publishedNews = newsRows.filter((n: any) => n.is_published).length;
+  const publishedNews = newsRows.filter((n) => n.is_published).length;
   const draftNews = newsRows.length - publishedNews;
-  const upcomingEvents = eventRows.filter((ev: any) => ev.start_date && new Date(ev.start_date) >= new Date()).length;
+  const publishedEvents = eventRows.filter((ev) => ev.is_published).length;
+  const draftEvents = eventRows.length - publishedEvents;
+  const upcomingEvents = eventRows.filter(
+    (ev) =>
+      ev.is_published &&
+      ev.start_date &&
+      new Date(ev.start_date) >= new Date(new Date().toDateString()),
+  ).length;
 
-  const stats = [
-    { label: "News Articles", value: newsRows.length, icon: Newspaper, color: "text-rose-600", bg: "bg-rose-50" },
-    { label: "Published", value: publishedNews, icon: Globe, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Drafts", value: draftNews, icon: Pencil, color: "text-gray-600", bg: "bg-gray-100" },
-    { label: "Upcoming Events", value: upcomingEvents, icon: CalendarDays, color: "text-blue-600", bg: "bg-blue-50" },
+  const publishedDates = [
+    ...newsRows
+      .filter((n) => n.is_published)
+      .map((n) => n.published_at ?? n.created_at),
+    ...eventRows.filter((ev) => ev.is_published).map((ev) => ev.created_at),
+  ].filter(Boolean) as string[];
+
+  const draftDates = [
+    ...newsRows.filter((n) => !n.is_published).map((n) => n.created_at),
+    ...eventRows.filter((ev) => !ev.is_published).map((ev) => ev.created_at),
+  ].filter(Boolean) as string[];
+
+  const trendSeries = [
+    {
+      title: "News Articles",
+      stroke: "#e11d48",
+      color: "text-rose-600",
+      bg: "bg-rose-50",
+      current: newsRows.length,
+      data: buildMonthlyTrend(newsRows.map((n) => n.created_at).filter(Boolean) as string[]),
+    },
+    {
+      title: "Published",
+      stroke: "#16a34a",
+      color: "text-green-600",
+      bg: "bg-green-50",
+      current: publishedNews + publishedEvents,
+      data: buildMonthlyTrend(publishedDates),
+    },
+    {
+      title: "Drafts",
+      stroke: "#6b7280",
+      color: "text-gray-600",
+      bg: "bg-gray-100",
+      current: draftNews + draftEvents,
+      data: buildMonthlyTrend(draftDates),
+    },
+    {
+      title: "Upcoming Events",
+      stroke: "#2563eb",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      current: upcomingEvents,
+      data: buildMonthlyTrend(
+        eventRows
+          .filter((ev) => ev.is_published)
+          .map((ev) => ev.created_at)
+          .filter(Boolean) as string[],
+      ),
+    },
   ];
 
   return (
@@ -45,188 +91,10 @@ export default async function AdminCMSPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 sm:text-sm">{stat.label}</p>
-                  <p className="mt-1.5 text-2xl font-bold text-gray-900 sm:text-3xl">{stat.value.toLocaleString()}</p>
-                </div>
-                <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
+      <StatsLineChart series={trendSeries} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-        <section className="min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <Tabs defaultValue="news">
-            <div className="border-b border-gray-100 bg-gray-50/80 px-5 py-4">
-              <TabsList className="bg-white">
-                <TabsTrigger value="news" className="flex items-center gap-1.5">
-                  <Newspaper className="h-4 w-4" /> News
-                </TabsTrigger>
-                <TabsTrigger value="events" className="flex items-center gap-1.5">
-                  <CalendarDays className="h-4 w-4" /> Events
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="news" className="mt-0">
-              <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
-                <p className="text-sm text-gray-500">{newsRows.length} article{newsRows.length === 1 ? "" : "s"}</p>
-                <Button asChild size="sm">
-                  <Link href="/cms/news/new">
-                    <Plus className="mr-1.5 h-4 w-4" /> New Article
-                  </Link>
-                </Button>
-              </div>
-              {newsRows.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {newsRows.map((n: any) => (
-                    <div
-                      key={n.id}
-                      className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="flex min-w-0 flex-1 items-center gap-4">
-                        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100 sm:h-20 sm:w-32">
-                          {n.cover_image ? (
-                            <Image
-                              src={n.cover_image}
-                              alt={n.title}
-                              fill
-                              unoptimized
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
-                              <Newspaper className="h-6 w-6 text-rose-300" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 font-semibold text-gray-900">{n.title}</p>
-                          {n.excerpt && (
-                            <p className="mt-1 line-clamp-2 text-sm text-gray-600">{n.excerpt}</p>
-                          )}
-                          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500">
-                            <span>
-                              {n.published_at
-                                ? format(new Date(n.published_at), "MMM d, yyyy")
-                                : "Not published"}
-                            </span>
-                            {n.is_published && getNewsPublisherName(n) && (
-                              <>
-                                <span aria-hidden>·</span>
-                                <span className="inline-flex items-center gap-1">
-                                  <User className="h-3 w-3" />
-                                  {getNewsPublisherName(n)}
-                                </span>
-                              </>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 sm:shrink-0">
-                        <Badge
-                          variant="secondary"
-                          className={
-                            n.is_published ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-                          }
-                        >
-                          {n.is_published ? "Published" : "Draft"}
-                        </Badge>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href={`/cms/news/${n.id}`}>
-                            <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
-                          </Link>
-                        </Button>
-                        {n.is_published && (
-                          <Button asChild variant="ghost" size="sm">
-                            <Link href={`/news/${n.id}`} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="mr-1 h-3.5 w-3.5" /> View
-                            </Link>
-                          </Button>
-                        )}
-                        <DeleteNewsButton
-                          articleId={n.id}
-                          articleTitle={n.title}
-                          isPublished={n.is_published}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="px-6 py-16 text-center">
-                  <Newspaper className="mx-auto h-10 w-10 text-gray-300" />
-                  <p className="mt-4 font-medium text-gray-700">No articles yet</p>
-                  <p className="mt-1 text-sm text-gray-500">Create your first news article for the public site.</p>
-                  <Button asChild className="mt-4">
-                    <Link href="/cms/news/new">
-                      <Plus className="mr-1.5 h-4 w-4" /> New Article
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="events" className="mt-0">
-              <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
-                <p className="text-sm text-gray-500">{eventRows.length} event{eventRows.length === 1 ? "" : "s"}</p>
-                <Button asChild size="sm">
-                  <Link href="/cms/events/new">
-                    <Plus className="mr-1.5 h-4 w-4" /> New Event
-                  </Link>
-                </Button>
-              </div>
-              {eventRows.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {eventRows.map((ev: any) => (
-                    <div key={ev.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900">{ev.title}</p>
-                        <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-500">
-                          <span>{ev.start_date ? format(new Date(ev.start_date), "MMM d, yyyy") : "—"}</span>
-                          {ev.location && <span>{ev.location}</span>}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 sm:shrink-0">
-                        <Button asChild variant="outline" size="sm">
-                          <Link href={`/cms/events/${ev.id}`}>
-                            <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
-                          </Link>
-                        </Button>
-                        <Button asChild variant="ghost" size="sm">
-                          <Link href={`/events/${ev.id}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-1 h-3.5 w-3.5" /> View
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="px-6 py-16 text-center">
-                  <CalendarDays className="mx-auto h-10 w-10 text-gray-300" />
-                  <p className="mt-4 font-medium text-gray-700">No events yet</p>
-                  <p className="mt-1 text-sm text-gray-500">Add school events to display on the public site.</p>
-                  <Button asChild className="mt-4">
-                    <Link href="/cms/events/new">
-                      <Plus className="mr-1.5 h-4 w-4" /> New Event
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
-        </section>
+        <CmsLists newsRows={newsRows} eventRows={eventRows} />
 
         <aside className="rounded-xl border border-gray-200 bg-white p-5 lg:sticky lg:top-7">
           <h2 className="text-base font-bold text-gray-900">Quick Guide</h2>
