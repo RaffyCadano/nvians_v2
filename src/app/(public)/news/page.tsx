@@ -124,7 +124,7 @@ export default async function NewsPage() {
           {events && events.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event: any) => (
-                <Link key={event.id} href={`/news/events/${event.id}`} className="group block">
+                <Link key={event.id} href={`/events/${event.id}`} className="group block">
                   <Card className={`h-full overflow-hidden transition-colors group-hover:border-blue-200 group-hover:shadow-md ${event.cover_image ? "pt-0" : ""}`}>
                     {event.cover_image ? (
                       <div className="relative h-40 overflow-hidden bg-gray-100">

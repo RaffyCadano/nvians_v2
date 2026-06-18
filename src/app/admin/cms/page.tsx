@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DeleteNewsButton } from "./delete-news-button";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays, Globe, Newspaper, Pencil, Plus, User } from "lucide-react";
+import { CalendarDays, Globe, Newspaper, Pencil, Plus, User, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { getNewsPublisherName } from "@/lib/cms-news";
 
@@ -147,6 +147,13 @@ export default async function AdminCMSPage() {
                             <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
                           </Link>
                         </Button>
+                        {n.is_published && (
+                          <Button asChild variant="ghost" size="sm">
+                            <Link href={`/news/${n.id}`} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="mr-1 h-3.5 w-3.5" /> View
+                            </Link>
+                          </Button>
+                        )}
                         <DeleteNewsButton
                           articleId={n.id}
                           articleTitle={n.title}
@@ -190,11 +197,18 @@ export default async function AdminCMSPage() {
                           {ev.location && <span>{ev.location}</span>}
                         </div>
                       </div>
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/cms/events/${ev.id}`}>
-                          <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
-                        </Link>
-                      </Button>
+                      <div className="flex items-center gap-2 sm:shrink-0">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/cms/events/${ev.id}`}>
+                            <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
+                          </Link>
+                        </Button>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href={`/events/${ev.id}`} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-1 h-3.5 w-3.5" /> View
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { getNewsPublisherName } from "@/lib/cms-news";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +12,7 @@ export default async function NewsArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: article } = await supabase
     .from("news")

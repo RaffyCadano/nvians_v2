@@ -79,6 +79,7 @@ export async function updateSession(request: NextRequest) {
     "/student-life",
     "/facilities",
     "/news",
+    "/events",
     "/contact",
     "/auth/login",
     "/auth/register",
