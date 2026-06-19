@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { login } from "@/app/auth/actions";
 
 const FIELD_STYLE = {
   color: "#111827",
@@ -17,23 +17,13 @@ const FIELD_STYLE = {
 const fieldClassName =
   "auth-field-input h-full min-w-0 flex-1 border-0 bg-white px-0 text-base outline-none placeholder:text-gray-400 md:text-sm";
 
-export function LoginForm() {
-  const [error, setError] = useState<string | null>(null);
+function LoginFormFields() {
+  const searchParams = useSearchParams();
+  const queryError = searchParams.get("error");
+  const [error, setError] = useState<string | null>(queryError);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const result = await login(new FormData(e.currentTarget));
-    setLoading(false);
-
-    if (result?.error) {
-      setError(result.error);
-    }
-  }
+  const displayError = error ?? queryError;
 
   return (
     <div className="auth-form-root w-full overflow-hidden rounded-xl border border-white/20 bg-white text-gray-900">
@@ -45,10 +35,18 @@ export function LoginForm() {
       </div>
 
       <div className="px-6 py-6 text-gray-900 sm:px-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {error && (
+        <form
+          action="/auth/login/submit"
+          method="POST"
+          className="space-y-5"
+          onSubmit={() => {
+            setLoading(true);
+            setError(null);
+          }}
+        >
+          {displayError && (
             <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-              {error}
+              {displayError}
             </div>
           )}
 
@@ -129,5 +127,13 @@ export function LoginForm() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export function LoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormFields />
+    </Suspense>
   );
 }
