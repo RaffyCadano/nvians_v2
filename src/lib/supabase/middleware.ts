@@ -9,6 +9,7 @@ import {
 } from "@/lib/admin-routes";
 import { getDashboardUrl } from "@/lib/site-urls";
 import { getRequestHost } from "@/lib/request-host";
+import { getSupabasePublicConfig } from "@/lib/supabase/env";
 import { getSupabaseCookieOptions } from "@/lib/supabase/cookie-options";
 
 function redirectWithCookies(url: string, cookieSource?: NextResponse) {
@@ -46,11 +47,9 @@ export async function updateSession(request: NextRequest) {
 
   let supabaseResponse = NextResponse.next({ request });
   const cookieOptions = getSupabaseCookieOptions(host);
+  const { url, key } = getSupabasePublicConfig();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
+  const supabase = createServerClient(url!, key!, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -90,6 +89,7 @@ export async function updateSession(request: NextRequest) {
 
   const isPublic =
     publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/")) ||
+    pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/public");
 

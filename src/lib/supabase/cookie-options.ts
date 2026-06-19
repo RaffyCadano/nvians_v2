@@ -1,22 +1,15 @@
-import { isLocalHost, normalizeHost } from "@/lib/site-urls";
+import { getSupabasePublicConfig } from "@/lib/supabase/env";
 
-export function getSharedCookieDomain(host: string | null) {
-  const normalized = normalizeHost(host);
-  if (!normalized || isLocalHost(normalized)) return undefined;
-  if (normalized === "nvians.com" || normalized.endsWith(".nvians.com")) {
-    return ".nvians.com";
-  }
+/** Host-only auth cookies avoid cross-domain issues on App Hosting. */
+export function getSharedCookieDomain(_host: string | null) {
   return undefined;
 }
 
-export function getSupabaseCookieOptions(host: string | null) {
-  const domain = getSharedCookieDomain(host);
-  if (!domain) return undefined;
+export function getSupabaseCookieOptions(_host: string | null) {
+  return undefined;
+}
 
-  return {
-    domain,
-    path: "/",
-    sameSite: "lax" as const,
-    secure: true,
-  };
+export function isSupabaseConfigured() {
+  const { url, key } = getSupabasePublicConfig();
+  return Boolean(url && key);
 }

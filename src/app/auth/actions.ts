@@ -4,11 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { assertSupabasePublicConfig } from "@/lib/supabase/env";
 import { getAuthBaseUrl, getDashboardUrl } from "@/lib/site-urls";
 import { getRequestHost } from "@/lib/request-host";
 
 export async function login(formData: FormData) {
+  const configError = assertSupabasePublicConfig();
+  if (configError) {
+    return { error: configError };
+  }
+
   const supabase = await createClient();
 
   const data = {
@@ -16,27 +21,53 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { error: signInError } = await supabase.auth.signInWithPassword(data);
 
-  if (error) {
-    return { error: error.message };
+  if (signInError) {
+    return { error: signInError.message };
   }
 
-  // Get user role via admin client (bypasses RLS)
-  const { data: { user } } = await supabase.auth.getUser();
-  const adminClient = createAdminClient();
-  const { data: profile } = await adminClient
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    return { error: userError.message };
+  }
+
+  if (!user) {
+    return {
+      error:
+        "Sign in succeeded but your session could not be started. Try again or clear site cookies.",
+    };
+  }
+
+  const { data: profile, error: profileError } = await supabase
     .from("users")
     .select("role")
-    .eq("id", user?.id)
+    .eq("id", user.id)
     .single();
 
-  const role = profile?.role ?? (user?.user_metadata?.role as string | undefined);
+  const role = profile?.role ?? (user.user_metadata?.role as string | undefined);
+
+  if (profileError && !role) {
+    return {
+      error:
+        "Your account could not be loaded. Contact the school office if this continues.",
+    };
+  }
+
+  if (!role) {
+    return {
+      error: "Your account is missing a role. Contact the school office.",
+    };
+  }
 
   revalidatePath("/", "layout");
 
   const host = getRequestHost(await headers());
-  return { success: true, redirectTo: getDashboardUrl(role ?? "student", host) };
+  redirect(getDashboardUrl(role, host));
 }
 
 export async function signup(formData: FormData) {

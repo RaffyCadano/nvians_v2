@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { login } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { login } from "@/app/auth/actions";
 
 const FIELD_STYLE = {
   color: "#111827",
@@ -19,48 +18,21 @@ const fieldClassName =
   "auth-field-input h-full min-w-0 flex-1 border-0 bg-white px-0 text-base outline-none placeholder:text-gray-400 md:text-sm";
 
 export function LoginForm() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  async function submitCredentials(email: string, password: string) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    try {
-      const formData = new FormData();
-      formData.set("email", email);
-      formData.set("password", password);
+    const result = await login(new FormData(e.currentTarget));
+    setLoading(false);
 
-      const result = await login(formData);
-
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-
-      if (result?.redirectTo) {
-        router.push(result.redirectTo);
-        router.refresh();
-        return;
-      }
-
-      setError("Sign in failed. Please try again.");
-    } catch {
-      setError("Sign in failed. Please try again.");
-    } finally {
-      setLoading(false);
+    if (result?.error) {
+      setError(result.error);
     }
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    await submitCredentials(
-      formData.get("email") as string,
-      formData.get("password") as string,
-    );
   }
 
   return (

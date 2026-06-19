@@ -8,9 +8,25 @@ runConfig:
   # memoryMiB: 512
 
 # Environment variables and secrets.
+# Set secret values once with:
+#   node --env-file=.env.local scripts/set-apphosting-secrets.mjs
 env:
   - variable: NEXT_PUBLIC_APP_URL
     value: https://nvians.com
     availability:
       - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_SUPABASE_URL
+    secret: NEXT_PUBLIC_SUPABASE_URL
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    secret: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: SUPABASE_SERVICE_ROLE_KEY
+    secret: SUPABASE_SERVICE_ROLE_KEY
+    availability:
       - RUNTIME

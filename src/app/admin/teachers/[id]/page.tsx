@@ -21,7 +21,7 @@ export default function TeacherDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
+      const supabase = await createClient();
       const { data, error } = await supabase
         .from("teachers")
         .select("*, user:users(id, full_name, email)")
